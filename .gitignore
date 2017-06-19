@@ -1,2 +1,4 @@
 .idea/
 NorseTown.iml
+libs/*
+out/*
