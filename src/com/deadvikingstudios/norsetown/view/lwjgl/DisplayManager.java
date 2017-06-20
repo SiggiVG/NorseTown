@@ -1,5 +1,6 @@
-package com.deadvikingstudios.renderengine;
+package com.deadvikingstudios.norsetown.view.lwjgl;
 
+import com.deadvikingstudios.norsetown.controller.MainGameLoop;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -31,17 +32,29 @@ public class DisplayManager
         //Creating the Display
         try
         {
-            if(!fullScreen)
-                Display.setDisplayMode((new DisplayMode(WIDTH, HEIGHT)));
+            //fullscreen control
+            if(!fullScreen) { Display.setDisplayMode((new DisplayMode(WIDTH, HEIGHT))); }
             Display.create(new PixelFormat(), attribs);
-            Display.setTitle("NorseTown"); //TODO get from a different class
+            Display.setTitle(MainGameLoop.GAME_NAME + " " + MainGameLoop.VERSION);
             Display.setFullscreen(fullScreen);
+            //sets the Icon
+            /*Display.setIcon(new ByteBuffer[]
+                    {
+                            new ImageIOImageData().imageToByteBuffer(ImageIO.read(
+                                    new File("res/textures/skull_logo.png")),
+                                    false, false, null),
+                            new ImageIOImageData().imageToByteBuffer(ImageIO.read(
+                                    new File("res/textures/skull_logo.png")),
+                                    false, false, null)
+                    });*/
+
             GL11.glViewport(0,0, Display.getWidth(), Display.getHeight());
 
         } catch (LWJGLException e)
         {
             e.printStackTrace();
         }
+        //binds the mouse
         Mouse.setGrabbed(true);
     }
 
@@ -53,15 +66,18 @@ public class DisplayManager
         Display.sync(FPS_CAP);
         Display.update();
 
+        //Keyboard input for dev
         while(Keyboard.next())
         {
             if(Keyboard.getEventKeyState())
             {
+                //ESC = quit
                 if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
                 {
                     closeDisplay();
                 }
 
+                //E = unbind/bind mouse from game
                 if(Keyboard.isKeyDown(Keyboard.KEY_E) && Mouse.isGrabbed())
                 {
                     Mouse.setGrabbed(false);
@@ -75,10 +91,13 @@ public class DisplayManager
     }
 
     /**
-     * Closs the Display
+     * Closes the Display
      */
     public static void closeDisplay()
     {
+        //empties the vertices
+        MainGameLoop.loader.cleanUp();
+
         Display.destroy();
         System.exit(0);
     }
