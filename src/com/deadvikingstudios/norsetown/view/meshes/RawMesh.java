@@ -1,16 +1,16 @@
-package com.deadvikingstudios.norsetown.view.lwjgl.models;
+package com.deadvikingstudios.norsetown.view.meshes;
 
 /**
  * Created by SiggiVG on 6/19/2017.
  *
  * Stores the pointer to a VBO within a VAO and the size of what is stored there (Vertex/Indices(Triangles)/UVs)
  */
-public class RawModel
+public class RawMesh
 {
-    int vaoID;
-    int vertexCount;
+    private int vaoID;
+    private int vertexCount;
 
-    public RawModel(int vaoID, int vertexCount)
+    public RawMesh(int vaoID, int vertexCount)
     {
         this.vaoID = vaoID;
         this.vertexCount = vertexCount;

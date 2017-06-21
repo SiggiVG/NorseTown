@@ -1,13 +1,13 @@
-package com.deadvikingstudios.norsetown.view.lwjgl.models;
+package com.deadvikingstudios.norsetown.view.meshes;
 
 /**
  * Created by SiggiVG on 6/20/2017.
  */
-public class ModelTexture
+public class MeshTexture
 {
     private int textureID;
 
-    public ModelTexture(int textureID)
+    public MeshTexture(int textureID)
     {
         this.textureID = textureID;
     }

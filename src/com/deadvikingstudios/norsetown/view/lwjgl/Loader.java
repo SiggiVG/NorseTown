@@ -1,7 +1,7 @@
 package com.deadvikingstudios.norsetown.view.lwjgl;
 
 import com.deadvikingstudios.norsetown.controller.MainGameLoop;
-import com.deadvikingstudios.norsetown.view.lwjgl.models.RawModel;
+import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -35,7 +35,7 @@ public class Loader
      * @param vertices an array of coordinates
      * @return the model for rendering
      */
-    public RawModel loadToVAO(float[] vertices, int[] indices, float[] uvs)
+    public RawMesh loadToVAO(float[] vertices, int[] indices, float[] uvs)
     {
         int vaoID = createVAO();
         storeDataInAttributeList(vertices, 0, 3);
@@ -43,7 +43,7 @@ public class Loader
         storeDataInAttributeList(uvs, 1, 2);
         GL30.glBindVertexArray(0);
 
-        return new RawModel(vaoID, indices.length);
+        return new RawMesh(vaoID, indices.length);
     }
 
     private int createVAO()
@@ -102,14 +102,23 @@ public class Loader
         return buffer;
     }
 
+    /**
+     * Images must be square and have a height/width that is a power of 2
+     *
+     * This adds the "/res/" and the ".png" for you
+     *
+     * @param filePath
+     * @return
+     */
     public int loadTexture(String filePath)
     {
         Texture texture = null;
         try
         {
-            texture = TextureLoader.getTexture("PNG", new FileInputStream(MainGameLoop.RES_PATH + filePath + ".png"));
+            texture = TextureLoader.getTexture("PNG", new FileInputStream(MainGameLoop.RES_PATH + filePath + ".png"), GL11.GL_NEAREST);
         }catch (FileNotFoundException e)
         {
+            System.err.println("Texture not found: " + filePath);
             e.printStackTrace();
         }
         catch (IOException e)

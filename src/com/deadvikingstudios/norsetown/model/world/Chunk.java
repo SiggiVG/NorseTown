@@ -1,8 +1,11 @@
 package com.deadvikingstudios.norsetown.model.world;
 
+import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.io.Serializable;
+import java.util.Random;
 
 /**
  * Created by SiggiVG on 6/19/2017.
@@ -10,7 +13,7 @@ import java.io.Serializable;
  * Chunks are 3D arrays of Tiles that shape the terrain
  *
  */
-public class Chunk implements Serializable
+public class Chunk
 {
     /**
      * Horizontal Axis, CHUNK_SIZE*CHUNK_SIZE tiles in a vertical slice
@@ -29,19 +32,11 @@ public class Chunk implements Serializable
     /**
      * A tile has a height of this on the verticle axis
      */
-    public static final float TILE_HEIGHT = 0.25f;
+    public static final float TILE_HEIGHT = 1f;
 
-
-    /**
-     * the 0,0,0 corner of the chunk will be rendered at xPos * CHUNK_SIZE, yPos * Chunk_Height, zPos * ChunkSize
-     */
-    protected int xPos, yPos, zPos;
+    protected float posX, posY, posZ;
 
     protected int[][][] tiles;
-    /**
-     * If using marching cubes?
-     */
-    protected byte[][][] shapes;
 
     /**
      * Default Constructor
@@ -51,11 +46,51 @@ public class Chunk implements Serializable
      */
     public Chunk(int x, int y, int z)
     {
-        this.xPos = x;
-        this.yPos = y;
-        this.zPos = z;
+        this.posX = x;
+        this.posY = y;
+        this.posZ = z;
+
+        Random rand = new Random();
+
         this.tiles = new int[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
+        for (int i = 0; i < CHUNK_SIZE; ++i)
+        {
+            for (int j = 0; j < CHUNK_HEIGHT; ++j)
+            {
+                for (int k = 0; k < CHUNK_SIZE; ++k)
+                {
+
+                    tiles[i][j][k] = rand.nextInt(2);
+                }
+            }
+        }
     }
+
+    public void update(float dt)
+    {
+
+    }
+
+    public float getPosX()
+    {
+        return posX;
+    }
+
+    public float getPosY()
+    {
+        return posY;
+    }
+
+    public float getPosZ()
+    {
+        return posZ;
+    }
+
+    public Vector3f getPosition()
+    {
+        return new Vector3f(posX,posY,posZ);
+    }
+
 
     /*public int getTileAt(float x, float y, float z)
     {
