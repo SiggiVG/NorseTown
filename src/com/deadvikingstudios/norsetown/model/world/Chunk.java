@@ -1,10 +1,8 @@
 package com.deadvikingstudios.norsetown.model.world;
 
-import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import org.lwjgl.util.vector.Vector3f;
 
-import java.io.Serializable;
 import java.util.Random;
 
 /**
@@ -50,17 +48,19 @@ public class Chunk
         this.posY = y;
         this.posZ = z;
 
-        Random rand = new Random();
-
         this.tiles = new int[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
+        init();
+    }
+
+    protected void init()
+    {
         for (int i = 0; i < CHUNK_SIZE; ++i)
         {
             for (int j = 0; j < CHUNK_HEIGHT; ++j)
             {
                 for (int k = 0; k < CHUNK_SIZE; ++k)
                 {
-
-                    tiles[i][j][k] = rand.nextInt(2);
+                    this.tiles[i][j][k] = World.getWorld().getRandom().nextInt(2);
                 }
             }
         }

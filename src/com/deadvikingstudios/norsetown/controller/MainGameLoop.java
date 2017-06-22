@@ -1,16 +1,13 @@
 package com.deadvikingstudios.norsetown.controller;
 
 import com.deadvikingstudios.norsetown.model.entities.Camera;
-import com.deadvikingstudios.norsetown.model.entities.Entity;
-import com.deadvikingstudios.norsetown.model.world.Chunk;
+import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.view.lwjgl.DisplayManager;
 import com.deadvikingstudios.norsetown.view.lwjgl.Loader;
 import com.deadvikingstudios.norsetown.view.lwjgl.renderers.MasterRenderer;
 import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkMesh;
-import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import com.deadvikingstudios.norsetown.view.meshes.MeshTexture;
-import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -28,56 +25,112 @@ public class MainGameLoop
     public static final String SRC_PATH = "src/com/deadvikingstudios/norsetown/";
     public static final String RES_PATH = "res/";
 
+    public static final int TARGET_FPS = 60;
+
+    protected boolean running = false;
+
     public static Loader loader = null;
     public static StaticShader shader = null;
     public static MasterRenderer renderer = null;
 
+    private static World currentWorld;
+
     private static List<ChunkMesh> chunks = new ArrayList<ChunkMesh>();
-    private static List<Vector3f> usedPos = new ArrayList<Vector3f>();
 
     public static Camera camera;
     private static Vector3f camPos = new Vector3f(0,0,0);
 
-    public static void main(String[] args)
+    private static MeshTexture grassTexture;
+
+    public void start()
     {
-        DisplayManager.createDisplay();
+        DisplayManager.create();
+
+
+
         loader = new Loader();
         shader = new StaticShader();
         renderer = new MasterRenderer(shader);
 
         //RawMesh mesh = loader.loadToVAO(vertices, indices, uvs);
-        MeshTexture texture= new MeshTexture(loader.loadTexture("textures/tiles/grass_top"));
+        grassTexture = new MeshTexture(loader.loadTexture("textures/tiles/grass_top"));
         //EntityMesh entity = new EntityMesh(new Entity(0,2,0), mesh, texture);
-        
+
         //ent.setRotationZ(45f);//iso angle
         //ent.setRotationX(-35.264f);//iso angle
 
         camera = new Camera(new Vector3f(-2,0,+1), 0, 0, 0);
 
-        while(!Display.isCloseRequested())
-        {
-            //Game Logic
-            update();
+        currentWorld = new World();
 
-            //TODO generate cubes via chunks
-            for (int i = 0; i < 1; i+=Chunk.CHUNK_SIZE)
+        for (int i = 0; i < World.CHUNK_NUM_XZ; i++)
+        {
+            for (int j = 0; j < World.CHUNK_NUM_Y; j++)
             {
-                for (int j = 0; j < 1; j+=Chunk.CHUNK_SIZE)
+                for (int k = 0; k < World.CHUNK_NUM_XZ; k++)
                 {
-                    if(!usedPos.contains(new Vector3f(i,0,j)))
+                    chunks.add(new ChunkMesh(currentWorld.getChunk(i,j,k), grassTexture));
+                }
+            }
+        }
+
+
+
+
+
+        /*new Thread(new Runnable() //I cant do openGL stuff inside of a thread?
+        {
+            @Override
+            public void run()
+            {
+                while(!Display.isCloseRequested())
+                {
+                    for (int x = 0; x < 3; x++)
                     {
-                        chunks.add(new ChunkMesh(new Chunk(i,0,j), texture));
-                        usedPos.add(new Vector3f(i,0,j));
+                        for (int z = 0; z < 3; z++)
+                        {
+                            if (!usedPos.contains(new Vector3f(x, 0, z)))
+                            {
+
+                                usedPos.add(new Vector3f(x, 0, z));
+                            }
+                        }
+                        for (int z = -3; z < 0; z++)
+                        {
+                            if (!usedPos.contains(new Vector3f(x, 0, z)))
+                            {
+                                chunks.add(new ChunkMesh(new Chunk(x*Chunk.CHUNK_SIZE, 0, z*Chunk.CHUNK_SIZE), grassTexture));
+                                usedPos.add(new Vector3f(x, 0, z));
+                            }
+                        }
                     }
                 }
             }
+        }).start();*/
 
+        DisplayManager.resize();
+
+        running = true;
+
+        while(running && !Display.isCloseRequested())
+        {
+            //
+
+            //Game Logic
+            update();
+
+            //rendering
             render();
         }
 
         shader.cleanUp();
         loader.cleanUp();
-        DisplayManager.closeDisplay();
+        DisplayManager.dispose();
+    }
+
+    public static void main(String[] args)
+    {
+        new MainGameLoop().start();
     }
 
     private static void update()

@@ -18,15 +18,11 @@ public class MasterRenderer
 
     private static final float P_FOV = 70;
     private static final float P_NEAR_PLANE = 0.1f;
-    private static final float P_FAR_PLANE = 64f;
+    private static final float P_FAR_PLANE = 100f;
 
     public MasterRenderer(StaticShader shader)
     {
-        createProjectionMatrix();
-
-        shader.start();
-        shader.loadProjectionMatrix(projectionMatrix);
-        shader.stop();
+        createProjectionMatrix(shader);
     }
 
     public void prepare()
@@ -55,10 +51,14 @@ public class MasterRenderer
 
     }
 
-    public void createProjectionMatrix()
+    public void createProjectionMatrix(StaticShader shader)
     {
         //just do perspective for now
         projectionMatrix = RenderMath.createPerspectiveMatrix((float) Display.getWidth() / (float)Display.getHeight(), P_FOV, P_NEAR_PLANE, P_FAR_PLANE);
+
+        shader.start();
+        shader.loadProjectionMatrix(projectionMatrix);
+        shader.stop();
         //TODO Orthogonal
     }
 }

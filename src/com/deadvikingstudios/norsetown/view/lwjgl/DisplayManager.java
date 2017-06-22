@@ -15,7 +15,6 @@ public class DisplayManager
      * the Width and Height of the Display
      */
     private static final int WIDTH = 1280, HEIGHT = 720;
-    private static final int FPS_CAP = 120;
 
     private static boolean fullScreen = false;
 
@@ -23,7 +22,7 @@ public class DisplayManager
     /**
      * Creates the Display
      */
-    public static void createDisplay()
+    public static void create()
     {
         //Context Attributes
         ContextAttribs attribs = new ContextAttribs(3,2)
@@ -32,11 +31,14 @@ public class DisplayManager
         //Creating the Display
         try
         {
-            //fullscreen control
-            if(!fullScreen) { Display.setDisplayMode((new DisplayMode(WIDTH, HEIGHT))); }
-            Display.create(new PixelFormat(), attribs);
             Display.setTitle(MainGameLoop.GAME_NAME + " " + MainGameLoop.VERSION);
+            Display.setResizable(true);
+            if(!fullScreen) { Display.setDisplayMode((new DisplayMode(WIDTH, HEIGHT))); }
             Display.setFullscreen(fullScreen);
+            Display.setVSyncEnabled(true);
+            Display.create(new PixelFormat(), attribs);
+
+            //Display.setFullscreen(fullScreen);
             //sets the Icon
             /*Display.setIcon(new ByteBuffer[]
                     {
@@ -48,7 +50,7 @@ public class DisplayManager
                                     false, false, null)
                     });*/
 
-            GL11.glViewport(0,0, Display.getWidth(), Display.getHeight());
+            //GL11.glViewport(0,0, Display.getWidth(), Display.getHeight());
 
         } catch (LWJGLException e)
         {
@@ -63,8 +65,8 @@ public class DisplayManager
      */
     public static void updateDisplay()
     {
-        Display.sync(FPS_CAP);
         Display.update();
+        Display.sync(MainGameLoop.TARGET_FPS);
 
         //Keyboard input for dev
         while(Keyboard.next())
@@ -74,7 +76,7 @@ public class DisplayManager
                 //ESC = quit
                 if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
                 {
-                    closeDisplay();
+                    dispose();
                 }
 
                 //E = unbind/bind mouse from game
@@ -90,10 +92,17 @@ public class DisplayManager
         }
     }
 
+    public static void resize()
+    {
+        GL11.glViewport(0,0, Display.getWidth(), Display.getHeight());
+        MainGameLoop.renderer.createProjectionMatrix(MainGameLoop.shader);
+
+    }
+
     /**
      * Closes the Display
      */
-    public static void closeDisplay()
+    public static void dispose()
     {
         //empties the vertices
         MainGameLoop.loader.cleanUp();

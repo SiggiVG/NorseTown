@@ -1,6 +1,7 @@
 package com.deadvikingstudios.norsetown.view.meshes;
 
 import com.deadvikingstudios.norsetown.model.ArrayUtils;
+import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.Chunk;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -17,15 +18,17 @@ import static com.deadvikingstudios.norsetown.controller.MainGameLoop.loader;
 public class ChunkMesh extends TexturedMesh
 {
     private Chunk chunk;
-    List<Float> vertices = new ArrayList<Float>();
-    List<Integer> indices = new ArrayList<Integer>();
-    List<Float> uvs = new ArrayList<Float>();
 
     public ChunkMesh(Chunk chunk, MeshTexture texture)
     {
         this.chunk = chunk;
         this.texture = texture;
-        CreateMesh();
+
+        List<Float> vertices = new ArrayList<Float>();
+        List<Integer> indices = new ArrayList<Integer>();
+        List<Float> uvs = new ArrayList<Float>();
+
+        CreateMesh(vertices, indices, uvs);
 
         rawMesh = loader.loadToVAO(ArrayUtils.floatFromFloat(vertices),
                 ArrayUtils.intFromInteger(indices), ArrayUtils.floatFromFloat(uvs));
@@ -36,7 +39,7 @@ public class ChunkMesh extends TexturedMesh
         return chunk.getPosition();
     }
 
-    private void CreateMesh()
+    private void CreateMesh(List<Float> vertices, List<Integer> indices, List<Float> uvs)
     {
         for (int i = 0; i < Chunk.CHUNK_SIZE; i++)
         {
@@ -49,7 +52,7 @@ public class ChunkMesh extends TexturedMesh
                         continue;
                     }
 
-                    CreateCube(i,j,k);
+                    CreateCube(vertices, indices, uvs, i,j,k);
                     //System.out.println(vertices);
                     //System.out.println(indices);
                 }
@@ -58,9 +61,11 @@ public class ChunkMesh extends TexturedMesh
         }
     }
 
-    private void CreateCube(int x, int y, int z)
+    private void CreateCube(List<Float> vertices, List<Integer> indices, List<Float> uvs, int x, int y, int z)
     {
         float[] verts;
+
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE, y * Tile.TILE_HEIGHT, z * Tile.TILE_SIZE);
 
         //float xPos = chunk.getPosX()*Chunk.CHUNK_SIZE + x;
         //float yPos = chunk.getPosY()*Chunk.CHUNK_HEIGHT + y;
@@ -69,97 +74,97 @@ public class ChunkMesh extends TexturedMesh
         //North
         if(chunk.getTileAt(x,y,z+1) == 0)
         {
-            verts = getFaceVertices(0, x, y, z);
+            verts = getFaceVertices(0, vec);
             int count = vertices.size() / 3;
-            this.vertices.addAll(ArrayUtils.floatToFloat(verts));
+            vertices.addAll(ArrayUtils.floatToFloat(verts));
 
             for (int i = 0; i < indexList.length; i++)
             {
-                this.indices.add(indexList[i] + count);
+                indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvList.length; i++)
+            for (int i = 0; i < uvListXZ.length; i++)
             {
-                this.uvs.add(uvList[i]);
+                uvs.add(uvListXZ[i]);
             }
         }
         //east
         if(chunk.getTileAt(x+1,y,z) == 0)
         {
-            verts = getFaceVertices(1, x, y, z);
+            verts = getFaceVertices(1, vec);
             int count = vertices.size() / 3;
-            this.vertices.addAll(ArrayUtils.floatToFloat(verts));
+            vertices.addAll(ArrayUtils.floatToFloat(verts));
 
             for (int i = 0; i < indexList.length; i++)
             {
-                this.indices.add(indexList[i] + count);
+                indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvList.length; i++)
+            for (int i = 0; i < uvListXZ.length; i++)
             {
-                this.uvs.add(uvList[i]);
+                uvs.add(uvListXZ[i]);
             }
         }
         //south
         if(chunk.getTileAt(x,y,z-1) == 0)
         {
-            verts = getFaceVertices(2, x, y, z);
+            verts = getFaceVertices(2, vec);
             int count = vertices.size() / 3;
-            this.vertices.addAll(ArrayUtils.floatToFloat(verts));
+            vertices.addAll(ArrayUtils.floatToFloat(verts));
 
             for (int i = 0; i < indexList.length; i++)
             {
-                this.indices.add(indexList[i] + count);
+                indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvList.length; i++)
+            for (int i = 0; i < uvListXZ.length; i++)
             {
-                this.uvs.add(uvList[i]);
+                uvs.add(uvListXZ[i]);
             }
         }
         //west
         if(chunk.getTileAt(x-1,y,z) == 0)
         {
-            verts = getFaceVertices(3, x, y, z);
+            verts = getFaceVertices(3, vec);
             int count = vertices.size() / 3;
-            this.vertices.addAll(ArrayUtils.floatToFloat(verts));
+            vertices.addAll(ArrayUtils.floatToFloat(verts));
 
             for (int i = 0; i < indexList.length; i++)
             {
-                this.indices.add(indexList[i] + count);
+                indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvList.length; i++)
+            for (int i = 0; i < uvListXZ.length; i++)
             {
-                this.uvs.add(uvList[i]);
+                uvs.add(uvListXZ[i]);
             }
         }
         //top
         if(chunk.getTileAt(x,y+1,z) == 0)
         {
-            verts = getFaceVertices(4, x, y, z);
+            verts = getFaceVertices(4, vec);
             int count = vertices.size() / 3;
-            this.vertices.addAll(ArrayUtils.floatToFloat(verts));
+            vertices.addAll(ArrayUtils.floatToFloat(verts));
 
             for (int i = 0; i < indexList.length; i++)
             {
-                this.indices.add(indexList[i] + count);
+                indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvList.length; i++)
+            for (int i = 0; i < uvListY.length; i++)
             {
-                this.uvs.add(uvList[i]);
+                uvs.add(uvListY[i]);
             }
         }
         //bottom
         if(chunk.getTileAt(x,y-1,z) == 0)
         {
-            verts = getFaceVertices(5, x, y, z);
+            verts = getFaceVertices(5, vec);
             int count = vertices.size() / 3;
-            this.vertices.addAll(ArrayUtils.floatToFloat(verts));
+            vertices.addAll(ArrayUtils.floatToFloat(verts));
 
             for (int i = 0; i < indexList.length; i++)
             {
-                this.indices.add(indexList[i] + count);
+                indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvList.length; i++)
+            for (int i = 0; i < uvListY.length; i++)
             {
-                this.uvs.add(uvList[i]);
+                uvs.add(uvListY[i]);
             }
         }
 
@@ -167,6 +172,17 @@ public class ChunkMesh extends TexturedMesh
 
     private static float[][] vertexList =
     {
+            new float[]{ 0,             0,               0}, //0
+            new float[]{ Tile.TILE_SIZE,0,               0}, //1
+            new float[]{ 0,             0,               Tile.TILE_SIZE}, //2
+            new float[]{ Tile.TILE_SIZE,0,               Tile.TILE_SIZE}, //3
+
+            new float[]{ 0,             Tile.TILE_HEIGHT,0}, //4
+            new float[]{ Tile.TILE_SIZE,Tile.TILE_HEIGHT,0}, //5
+            new float[]{ 0,             Tile.TILE_HEIGHT,Tile.TILE_SIZE}, //6
+            new float[]{ Tile.TILE_SIZE,Tile.TILE_HEIGHT,Tile.TILE_SIZE}  //7
+
+            /*
             new float[]{-0.5f,-0.5f,-0.5f}, //0
             new float[]{0.5f,-0.5f,-0.5f}, //1
             new float[]{-0.5f,-0.5f,0.5f}, //2
@@ -176,6 +192,7 @@ public class ChunkMesh extends TexturedMesh
             new float[]{0.5f,0.5f,-0.5f}, //5
             new float[]{-0.5f,0.5f,0.5f}, //6
             new float[]{0.5f,0.5f,0.5f}  //7
+            */
     };
 
     private static int[] indexList =
@@ -184,13 +201,21 @@ public class ChunkMesh extends TexturedMesh
             3,1,2
     };
 
-    private static float[] uvList =
+    private static float[] uvListY =
     {
             0,0,
             0,1,
             1,1,
             1,0
     };
+
+    private static float[] uvListXZ =
+            {
+                    0,0,
+                    0,Tile.TILE_HEIGHT,
+                    1,Tile.TILE_HEIGHT,
+                    1,0
+            };
 
     private static int[][] faceVertices =
     {
@@ -202,14 +227,19 @@ public class ChunkMesh extends TexturedMesh
             new int[] { 2,0,1,3 },//bottom
     };
 
-    private static float[] getFaceVertices(int dir, float x, float y, float z)
+    /**
+     * @param dir the face being drawn, 0,1,2,3,4,5 = North, East, South, West, Top, Bottom
+     * @param vec
+     * @return
+     */
+    private static float[] getFaceVertices(int dir, Vector3f vec)
     {
         float[] fv = new float[4*3];
         for (int i = 0; i < 4; i++)
         {
-            fv[i*3] = vertexList[faceVertices[dir][i]][0] + x;
-            fv[i*3+1] = vertexList[faceVertices[dir][i]][1] + y;
-            fv[i*3+2] = vertexList[faceVertices[dir][i]][2] + z;
+            fv[i*3] = vertexList[faceVertices[dir][i]][0] + vec.x;
+            fv[i*3+1] = vertexList[faceVertices[dir][i]][1] + vec.y;
+            fv[i*3+2] = vertexList[faceVertices[dir][i]][2] + vec.z;
         }
         return fv;
     }

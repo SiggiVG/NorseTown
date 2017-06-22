@@ -79,6 +79,11 @@ public class Camera extends Entity
             moveAt = 0;
         }
 
+        if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+        {
+            moveAt *= 10f;
+        }
+
         rotationX += -Mouse.getDY() * turnSpeed;
         rotationY += Mouse.getDX() * turnSpeed;
 

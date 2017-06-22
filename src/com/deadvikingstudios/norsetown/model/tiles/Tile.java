@@ -25,6 +25,9 @@ public class Tile
      */
     protected boolean isOpaque = true;
 
+    public static final float TILE_SIZE = 1f;
+    public static final float TILE_HEIGHT = 0.5f;
+
     public Tile(int index, String unlocalizedName)
     {
         this.INDEX = (byte)index;

@@ -14,35 +14,6 @@ import java.util.Arrays;
  */
 public class RenderMath
 {
-    private static Vector3f[] cubeVertices =
-            {
-                    new Vector3f(0,0,0),
-                    new Vector3f(0,0,1),
-                    new Vector3f(1,0,0),
-                    new Vector3f(1,0,1),
-
-                    new Vector3f(0,1,0),
-                    new Vector3f(0,1,1),
-                    new Vector3f(1,1,0),
-                    new Vector3f(1,1,1),
-            };
-
-    private static int[][] cubeFaceIndices =
-            {
-                    new int[] { 5, 1, 7, 3 },//North
-                    new int[] { 3, 2, 7, 6 },//East
-                    new int[] { 0, 4, 2, 6 },//South
-                    new int[] { 5, 4, 1, 0 },//West
-                    new int[] { 4, 5, 6, 7 },//Up
-                    new int[] { 1, 0, 3, 2 }//Down
-            };
-
-    public static int[] triangleOrder = //Triangles
-            {
-                    0,1,3,3,2,0
-            };
-
-
     public static Matrix4f createTransformationMatrix(Vector3f translation, float rx, float ry, float rz, float scale)
     {
         Matrix4f matrix = new Matrix4f();
