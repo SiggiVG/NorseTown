@@ -1,10 +1,9 @@
 package com.deadvikingstudios.norsetown.model.world;
 
 import com.deadvikingstudios.norsetown.model.entities.Entity;
-import org.lwjgl.util.vector.Vector3f;
+import com.deadvikingstudios.norsetown.model.tiles.Tile;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -14,9 +13,11 @@ import java.util.Random;
 public class World
 {
 
+
     private Chunk[][][] chunkList;//List<Chunk> chunkList = new ArrayList<Chunk>();
     public static final int CHUNK_NUM_XZ = 8, CHUNK_NUM_Y = 1;
-
+    public static final float CHUNK_OFFSET_Y = Tile.TILE_HEIGHT;
+    public static final float CHUNK_OFFSET_XZ = Tile.TILE_SIZE * 0.5f;
     private Chunk emptyChunk = new EmptyChunk(0,0,0);
 
     public List<Entity> entityList = new ArrayList<Entity>();

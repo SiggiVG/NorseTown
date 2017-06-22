@@ -1,10 +1,10 @@
 package com.deadvikingstudios.norsetown.view.lwjgl.renderers;
 
 import com.deadvikingstudios.norsetown.view.RenderMath;
+import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkMesh;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import com.deadvikingstudios.norsetown.view.meshes.TexturedMesh;
-import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
@@ -60,5 +60,10 @@ public class MasterRenderer
         shader.loadProjectionMatrix(projectionMatrix);
         shader.stop();
         //TODO Orthogonal
+    }
+
+    public void splash(TexturedMesh image)
+    {
+        MeshRenderer.render(image);
     }
 }

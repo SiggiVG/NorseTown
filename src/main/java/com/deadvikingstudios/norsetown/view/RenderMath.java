@@ -1,11 +1,8 @@
 package com.deadvikingstudios.norsetown.view;
 
 import com.deadvikingstudios.norsetown.model.entities.Camera;
-import com.deadvikingstudios.norsetown.model.world.Chunk;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
-
-import java.util.Arrays;
 
 /**
  * Created by SiggiVG on 6/20/2017.

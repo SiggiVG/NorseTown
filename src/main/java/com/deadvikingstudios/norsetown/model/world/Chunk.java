@@ -3,8 +3,6 @@ package com.deadvikingstudios.norsetown.model.world;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import org.lwjgl.util.vector.Vector3f;
 
-import java.util.Random;
-
 /**
  * Created by SiggiVG on 6/19/2017.
  *
@@ -21,16 +19,6 @@ public class Chunk
      * Vertical Axis, how many vertical slices are in a chunk
      */
     public static final int CHUNK_HEIGHT = 64;
-
-    /**
-     * A tile has a width and length of this on the horizontal axis
-     */
-    public static final float TILE_SIZE = 1f;
-
-    /**
-     * A tile has a height of this on the verticle axis
-     */
-    public static final float TILE_HEIGHT = 1f;
 
     protected float posX, posY, posZ;
 

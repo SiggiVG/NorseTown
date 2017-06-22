@@ -1,8 +1,8 @@
 package com.deadvikingstudios.norsetown.view.lwjgl.renderers;
 
 import com.deadvikingstudios.norsetown.view.RenderMath;
-import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
+import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;

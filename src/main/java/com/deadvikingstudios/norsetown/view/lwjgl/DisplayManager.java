@@ -14,7 +14,7 @@ public class DisplayManager
     /**
      * the Width and Height of the Display
      */
-    private static final int WIDTH = 1280, HEIGHT = 720;
+    public static final int WIDTH = 1280, HEIGHT = 720;
 
     private static boolean fullScreen = false;
 

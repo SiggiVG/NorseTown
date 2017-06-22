@@ -7,7 +7,9 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.FloatBuffer;
 
 /**
@@ -107,7 +109,7 @@ public abstract class ShaderProgram
     {
         StringBuilder shaderSource = new StringBuilder();
         try{
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(ShaderProgram.class.getResourceAsStream(file)));
             String line;
             while((line = reader.readLine()) != null){
                 shaderSource.append(line).append("//\n");

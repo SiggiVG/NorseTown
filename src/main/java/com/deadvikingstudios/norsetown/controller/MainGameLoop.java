@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.controller;
 
+
 import com.deadvikingstudios.norsetown.model.entities.Camera;
 import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.view.lwjgl.DisplayManager;
@@ -11,6 +12,7 @@ import com.deadvikingstudios.norsetown.view.meshes.MeshTexture;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class MainGameLoop
     public static final String VERSION = "Indev-0.01a";
 
     public static final String SRC_PATH = "src/com/deadvikingstudios/norsetown/";
-    public static final String RES_PATH = "res/";
+    //public static final String RES_PATH = "res/";
 
     public static final int TARGET_FPS = 60;
 
@@ -38,9 +40,9 @@ public class MainGameLoop
     private static List<ChunkMesh> chunks = new ArrayList<ChunkMesh>();
 
     public static Camera camera;
-    private static Vector3f camPos = new Vector3f(0,0,0);
 
     private static MeshTexture grassTexture;
+
 
     public void start()
     {
@@ -52,6 +54,8 @@ public class MainGameLoop
         shader = new StaticShader();
         renderer = new MasterRenderer(shader);
 
+        camera = new Camera(new Vector3f(0,0,-1), 0, 0, 0);
+
         //RawMesh mesh = loader.loadToVAO(vertices, indices, uvs);
         grassTexture = new MeshTexture(loader.loadTexture("textures/tiles/grass_top"));
         //EntityMesh entity = new EntityMesh(new Entity(0,2,0), mesh, texture);
@@ -59,7 +63,7 @@ public class MainGameLoop
         //ent.setRotationZ(45f);//iso angle
         //ent.setRotationX(-35.264f);//iso angle
 
-        camera = new Camera(new Vector3f(-2,0,+1), 0, 0, 0);
+
 
         currentWorld = new World();
 
@@ -130,13 +134,17 @@ public class MainGameLoop
 
     public static void main(String[] args)
     {
+        String fileNatives = OperatingSystem.getOSforLWJGLNatives();
+        //System.setProperty("org.lwjgl.librarypath", System.getProperty("user.dir") + File.separator + "libs" + File.separator + "native" + File.separator + fileNatives);
+        System.setProperty("org.lwjgl.librarypath", new File("libs/native" + File.separator + fileNatives).getAbsolutePath());
+        //System.err.println(System.getProperty("java.library.path"));
+        //System.setProperty("java.library.path", new File("libs/native" + File.separator + fileNatives).getAbsolutePath());
         new MainGameLoop().start();
     }
 
     private static void update()
     {
         camera.move();
-        camPos = camera.getPosition();
     }
 
     private static void render()
@@ -162,4 +170,6 @@ public class MainGameLoop
         //Displays to screen
         DisplayManager.updateDisplay();
     }
+
+
 }

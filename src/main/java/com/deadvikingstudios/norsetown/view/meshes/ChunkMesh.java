@@ -3,6 +3,7 @@ package com.deadvikingstudios.norsetown.view.meshes;
 import com.deadvikingstudios.norsetown.model.ArrayUtils;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.Chunk;
+import com.deadvikingstudios.norsetown.model.world.World;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
@@ -65,12 +66,9 @@ public class ChunkMesh extends TexturedMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE, y * Tile.TILE_HEIGHT, z * Tile.TILE_SIZE);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
 
-        //float xPos = chunk.getPosX()*Chunk.CHUNK_SIZE + x;
-        //float yPos = chunk.getPosY()*Chunk.CHUNK_HEIGHT + y;
-        //float zPos = chunk.getPosZ()*Chunk.CHUNK_SIZE + z;
-
+        //TODO
         //North
         if(chunk.getTileAt(x,y,z+1) == 0)
         {

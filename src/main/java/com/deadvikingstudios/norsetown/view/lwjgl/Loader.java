@@ -115,7 +115,7 @@ public class Loader
         Texture texture = null;
         try
         {
-            texture = TextureLoader.getTexture("PNG", new FileInputStream(MainGameLoop.RES_PATH + filePath + ".png"), GL11.GL_NEAREST);
+            texture = TextureLoader.getTexture("PNG", this.getClass().getResourceAsStream(/*MainGameLoop.RES_PATH*/"/" + filePath + ".png"), GL11.GL_NEAREST);
         }catch (FileNotFoundException e)
         {
             System.err.println("Texture not found: " + filePath);
