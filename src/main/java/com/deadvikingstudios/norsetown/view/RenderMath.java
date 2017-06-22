@@ -1,6 +1,5 @@
 package com.deadvikingstudios.norsetown.view;
 
-import com.deadvikingstudios.norsetown.model.entities.Camera;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -41,14 +40,14 @@ public class RenderMath
         return matrix;
     }
 
-    public static Matrix4f createViewMatrix(Camera camera)
+    public static Matrix4f createViewMatrix()
     {
         Matrix4f matrix = new Matrix4f();
 
-        Matrix4f.rotate((float)Math.toRadians(camera.getRotationX()), new Vector3f(1,0,0), matrix, matrix);
-        Matrix4f.rotate((float)Math.toRadians(camera.getRotationY()), new Vector3f(0,1,0), matrix, matrix);
-        Matrix4f.rotate((float)Math.toRadians(camera.getRotationZ()), new Vector3f(0,0,1), matrix, matrix);
-        Matrix4f.translate(new Vector3f(-camera.getPosX(), -camera.getPosY(), -camera.getPosZ()), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(Camera.getRotationX()), new Vector3f(1,0,0), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(Camera.getRotationY()), new Vector3f(0,1,0), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(Camera.getRotationZ()), new Vector3f(0,0,1), matrix, matrix);
+        Matrix4f.translate(Camera.getPos(), matrix, matrix);
 
         return matrix;
     }

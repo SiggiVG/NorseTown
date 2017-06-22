@@ -1,6 +1,6 @@
 package com.deadvikingstudios.norsetown.view.lwjgl.shaders;
 
-import com.deadvikingstudios.norsetown.model.entities.Camera;
+import com.deadvikingstudios.norsetown.view.Camera;
 import com.deadvikingstudios.norsetown.view.RenderMath;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -10,8 +10,8 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class StaticShader extends ShaderProgram
 {
-    private static final String VERTEX_FILE = /*MainGameLoop.RES_PATH + */"/shaders/vertexShader.txt";
-    private static final String FRAGMENT_FILE = /*MainGameLoop.RES_PATH + */"/shaders/fragmentShader.txt";
+    private static final String VERTEX_FILE = /*GameContainer.RES_PATH + */"/shaders/vertexShader.txt";
+    private static final String FRAGMENT_FILE = /*GameContainer.RES_PATH + */"/shaders/fragmentShader.txt";
 
     private int location_transformationMatrix;
     private int location_projectionMatrix;
@@ -62,8 +62,8 @@ public class StaticShader extends ShaderProgram
         super.loadMatrix(location_projectionMatrix, matrix);
     }
 
-    public void loadViewMatrix(Camera camera)
+    public void loadViewMatrix()
     {
-        super.loadMatrix(location_viewMatrix, RenderMath.createViewMatrix(camera));
+        super.loadMatrix(location_viewMatrix, RenderMath.createViewMatrix());
     }
 }

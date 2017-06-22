@@ -25,7 +25,7 @@ public class MasterRenderer
         createProjectionMatrix(shader);
     }
 
-    public void prepare()
+    public void clear()
     {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glClearColor(0.4f, 0.7f, 1.0f, 1f);

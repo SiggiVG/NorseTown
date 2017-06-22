@@ -1,6 +1,6 @@
 package com.deadvikingstudios.norsetown.view.lwjgl;
 
-import com.deadvikingstudios.norsetown.controller.MainGameLoop;
+import com.deadvikingstudios.norsetown.controller.GameContainer;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -31,7 +31,7 @@ public class DisplayManager
         //Creating the Display
         try
         {
-            Display.setTitle(MainGameLoop.GAME_NAME + " " + MainGameLoop.VERSION);
+            Display.setTitle(GameContainer.GAME_NAME + " " + GameContainer.VERSION);
             Display.setResizable(true);
             if(!fullScreen) { Display.setDisplayMode((new DisplayMode(WIDTH, HEIGHT))); }
             Display.setFullscreen(fullScreen);
@@ -66,7 +66,7 @@ public class DisplayManager
     public static void updateDisplay()
     {
         Display.update();
-        Display.sync(MainGameLoop.TARGET_FPS);
+        Display.sync(GameContainer.TARGET_FPS);
 
         //Keyboard input for dev
         while(Keyboard.next())
@@ -95,7 +95,7 @@ public class DisplayManager
     public static void resize()
     {
         GL11.glViewport(0,0, Display.getWidth(), Display.getHeight());
-        MainGameLoop.renderer.createProjectionMatrix(MainGameLoop.shader);
+        GameContainer.renderer.createProjectionMatrix(GameContainer.shader);
 
     }
 
@@ -105,7 +105,7 @@ public class DisplayManager
     public static void dispose()
     {
         //empties the vertices
-        MainGameLoop.loader.cleanUp();
+        GameContainer.loader.cleanUp();
 
         Display.destroy();
         System.exit(0);

@@ -9,7 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.deadvikingstudios.norsetown.controller.MainGameLoop.loader;
+import static com.deadvikingstudios.norsetown.controller.GameContainer.loader;
 
 /**
  * Created by SiggiVG on 6/20/2017.
