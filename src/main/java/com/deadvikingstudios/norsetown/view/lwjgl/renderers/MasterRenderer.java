@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.view.lwjgl.renderers;
 
+import com.deadvikingstudios.norsetown.model.tileenitites.TileEntity;
 import com.deadvikingstudios.norsetown.view.RenderMath;
 import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkMesh;
@@ -22,7 +23,10 @@ public class MasterRenderer
 
     public MasterRenderer(StaticShader shader)
     {
-        createProjectionMatrix(shader);
+        createProjectionMatrix(shader, false);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     public void clear()
@@ -46,16 +50,27 @@ public class MasterRenderer
 
     public void render(ChunkMesh chunkMesh, StaticShader shader)
     {
-
         ChunkRenderer.render(chunkMesh, shader);
-
+        //TODO: render all tile entities
+        /*for (TileEntity te : chunkMesh.getChunk().getTileEntities())
+        {
+            render(te, shader);
+        }*/
     }
 
-    public void createProjectionMatrix(StaticShader shader)
+    public void createProjectionMatrix(StaticShader shader, boolean isOrthogonal)
     {
         //just do perspective for now
-        projectionMatrix = RenderMath.createPerspectiveMatrix((float) Display.getWidth() / (float)Display.getHeight(), P_FOV, P_NEAR_PLANE, P_FAR_PLANE);
-
+        if(!isOrthogonal)
+        {
+            projectionMatrix = RenderMath.createPerspectiveMatrix(
+                Display.getWidth(), Display.getHeight(), P_FOV, P_NEAR_PLANE, P_FAR_PLANE);
+        }
+        else
+        {
+            //projectionMatrix = RenderMath.createOrthogonalMatrix(
+            //        (float) Display.getWidth() / (float) Display.getHeight(),);
+        }
         shader.start();
         shader.loadProjectionMatrix(projectionMatrix);
         shader.stop();

@@ -18,7 +18,7 @@ import static com.deadvikingstudios.norsetown.controller.GameContainer.loader;
  */
 public class ChunkMesh extends TexturedMesh
 {
-    private Chunk chunk;
+    protected Chunk chunk;
 
     public ChunkMesh(Chunk chunk, MeshTexture texture)
     {
@@ -29,18 +29,25 @@ public class ChunkMesh extends TexturedMesh
         List<Integer> indices = new ArrayList<Integer>();
         List<Float> uvs = new ArrayList<Float>();
 
-        CreateMesh(vertices, indices, uvs);
+        createMesh(vertices, indices, uvs);
 
         rawMesh = loader.loadToVAO(ArrayUtils.floatFromFloat(vertices),
                 ArrayUtils.intFromInteger(indices), ArrayUtils.floatFromFloat(uvs));
     }
+
+    protected ChunkMesh(){}
 
     public Vector3f getPosition()
     {
         return chunk.getPosition();
     }
 
-    private void CreateMesh(List<Float> vertices, List<Integer> indices, List<Float> uvs)
+    public Chunk getChunk()
+    {
+        return chunk;
+    }
+
+    protected void createMesh(List<Float> vertices, List<Integer> indices, List<Float> uvs)
     {
         for (int i = 0; i < Chunk.CHUNK_SIZE; i++)
         {
@@ -54,8 +61,6 @@ public class ChunkMesh extends TexturedMesh
                     }
 
                     CreateCube(vertices, indices, uvs, i,j,k);
-                    //System.out.println(vertices);
-                    //System.out.println(indices);
                 }
             }
 
@@ -68,9 +73,11 @@ public class ChunkMesh extends TexturedMesh
 
         Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
 
-        //TODO
+        int tile = chunk.getTileAt(x,y,z);
+        float[] uvFace;
+
         //North
-        if(chunk.getTileAt(x,y,z+1) == 0)
+        if(!Tile.Tiles.get(chunk.getTileAt(x,y,z+1)).isOpaque())
         {
             verts = getFaceVertices(0, vec);
             int count = vertices.size() / 3;
@@ -80,13 +87,20 @@ public class ChunkMesh extends TexturedMesh
             {
                 indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvListXZ.length; i++)
+
+            uvFace = getFaceUVs(false, 0, tile);
+            for (int i = 0; i < uvFace.length; i++)
+            {
+                uvs.add(uvFace[i]);
+            }
+
+            /*for (int i = 0; i < uvListXZ.length; i++)
             {
                 uvs.add(uvListXZ[i]);
-            }
+            }*/
         }
         //east
-        if(chunk.getTileAt(x+1,y,z) == 0)
+        if(!Tile.Tiles.get(chunk.getTileAt(x+1,y,z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
         {
             verts = getFaceVertices(1, vec);
             int count = vertices.size() / 3;
@@ -96,13 +110,14 @@ public class ChunkMesh extends TexturedMesh
             {
                 indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvListXZ.length; i++)
+            uvFace = getFaceUVs(false, 1, tile);
+            for (int i = 0; i < uvFace.length; i++)
             {
-                uvs.add(uvListXZ[i]);
+                uvs.add(uvFace[i]);
             }
         }
         //south
-        if(chunk.getTileAt(x,y,z-1) == 0)
+        if(!Tile.Tiles.get(chunk.getTileAt(x,y,z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
         {
             verts = getFaceVertices(2, vec);
             int count = vertices.size() / 3;
@@ -112,13 +127,14 @@ public class ChunkMesh extends TexturedMesh
             {
                 indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvListXZ.length; i++)
+            uvFace = getFaceUVs(false, 2, tile);
+            for (int i = 0; i < uvFace.length; i++)
             {
-                uvs.add(uvListXZ[i]);
+                uvs.add(uvFace[i]);
             }
         }
         //west
-        if(chunk.getTileAt(x-1,y,z) == 0)
+        if(!Tile.Tiles.get(chunk.getTileAt(x-1,y,z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
         {
             verts = getFaceVertices(3, vec);
             int count = vertices.size() / 3;
@@ -128,13 +144,14 @@ public class ChunkMesh extends TexturedMesh
             {
                 indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvListXZ.length; i++)
+            uvFace = getFaceUVs(false, 3, tile);
+            for (int i = 0; i < uvFace.length; i++)
             {
-                uvs.add(uvListXZ[i]);
+                uvs.add(uvFace[i]);
             }
         }
         //top
-        if(chunk.getTileAt(x,y+1,z) == 0)
+        if(!Tile.Tiles.get(chunk.getTileAt(x,y+1,z)).isOpaque())//chunk.getTileAt(x,y+1,z) == 0)
         {
             verts = getFaceVertices(4, vec);
             int count = vertices.size() / 3;
@@ -144,13 +161,14 @@ public class ChunkMesh extends TexturedMesh
             {
                 indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvListY.length; i++)
+            uvFace = getFaceUVs(false, 4, tile);
+            for (int i = 0; i < uvFace.length; i++)
             {
-                uvs.add(uvListY[i]);
+                uvs.add(uvFace[i]);
             }
         }
         //bottom
-        if(chunk.getTileAt(x,y-1,z) == 0)
+        if(!Tile.Tiles.get(chunk.getTileAt(x,y-1,z)).isOpaque())//chunk.getTileAt(x,y-1,z) == 0)
         {
             verts = getFaceVertices(5, vec);
             int count = vertices.size() / 3;
@@ -160,9 +178,10 @@ public class ChunkMesh extends TexturedMesh
             {
                 indices.add(indexList[i] + count);
             }
-            for (int i = 0; i < uvListY.length; i++)
+            uvFace = getFaceUVs(false, 5, tile);
+            for (int i = 0; i < uvFace.length; i++)
             {
-                uvs.add(uvListY[i]);
+                uvs.add(uvFace[i]);
             }
         }
 
@@ -193,37 +212,38 @@ public class ChunkMesh extends TexturedMesh
             */
     };
 
-    private static int[] indexList =
+    private static int[][] faceVertices = //fixed to rotate counterclockwise such that face culling works correctly
     {
-            0,1,3,
-            3,1,2
+            new int[] { 6,2,3,7 },//north
+            new int[] { 7,3,1,5 },//east
+            new int[] { 5,1,0,4 },//south
+            new int[] { 4,0,2,6 },//west
+            new int[] { 7,5,4,6 },//top
+            new int[] { 2,0,1,3 },//bottom
     };
 
+    private static int[] indexList =
+            {
+                    0,1,3,
+                    3,1,2
+            };
+
     private static float[] uvListY =
-    {
-            0,0,
-            0,1,
-            1,1,
-            1,0
-    };
+            {
+                    0,0,
+                    0,1,
+                    1,1,
+                    1,0
+            };
 
     private static float[] uvListXZ =
             {
                     0,0,
-                    0,Tile.TILE_HEIGHT,
-                    1,Tile.TILE_HEIGHT,
+                    0,1,//Tile.TILE_HEIGHT,
+                    1,1,//Tile.TILE_HEIGHT,
                     1,0
             };
 
-    private static int[][] faceVertices =
-    {
-            new int[] { 6,2,3,7 },//north
-            new int[] { 5,1,3,7 },//east
-            new int[] { 4,0,1,5 },//south
-            new int[] { 4,0,2,6 },//west
-            new int[] { 6,4,5,7 },//top
-            new int[] { 2,0,1,3 },//bottom
-    };
 
     /**
      * @param dir the face being drawn, 0,1,2,3,4,5 = North, East, South, West, Top, Bottom
@@ -241,6 +261,30 @@ public class ChunkMesh extends TexturedMesh
         }
         return fv;
     }
+
+    private float[] getFaceUVs(boolean isY, int face, int id)
+    {
+        System.out.println(id + " " + face);
+        int col = Tile.Tiles.get(id).getTextureOffset(face) / 16;
+        int row = Tile.Tiles.get(id).getTextureOffset(face) % 16;
+        System.out.println("Col: " + col + ", Row: " + row);
+
+
+        float r0 = row * 0.0625f;
+        float r1 = row * 0.0625f + 0.0625f;
+        float c0 = col * 0.0625f;
+        float c1 = col * 0.0625f + 0.0625f;
+
+        return new float[]
+                {
+                        r0,c0,
+                        r0,c1,
+                        r1,c1,
+                        r1,c0
+                };
+    }
+
+
     /*private static float[] getFaceVertices(int dir, float x, float y, float z)
     {
         float[] fv = new float[4*3];

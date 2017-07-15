@@ -1,7 +1,12 @@
 package com.deadvikingstudios.norsetown.model.world;
 
+import com.deadvikingstudios.norsetown.model.tileenitites.TileEntity;
+import com.deadvikingstudios.norsetown.model.world.gen.PerlinNoise;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import org.lwjgl.util.vector.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by SiggiVG on 6/19/2017.
@@ -18,11 +23,20 @@ public class Chunk
     /**
      * Vertical Axis, how many vertical slices are in a chunk
      */
-    public static final int CHUNK_HEIGHT = 64;
+    public static final int CHUNK_HEIGHT = 16;
 
     protected float posX, posY, posZ;
 
     protected int[][][] tiles;
+
+    /**
+     * Tile Entities are stored per chunk, and are self aware.
+     * when a tile the provides a tile entity is placed, the function createTileEntity() returns a new instance of the
+     * TileEntity. When a world is loaded, TileEntities that were saved are attached to the tiles at their respective
+     * locations, provided that tile is a tileEntityProvider.
+     *
+     */
+    public List<TileEntity> tileEntityList = new ArrayList<TileEntity>();
 
     /**
      * Default Constructor
@@ -44,13 +58,31 @@ public class Chunk
     {
         for (int i = 0; i < CHUNK_SIZE; ++i)
         {
-            for (int j = 0; j < CHUNK_HEIGHT; ++j)
+
+            for (int k = 0; k < CHUNK_SIZE; ++k)
             {
-                for (int k = 0; k < CHUNK_SIZE; ++k)
+                for (int j = 0; j < PerlinNoise.perlin(
+                        (this.posX + i)*0.1f,
+                        (this.posY + j)*0.1f,
+                        (this.posZ + k)*0.1f) * CHUNK_SIZE; //multiply by vertical distribution
+                     ++j)
                 {
-                    this.tiles[i][j][k] = World.getWorld().getRandom().nextInt(2);
+                    if(j < 0 || j >= CHUNK_HEIGHT)
+                    {
+                        continue;
+                    }
+                    tiles[i][j][k] = 2;
+                }
+                for (int j = CHUNK_HEIGHT - 1; j >= 0; --j)
+                {
+                    if(tiles[i][j][k] == 2)
+                    {
+                        tiles[i][j][k] = 1;
+                        break;
+                    }
                 }
             }
+
         }
     }
 
@@ -77,6 +109,11 @@ public class Chunk
     public Vector3f getPosition()
     {
         return new Vector3f(posX,posY,posZ);
+    }
+
+    public ArrayList<TileEntity> getTileEntities()
+    {
+        return (ArrayList)this.tileEntityList;
     }
 
 

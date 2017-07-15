@@ -1,13 +1,17 @@
 package com.deadvikingstudios.norsetown.controller;
 
 
-import com.deadvikingstudios.norsetown.view.Camera;
+import com.deadvikingstudios.norsetown.model.entities.Entity;
+import com.deadvikingstudios.norsetown.model.entities.humanoids.EntityHumanoid;
+import com.deadvikingstudios.norsetown.model.tiles.Tile;
+import com.deadvikingstudios.norsetown.model.world.Chunk;
 import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.view.lwjgl.DisplayManager;
 import com.deadvikingstudios.norsetown.view.lwjgl.Loader;
 import com.deadvikingstudios.norsetown.view.lwjgl.renderers.MasterRenderer;
 import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkMesh;
+import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import com.deadvikingstudios.norsetown.view.meshes.MeshTexture;
 import org.lwjgl.opengl.Display;
 
@@ -21,10 +25,9 @@ import java.util.List;
 public class GameContainer implements Runnable, IGameContainer
 {
     public static final String GAME_NAME = "NorseTown";
-    public static final String VERSION = "Indev-0.01a";
+    public static final String VERSION = "Indev-0.01c";
 
     public static final String SRC_PATH = "/src/main/java/com/deadvikingstudios/norsetown/";
-    //public static final String RES_PATH = "res/";
 
     public Thread thread;
     private GameContainer game;
@@ -37,11 +40,15 @@ public class GameContainer implements Runnable, IGameContainer
     public static StaticShader shader = null;
     public static MasterRenderer renderer = null;
 
+    public static final String MODE = "debug";
+
     private static World currentWorld;
 
     private static List<ChunkMesh> chunks = new ArrayList<ChunkMesh>();
+    private static List<EntityMesh> entityMeshes = new ArrayList<EntityMesh>();
 
     private static MeshTexture grassTexture;
+    private static MeshTexture entTexture;
 
     public GameContainer() {this.game = this;}
 
@@ -68,9 +75,9 @@ public class GameContainer implements Runnable, IGameContainer
         isRunning = true;
 
         boolean render = false;
-        double firstTime = 0;
+        double firstTime;
         double lastTime = System.nanoTime() / 1_000_000_000.0;
-        double passedTime = 0;
+        double passedTime;
         double unprocessedTime = 0;
 
         double frameTime = 0;
@@ -94,10 +101,10 @@ public class GameContainer implements Runnable, IGameContainer
                 render = true;
 
                 game.update((float) UPDATE_CAP);
-                //input.update();
+                InputKeyboard.update();
 
                 //FPS output
-                /*if(MODE.equals("debug"))
+                if(MODE.equals("debug"))
                 {
                     if (frameTime >= 1.0)
                     {
@@ -105,20 +112,20 @@ public class GameContainer implements Runnable, IGameContainer
                         fps = frames;
                         frames = 0;
                     }
-                }*/
+                }
             }
 
             if(render)
             {
                 renderer.clear();
                 game.render();
-                //renderer.process();
-                /*if(MODE.equals("debug"))
+
+                if(MODE.equals("debug"))
                 {
-                    renderer.drawText("FPS: " + fps, 0, 0, 0xff_00_ff_ff);
-                }*/
-                //System.out.println("FPS: " + fps);
-                //window.update();
+                    //renderer.drawText("FPS: " + fps, 0, 0, 0xff_00_ff_ff);
+                    //System.out.println("FPS: " + fps);
+                }
+
                 DisplayManager.resize();
                 frames++;
             }
@@ -136,91 +143,17 @@ public class GameContainer implements Runnable, IGameContainer
         }
         dispose();
     }
-    /*
 
-
-        Camera.create();
-
-        //RawMesh mesh = loader.loadToVAO(vertices, indices, uvs);
-        grassTexture = new MeshTexture(loader.loadTexture("textures/tiles/grass_top"));
-        //EntityMesh entity = new EntityMesh(new Entity(0,2,0), mesh, texture);
-
-        //ent.setRotationZ(45f);//iso angle
-        //ent.setRotationX(-35.264f);//iso angle
-
-
-
-        currentWorld = new World();
-
-        for (int i = 0; i < World.CHUNK_NUM_XZ; i++)
-        {
-            for (int j = 0; j < World.CHUNK_NUM_Y; j++)
-            {
-                for (int k = 0; k < World.CHUNK_NUM_XZ; k++)
-                {
-                    chunks.add(new ChunkMesh(currentWorld.getChunk(i,j,k), grassTexture));
-                }
-            }
-        }
-
-
-
-
-
-        /*new Thread(new Runnable() //I cant do openGL stuff inside of a thread?
-        {
-            @Override
-            public void run()
-            {
-                while(!Display.isCloseRequested())
-                {
-                    for (int x = 0; x < 3; x++)
-                    {
-                        for (int z = 0; z < 3; z++)
-                        {
-                            if (!usedPos.contains(new Vector3f(x, 0, z)))
-                            {
-
-                                usedPos.add(new Vector3f(x, 0, z));
-                            }
-                        }
-                        for (int z = -3; z < 0; z++)
-                        {
-                            if (!usedPos.contains(new Vector3f(x, 0, z)))
-                            {
-                                chunks.add(new ChunkMesh(new Chunk(x*Chunk.CHUNK_SIZE, 0, z*Chunk.CHUNK_SIZE), grassTexture));
-                                usedPos.add(new Vector3f(x, 0, z));
-                            }
-                        }
-                    }
-                }
-            }
-        }).start();
-
-        DisplayManager.resize();
-
-        running = true;
-
-        while(running && !Display.isCloseRequested())
-        {
-            //
-
-            //Game Logic
-            update();
-
-            //rendering
-            render();
-        }
-
-        shader.cleanUp();
-        loader.cleanUp();
-        DisplayManager.dispose();
-    }*/
     public void init()
     {
-        Camera.create();
+        Tile.Tiles.init();
 
-        grassTexture = new MeshTexture(loader.loadTexture("textures/tiles/grass_top"));
+
+        CameraController.setRotation(35, 135, 0);
+        CameraController.setPosition(Chunk.CHUNK_SIZE * 0.5f, Chunk.CHUNK_HEIGHT * 0.5f, Chunk.CHUNK_SIZE * 0.5f);
+
+        grassTexture = new MeshTexture(loader.loadTexture("textures/terrain"));//"textures/tiles/grass_top"));
+        entTexture = new MeshTexture(loader.loadTexture("textures/entTexture"));
         currentWorld = new World();
 
         for (int i = 0; i < World.CHUNK_NUM_XZ; i++)
@@ -232,14 +165,104 @@ public class GameContainer implements Runnable, IGameContainer
                     chunks.add(new ChunkMesh(currentWorld.getChunk(i,j,k), grassTexture));
                 }
             }
+        }
+
+        World.getWorld().getEntities().add(new EntityHumanoid(Chunk.CHUNK_SIZE, 10, Chunk.CHUNK_SIZE, 0, 0, 0));
+
+        float[] vertices = {
+                0,1,1,
+                0,0,1,
+                1,0,1,
+                1,1,1,
+
+                1,1,1,
+                1,0,1,
+                1,0,0,
+                1,1,0,
+
+                1,1,0,
+                1,0,0,
+                0,0,0,
+                0,1,0,
+
+                0,1,0,
+                0,0,0,
+                0,0,1,
+                0,1,1,
+
+                1,1,1,
+                1,1,0,
+                0,1,0,
+                0,1,1,
+
+                0,0,1,
+                0,0,0,
+                1,0,0,
+                1,0,1
+        };
+
+        float[] uv = {
+                0,0,
+                0,1,
+                1,1,
+                1,0,
+
+                0,0,
+                0,1,
+                1,1,
+                1,0,
+
+                0,0,
+                0,1,
+                1,1,
+                1,0,
+
+                0,0,
+                0,1,
+                1,1,
+                1,0,
+
+                0,0,
+                0,1,
+                1,1,
+                1,0,
+
+                0,0,
+                0,1,
+                1,1,
+                1,0
+        };
+
+        int[] indices = {
+                0, 1, 3,
+                3, 1, 2,
+
+                4, 5, 7,
+                7, 5, 6,
+
+                8, 9, 11,
+                11, 9, 10,
+
+                12, 13, 15,
+                15, 13, 14,
+
+                16, 17, 19,
+                19, 17, 18,
+
+                20, 21, 23,
+                23, 21, 22
+        };
+
+        for (Entity ent : World.getWorld().getEntities())
+        {
+            entityMeshes.add(new EntityMesh(ent, loader.loadToVAO(vertices, indices, uv), entTexture));
         }
     }
 
 
     public void update(float dt)
     {
-        Camera.acceptInput(dt);
-        Camera.apply();
+        CameraController.move();
     }
 
     public void render()
@@ -257,6 +280,12 @@ public class GameContainer implements Runnable, IGameContainer
         for (ChunkMesh chunk : chunks)
         {
             renderer.render(chunk, shader);
+        }
+        for (EntityMesh mesh : entityMeshes)
+        {
+            renderer.render(mesh, shader);
+            //System.out.println("CameraController: " + CameraController.getPosition());
+            //System.out.println(mesh.getEntity().getPosition());
         }
 
         //renderer.render(mesh, shader);
@@ -276,10 +305,7 @@ public class GameContainer implements Runnable, IGameContainer
     public static void main(String[] args)
     {
         String fileNatives = OperatingSystem.getOSforLWJGLNatives();
-        //System.setProperty("org.lwjgl.librarypath", System.getProperty("user.dir") + File.separator + "libs" + File.separator + "native" + File.separator + fileNatives);
         System.setProperty("org.lwjgl.librarypath", new File("libs/native" + File.separator + fileNatives).getAbsolutePath());
-        //System.err.println(System.getProperty("java.library.path"));
-        //System.setProperty("java.library.path", new File("libs/native" + File.separator + fileNatives).getAbsolutePath());
         new GameContainer().start();
     }
 }

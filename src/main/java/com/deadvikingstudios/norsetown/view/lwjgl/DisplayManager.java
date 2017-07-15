@@ -80,11 +80,11 @@ public class DisplayManager
                 }
 
                 //E = unbind/bind mouse from game
-                if(Keyboard.isKeyDown(Keyboard.KEY_E) && Mouse.isGrabbed())
+                if(Keyboard.isKeyDown(Keyboard.KEY_R) && Mouse.isGrabbed())
                 {
                     Mouse.setGrabbed(false);
                 }
-                else if(Keyboard.isKeyDown(Keyboard.KEY_E) && !Mouse.isGrabbed())
+                else if(Keyboard.isKeyDown(Keyboard.KEY_R) && !Mouse.isGrabbed())
                 {
                     Mouse.setGrabbed(true);
                 }
@@ -95,7 +95,7 @@ public class DisplayManager
     public static void resize()
     {
         GL11.glViewport(0,0, Display.getWidth(), Display.getHeight());
-        GameContainer.renderer.createProjectionMatrix(GameContainer.shader);
+        GameContainer.renderer.createProjectionMatrix(GameContainer.shader, false);
 
     }
 

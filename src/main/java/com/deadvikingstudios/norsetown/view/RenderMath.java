@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.view;
 
+import com.deadvikingstudios.norsetown.controller.CameraController;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -43,30 +44,29 @@ public class RenderMath
     public static Matrix4f createViewMatrix()
     {
         Matrix4f matrix = new Matrix4f();
+        matrix.setIdentity();
 
-        Matrix4f.rotate((float)Math.toRadians(Camera.getRotationX()), new Vector3f(1,0,0), matrix, matrix);
-        Matrix4f.rotate((float)Math.toRadians(Camera.getRotationY()), new Vector3f(0,1,0), matrix, matrix);
-        Matrix4f.rotate((float)Math.toRadians(Camera.getRotationZ()), new Vector3f(0,0,1), matrix, matrix);
-        Matrix4f.translate(Camera.getPos(), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(CameraController.getRoll()), new Vector3f(1,0,0), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(CameraController.getPitch()), new Vector3f(0,1,0), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(CameraController.getYaw()), new Vector3f(0,0,1), matrix, matrix);
+        Matrix4f.translate(new Vector3f(-CameraController.getPosition().x, -CameraController.getPosition().y, -CameraController.getPosition().z), matrix, matrix);
 
         return matrix;
     }
 
-    public static Matrix4f createPerspectiveMatrix(float aspectRatio, float fov, float near, float far)
+    public static Matrix4f createPerspectiveMatrix(int displayWidth, int displayHeight, float fov, float near, float far)
     {
-        Matrix4f matrix = new Matrix4f();
-        matrix.setIdentity();
-
-        float yScale = 1.0f / (float)Math.tan(Math.toRadians(fov / 2.0f));
+        float aspectRatio = (float) displayWidth / (float) displayHeight;
+        float yScale = (float) ((1.0f / Math.tan(Math.toRadians(fov / 2.0f))) * aspectRatio);
         float xScale = yScale / aspectRatio;
-        float zp = far + near;
-        float zm = far - near;
+        float frustum_length = far - near;
 
+        Matrix4f matrix = new Matrix4f();
         matrix.m00 = xScale;
         matrix.m11 = yScale;
-        matrix.m22 = -zp/zm;
+        matrix.m22 = -(far+near)/frustum_length;
         matrix.m23 = -1;
-        matrix.m32 = -(2*far*near)/zm;
+        matrix.m32 = -(2*far*near)/frustum_length;
         matrix.m33 = 0;
 
         return matrix;

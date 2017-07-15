@@ -1,6 +1,7 @@
 package com.deadvikingstudios.norsetown.model.world;
 
 import com.deadvikingstudios.norsetown.model.entities.Entity;
+import com.deadvikingstudios.norsetown.model.tileenitites.TileEntity;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class World
 
 
     private Chunk[][][] chunkList;//List<Chunk> chunkList = new ArrayList<Chunk>();
-    public static final int CHUNK_NUM_XZ = 8, CHUNK_NUM_Y = 1;
+    public static final int CHUNK_NUM_XZ = 2, CHUNK_NUM_Y = 1;
     public static final float CHUNK_OFFSET_Y = Tile.TILE_HEIGHT;
     public static final float CHUNK_OFFSET_XZ = Tile.TILE_SIZE * 0.5f;
     private Chunk emptyChunk = new EmptyChunk(0,0,0);
@@ -82,6 +83,11 @@ public class World
         }
 
         return this.chunkList[x][y][z];
+    }
+
+    public List<Entity> getEntities()
+    {
+        return entityList;
     }
 
     public Chunk getEmptyChunk()
