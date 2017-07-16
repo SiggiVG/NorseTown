@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.model.world;
 
+import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.model.tileenitites.TileEntity;
 import com.deadvikingstudios.norsetown.model.world.gen.PerlinNoise;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
@@ -7,6 +8,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by SiggiVG on 6/19/2017.
@@ -23,9 +25,9 @@ public class Chunk
     /**
      * Vertical Axis, how many vertical slices are in a chunk
      */
-    public static final int CHUNK_HEIGHT = 16;
+    public static final int CHUNK_HEIGHT = 64;
 
-    protected float posX, posY, posZ;
+    protected Vector3f position;
 
     protected int[][][] tiles;
 
@@ -44,11 +46,10 @@ public class Chunk
      * @param y y position of the bottom face
      * @param z z position of the south face
      */
-    public Chunk(int x, int y, int z)
+    public Chunk(float x, float y, float z)
     {
-        this.posX = x;
-        this.posY = y;
-        this.posZ = z;
+        this.position = new Vector3f(x,y,z);
+        if(GameContainer.MODE == "debug") System.out.println("Chunk created at: " + position + "; Containing " + CHUNK_SIZE * CHUNK_HEIGHT * CHUNK_SIZE + "tiles.");
 
         this.tiles = new int[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
         init();
@@ -56,33 +57,37 @@ public class Chunk
 
     protected void init()
     {
+        Random random = World.getWorld().getRandom();
+        //fill with terrain
         for (int i = 0; i < CHUNK_SIZE; ++i)
         {
-
             for (int k = 0; k < CHUNK_SIZE; ++k)
             {
                 for (int j = 0; j < PerlinNoise.perlin(
-                        (this.posX + i)*0.1f,
-                        (this.posY + j)*0.1f,
-                        (this.posZ + k)*0.1f) * CHUNK_SIZE; //multiply by vertical distribution
+                        (this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.025f,
+                        (this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.025f,
+                        (this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.025f) * CHUNK_HEIGHT; //multiply by vertical distribution
                      ++j)
                 {
                     if(j < 0 || j >= CHUNK_HEIGHT)
                     {
                         continue;
                     }
-                    tiles[i][j][k] = 2;
+                    setTile(Tile.Tiles.tileStoneCliff, i, j, k);
                 }
                 for (int j = CHUNK_HEIGHT - 1; j >= 0; --j)
                 {
-                    if(tiles[i][j][k] == 2)
+                    if(tiles[i][j][k] != 0)
                     {
-                        tiles[i][j][k] = 1;
+
+                        setTile(Tile.Tiles.tileGrass, i, j, k);
+                        setTile(Tile.Tiles.tileSoil, i, j-1, k);
+                        setTile(Tile.Tiles.tileSoil, i, j-2, k);
+                        setTile(Tile.Tiles.tileClay, i, j-3, k);
                         break;
                     }
                 }
             }
-
         }
     }
 
@@ -93,22 +98,22 @@ public class Chunk
 
     public float getPosX()
     {
-        return posX;
+        return position.x;
     }
 
     public float getPosY()
     {
-        return posY;
+        return position.y;
     }
 
     public float getPosZ()
     {
-        return posZ;
+        return position.z;
     }
 
     public Vector3f getPosition()
     {
-        return new Vector3f(posX,posY,posZ);
+        return new Vector3f(position);
     }
 
     public ArrayList<TileEntity> getTileEntities()

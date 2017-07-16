@@ -8,5 +8,8 @@ out vec4 out_Color;
 
 void main(void)
 {
-    out_Color = texture(textureSampler, pass_uvs);
+     vec4 texel = texture(textureSampler, pass_uvs);
+     if(texel.a == 0.0) //Only works with Point Filtering, Change to 0.5 if Linear Filtering
+        discard;
+     out_Color = texel;
 }

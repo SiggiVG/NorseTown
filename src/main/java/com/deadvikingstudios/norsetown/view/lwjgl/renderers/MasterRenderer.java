@@ -19,14 +19,14 @@ public class MasterRenderer
 
     private static final float P_FOV = 70;
     private static final float P_NEAR_PLANE = 0.1f;
-    private static final float P_FAR_PLANE = 100f;
+    private static final float P_FAR_PLANE = 250f;
 
     public MasterRenderer(StaticShader shader)
     {
         createProjectionMatrix(shader, false);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glEnable(GL11.GL_CULL_FACE); //Culls inner faces
+        GL11.glEnable(GL11.GL_BLEND);//Allows for transparent textures
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); //Sets transparency to use Alpha bit
     }
 
     public void clear()

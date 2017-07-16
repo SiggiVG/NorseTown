@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL30;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -113,7 +114,7 @@ public class Loader
         Texture texture = null;
         try
         {
-            texture = TextureLoader.getTexture("PNG", this.getClass().getResourceAsStream("/" + filePath + ".png"), GL11.GL_NEAREST);
+            texture = TextureLoader.getTexture("PNG", this.getClass().getResourceAsStream("/" +  filePath + ".png"), GL11.GL_NEAREST);
         }catch (FileNotFoundException e)
         {
             System.err.println("Texture not found: " + filePath);

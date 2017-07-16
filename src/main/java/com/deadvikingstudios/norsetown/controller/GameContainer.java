@@ -13,11 +13,14 @@ import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkMesh;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import com.deadvikingstudios.norsetown.view.meshes.MeshTexture;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by SiggiVG on 6/19/2017.
@@ -25,9 +28,10 @@ import java.util.List;
 public class GameContainer implements Runnable, IGameContainer
 {
     public static final String GAME_NAME = "NorseTown";
-    public static final String VERSION = "Indev-0.01c";
+    public static final String VERSION = "Indev-0.01d";
 
     public static final String SRC_PATH = "/src/main/java/com/deadvikingstudios/norsetown/";
+    private static boolean outputFPS = false;
 
     public Thread thread;
     private GameContainer game;
@@ -120,10 +124,10 @@ public class GameContainer implements Runnable, IGameContainer
                 renderer.clear();
                 game.render();
 
-                if(MODE.equals("debug"))
+                if(MODE.equals("debug") && outputFPS)
                 {
                     //renderer.drawText("FPS: " + fps, 0, 0, 0xff_00_ff_ff);
-                    //System.out.println("FPS: " + fps);
+                    System.out.println("FPS: " + fps);
                 }
 
                 DisplayManager.resize();
@@ -144,17 +148,51 @@ public class GameContainer implements Runnable, IGameContainer
         dispose();
     }
 
+    //TODO: make better and move to treeGen
+    private void makeTree(int x, int height, int z, int leafstart)
+    {
+        for (int j = Chunk.CHUNK_HEIGHT - 1; j >= 0; --j)
+        {
+            if(World.getWorld().getTileAt(x,j,z) != 0)
+            {
+                System.out.println("Tree created at: " + x + "," + j + "," + z);
+                for (int i = 1; i < height+1; i++)
+                {
+                    World.getWorld().setTile(Tile.Tiles.tileLog, x, j+i, z);
+                    //world.setTile(Tile.Tiles.tileLog, x, j+i, z);
+                    if(i-leafstart > 0)
+                    {
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z);
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z);
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i, z+1);
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i, z-1);
+                    }
+                    World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z);
+                }
+                return;
+            }
+        }
+    }
+
     public void init()
     {
         Tile.Tiles.init();
 
 
         CameraController.setRotation(35, 135, 0);
-        CameraController.setPosition(Chunk.CHUNK_SIZE * 0.5f, Chunk.CHUNK_HEIGHT * 0.5f, Chunk.CHUNK_SIZE * 0.5f);
+        CameraController.setPosition(0, Chunk.CHUNK_HEIGHT * 0.5f * Tile.TILE_HEIGHT, 0);
 
         grassTexture = new MeshTexture(loader.loadTexture("textures/terrain"));//"textures/tiles/grass_top"));
         entTexture = new MeshTexture(loader.loadTexture("textures/entTexture"));
-        currentWorld = new World();
+        currentWorld = new World(1);
+
+        Random random = World.getWorld().getRandom();
+
+        //this isnt working because it's not updating the mesh!!!
+        for (int i = 0; i < random.nextInt(World.CHUNK_NUM_XZ * 2) + World.CHUNK_NUM_XZ; i++)
+        {
+            makeTree(random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE), random.nextInt(Chunk.CHUNK_HEIGHT / 4) + Chunk.CHUNK_HEIGHT/4, random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE), 6);
+        }
 
         for (int i = 0; i < World.CHUNK_NUM_XZ; i++)
         {
@@ -166,6 +204,8 @@ public class GameContainer implements Runnable, IGameContainer
                 }
             }
         }
+
+
 
         World.getWorld().getEntities().add(new EntityHumanoid(Chunk.CHUNK_SIZE, 10, Chunk.CHUNK_SIZE, 0, 0, 0));
 
@@ -259,9 +299,26 @@ public class GameContainer implements Runnable, IGameContainer
         }
     }
 
+    private boolean renderWireFrame = false;
 
     public void update(float dt)
     {
+        if (InputKeyboard.getKeyDown(Keyboard.KEY_F1))
+        {
+            if(renderWireFrame)
+            {
+                GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+                //GL11.glEnable(GL11.GL_TEXTURE_2D);
+            }
+            else
+            {
+                GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+                //GL11.glDisable(GL11.GL_TEXTURE_2D);
+            }
+            renderWireFrame = !renderWireFrame;
+        }
+
+
         CameraController.move();
     }
 
@@ -305,7 +362,7 @@ public class GameContainer implements Runnable, IGameContainer
     public static void main(String[] args)
     {
         String fileNatives = OperatingSystem.getOSforLWJGLNatives();
-        System.setProperty("org.lwjgl.librarypath", new File("libs/native" + File.separator + fileNatives).getAbsolutePath());
+        System.setProperty("org.lwjgl.librarypath", new File("libs" + File.separator + "native" + File.separator + fileNatives).getAbsolutePath());
         new GameContainer().start();
     }
 }

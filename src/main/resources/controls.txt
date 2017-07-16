@@ -1,0 +1,9 @@
+forward=w
+right=d
+backward=s
+left=a
+up=e
+down=q
+moveFaster=Shift
+toggleWireFrame=F1
+toggleOrtho=Tab

@@ -55,11 +55,16 @@ public class ChunkMesh extends TexturedMesh
             {
                 for (int k = 0; k < Chunk.CHUNK_SIZE; k++)
                 {
-                    if(chunk.getTileAt(i,j,k) == 0)
+                    if (chunk.getTileAt(i, j, k) == 0)
                     {
                         continue;
                     }
 
+                    /*if(!Tile.Tiles.get(chunk.getTileAt(i,j,k)).isOpaque())
+                    {
+                        //TODO Transparency Sorting
+                        continue;
+                    }*/
                     CreateCube(vertices, indices, uvs, i,j,k);
                 }
             }
@@ -77,7 +82,7 @@ public class ChunkMesh extends TexturedMesh
         float[] uvFace;
 
         //North
-        if(!Tile.Tiles.get(chunk.getTileAt(x,y,z+1)).isOpaque())
+        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
         {
             verts = getFaceVertices(0, vec);
             int count = vertices.size() / 3;
@@ -100,7 +105,7 @@ public class ChunkMesh extends TexturedMesh
             }*/
         }
         //east
-        if(!Tile.Tiles.get(chunk.getTileAt(x+1,y,z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
+        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
         {
             verts = getFaceVertices(1, vec);
             int count = vertices.size() / 3;
@@ -117,7 +122,7 @@ public class ChunkMesh extends TexturedMesh
             }
         }
         //south
-        if(!Tile.Tiles.get(chunk.getTileAt(x,y,z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
+        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
         {
             verts = getFaceVertices(2, vec);
             int count = vertices.size() / 3;
@@ -134,7 +139,7 @@ public class ChunkMesh extends TexturedMesh
             }
         }
         //west
-        if(!Tile.Tiles.get(chunk.getTileAt(x-1,y,z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
+        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
         {
             verts = getFaceVertices(3, vec);
             int count = vertices.size() / 3;
@@ -151,7 +156,7 @@ public class ChunkMesh extends TexturedMesh
             }
         }
         //top
-        if(!Tile.Tiles.get(chunk.getTileAt(x,y+1,z)).isOpaque())//chunk.getTileAt(x,y+1,z) == 0)
+        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x,y+1,z) == 0)
         {
             verts = getFaceVertices(4, vec);
             int count = vertices.size() / 3;
@@ -168,7 +173,7 @@ public class ChunkMesh extends TexturedMesh
             }
         }
         //bottom
-        if(!Tile.Tiles.get(chunk.getTileAt(x,y-1,z)).isOpaque())//chunk.getTileAt(x,y-1,z) == 0)
+        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x,y-1,z) == 0)
         {
             verts = getFaceVertices(5, vec);
             int count = vertices.size() / 3;
@@ -227,7 +232,7 @@ public class ChunkMesh extends TexturedMesh
                     0,1,3,
                     3,1,2
             };
-
+    /*
     private static float[] uvListY =
             {
                     0,0,
@@ -242,7 +247,7 @@ public class ChunkMesh extends TexturedMesh
                     0,1,//Tile.TILE_HEIGHT,
                     1,1,//Tile.TILE_HEIGHT,
                     1,0
-            };
+            };*/
 
 
     /**
@@ -262,18 +267,24 @@ public class ChunkMesh extends TexturedMesh
         return fv;
     }
 
+    public static final int TERRAIN_TEXTURE_ROWS = 16;
+    public static final int TERRAIN_TEXTURE_COLS = 16;
+
+    private float tileTextureWidth = 1f / TERRAIN_TEXTURE_ROWS;
+    private float tileTextureHeight = 1f / TERRAIN_TEXTURE_COLS;
+
     private float[] getFaceUVs(boolean isY, int face, int id)
     {
-        System.out.println(id + " " + face);
-        int col = Tile.Tiles.get(id).getTextureOffset(face) / 16;
-        int row = Tile.Tiles.get(id).getTextureOffset(face) % 16;
-        System.out.println("Col: " + col + ", Row: " + row);
+        //System.out.println(id + " " + face);
+        int row = Tile.Tiles.get(id).getTextureOffset(face) % TERRAIN_TEXTURE_ROWS;
+        int col = Tile.Tiles.get(id).getTextureOffset(face) / TERRAIN_TEXTURE_COLS;
+        //System.out.println("Col: " + col + ", Row: " + row);
 
 
-        float r0 = row * 0.0625f;
-        float r1 = row * 0.0625f + 0.0625f;
-        float c0 = col * 0.0625f;
-        float c1 = col * 0.0625f + 0.0625f;
+        float r0 = row * tileTextureWidth;
+        float r1 = row * tileTextureWidth + tileTextureWidth;
+        float c0 = col * tileTextureHeight;
+        float c1 = col * tileTextureHeight + tileTextureHeight;
 
         return new float[]
                 {

@@ -16,9 +16,9 @@ public class World
 
 
     private Chunk[][][] chunkList;//List<Chunk> chunkList = new ArrayList<Chunk>();
-    public static final int CHUNK_NUM_XZ = 2, CHUNK_NUM_Y = 1;
+    public static final int CHUNK_NUM_XZ = 8, CHUNK_NUM_Y = 1;
     public static final float CHUNK_OFFSET_Y = Tile.TILE_HEIGHT;
-    public static final float CHUNK_OFFSET_XZ = Tile.TILE_SIZE * 0.5f;
+    public static final float CHUNK_OFFSET_XZ = Tile.TILE_SIZE;
     private Chunk emptyChunk = new EmptyChunk(0,0,0);
 
     public List<Entity> entityList = new ArrayList<Entity>();
@@ -56,7 +56,7 @@ public class World
             {
                 for (int k = 0; k < CHUNK_NUM_XZ; k++)
                 {
-                    chunkList[i][j][k] = new Chunk(i*Chunk.CHUNK_SIZE,0,k*Chunk.CHUNK_SIZE);
+                    chunkList[i][j][k] = new Chunk(i*Chunk.CHUNK_SIZE*Tile.TILE_SIZE,j*Chunk.CHUNK_HEIGHT*Tile.TILE_HEIGHT,k*Chunk.CHUNK_SIZE*Tile.TILE_SIZE);
                 }
             }
         }
@@ -69,12 +69,13 @@ public class World
     }
 
     /**
-     *
+     * Depreciates as it is only used when we have a set number of chunks
      * @param x
      * @param y
      * @param z
-     * @return
+     * @return The chunk at x,y,z in the chunk array
      */
+    @Deprecated
     public Chunk getChunk(int x, int y, int z)
     {
         if(x < 0 || x >= CHUNK_NUM_XZ || y < 0 || y >= CHUNK_NUM_Y || z < 0 || z >= CHUNK_NUM_XZ)
@@ -83,6 +84,18 @@ public class World
         }
 
         return this.chunkList[x][y][z];
+    }
+
+    public Chunk getChunkAt(int x, int y, int z)
+    {
+        if(x < 0 || x >= CHUNK_NUM_XZ * Chunk.CHUNK_SIZE
+                || y < 0 || y >= CHUNK_NUM_Y * Chunk.CHUNK_HEIGHT
+                || z < 0 || z >= CHUNK_NUM_XZ * Chunk.CHUNK_SIZE)
+        {
+            return null;
+        }
+
+        return this.chunkList[x/Chunk.CHUNK_SIZE][y/Chunk.CHUNK_HEIGHT][z/Chunk.CHUNK_SIZE];
     }
 
     public List<Entity> getEntities()
@@ -95,4 +108,23 @@ public class World
         return emptyChunk;
     }
 
+    public int getTileAt(int x, int y, int z)
+    {
+        //System.out.println(x / Chunk.CHUNK_SIZE + ", " + y / Chunk.CHUNK_HEIGHT + ", " + z / Chunk.CHUNK_SIZE);
+        Chunk chunk = getChunkAt(x, y, z);
+        if(chunk != null)
+        {
+            return chunk.getTileAt(x % Chunk.CHUNK_SIZE, y % Chunk.CHUNK_HEIGHT, z % Chunk.CHUNK_SIZE);
+        }
+        return 0;
+    }
+
+    public void setTile(Tile tile, int x, int y, int z)
+    {
+        Chunk chunk = getChunkAt(x, y, z);
+        if(chunk != null)
+        {
+            chunk.setTile(tile, x % Chunk.CHUNK_SIZE, y % Chunk.CHUNK_HEIGHT, z % Chunk.CHUNK_SIZE);
+        }
+    }
 }

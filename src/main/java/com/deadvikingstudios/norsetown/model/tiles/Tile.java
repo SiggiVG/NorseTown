@@ -10,9 +10,6 @@ public class Tile
     public static final float TILE_SIZE = 1f;
     public static final float TILE_HEIGHT = 0.5f;
 
-    public static final int TERRAIN_TEXTURE_ROWS = 16;
-    public static final int TERRAIN_TEXTURE_COLS = 16;
-
     /**
      * unlocalized name, used for localization and texturing
      */
@@ -52,6 +49,10 @@ public class Tile
         return INDEX;
     }
 
+    /**
+     * physically takes up entire tilespace
+     * @return
+     */
     public boolean isSolid()
     {
         return isSolid && !isAir();
@@ -63,6 +64,10 @@ public class Tile
         return this;
     }
 
+    /**
+     * Visually takes up entire tilespace
+     * @return
+     */
     public boolean isOpaque()
     {
         return isOpaque && !isAir();
@@ -71,6 +76,27 @@ public class Tile
     public Tile setOpaque(boolean opaque)
     {
         isOpaque = opaque;
+        return this;
+    }
+
+    public boolean isFullTile()
+    {
+        return this.isOpaque() && this.isSolid();
+    }
+
+    /**
+     * TODO: maybe move all these to chunk data, or shapedata or something?
+     * -1 doesn't render
+     * 0 is a full tileSpace cuboid
+     */
+    private int renderMode = 0;
+    public int getRenderMode()
+    {
+        return renderMode;
+    }
+    public Tile setRenderMode(int mode)
+    {
+        renderMode = mode;
         return this;
     }
 
@@ -127,12 +153,26 @@ public class Tile
         public static Tile tileAir;
         public static Tile tileGrass;
         public static Tile tileSoil;
+        public static Tile tileLog;
+        public static Tile tilePlank;
+        public static Tile tileStoneCliff;
+        public static Tile tileStoneCobble;
+        public static Tile tileClay;
+        public static Tile tileWattleDaub;
+        public static Tile tileLeaves;
 
         public static void init()
         {
             register(tileAir = new Tile(0,"tile_air", EnumMaterial.AIR).setOpaque(false).setSolid(false));
             register(tileGrass = new Tile(1,"tile_sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,3));
             register(tileSoil = new Tile(2, "tile_soil", EnumMaterial.EARTH).setTextureOffset(3));
+            register(tileLog = new Tile(3,"tile_log", EnumMaterial.WOOD).setTextureOffset(6,5));
+            register(tilePlank = new Tile(4,"tile_plank", EnumMaterial.WOOD).setTextureOffset(4));
+            register(tileStoneCliff = new Tile(5,"tile_stone_cliff", EnumMaterial.STONE).setTextureOffset(7));
+            register(tileStoneCobble = new Tile(6,"tile_stone_cobble", EnumMaterial.STONE).setTextureOffset(8));
+            register(tileClay = new Tile(7,"tile_clay", EnumMaterial.EARTH).setTextureOffset(9));
+            register(tileWattleDaub = new Tile(8,"tile_wattledaub", EnumMaterial.EARTH).setTextureOffset(9,10));
+            register(tileLeaves = new Tile(9,"tile_leaves", EnumMaterial.WOOD).setOpaque(false).setTextureOffset(16));
         }
 
         public static void register(Tile tile)
