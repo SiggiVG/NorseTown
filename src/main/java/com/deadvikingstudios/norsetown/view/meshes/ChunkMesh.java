@@ -82,7 +82,7 @@ public class ChunkMesh extends TexturedMesh
         float[] uvFace;
 
         //North
-        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
+        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
         {
             verts = getFaceVertices(0, vec);
             int count = vertices.size() / 3;
@@ -105,7 +105,7 @@ public class ChunkMesh extends TexturedMesh
             }*/
         }
         //east
-        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
+        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
         {
             verts = getFaceVertices(1, vec);
             int count = vertices.size() / 3;
@@ -122,7 +122,7 @@ public class ChunkMesh extends TexturedMesh
             }
         }
         //south
-        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
+        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
         {
             verts = getFaceVertices(2, vec);
             int count = vertices.size() / 3;
@@ -139,7 +139,7 @@ public class ChunkMesh extends TexturedMesh
             }
         }
         //west
-        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
+        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
         {
             verts = getFaceVertices(3, vec);
             int count = vertices.size() / 3;
@@ -156,7 +156,7 @@ public class ChunkMesh extends TexturedMesh
             }
         }
         //top
-        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x,y+1,z) == 0)
+        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x,y+1,z) == 0)
         {
             verts = getFaceVertices(4, vec);
             int count = vertices.size() / 3;
@@ -173,7 +173,7 @@ public class ChunkMesh extends TexturedMesh
             }
         }
         //bottom
-        if(!Tile.Tiles.get(World.getWorld().getTileAt((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x,y-1,z) == 0)
+        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x,y-1,z) == 0)
         {
             verts = getFaceVertices(5, vec);
             int count = vertices.size() / 3;

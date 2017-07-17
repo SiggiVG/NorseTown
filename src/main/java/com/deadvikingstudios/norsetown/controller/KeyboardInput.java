@@ -7,7 +7,7 @@ import java.util.ArrayList;
 /**
  * Created by SiggiVG on 7/15/2017.
  */
-public class InputKeyboard
+public class KeyboardInput
 {
     public static final int NUM_KEYCODES = 256;
 

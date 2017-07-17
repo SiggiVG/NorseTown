@@ -25,7 +25,7 @@ public class Chunk
     /**
      * Vertical Axis, how many vertical slices are in a chunk
      */
-    public static final int CHUNK_HEIGHT = 64;
+    public static final int CHUNK_HEIGHT = 256;
 
     protected Vector3f position;
 
@@ -57,16 +57,54 @@ public class Chunk
 
     protected void init()
     {
-        Random random = World.getWorld().getRandom();
+        float seedVal = 0;//(float)World.getWorld().SEED / 256f;
         //fill with terrain
         for (int i = 0; i < CHUNK_SIZE; ++i)
         {
             for (int k = 0; k < CHUNK_SIZE; ++k)
             {
-                for (int j = 0; j < PerlinNoise.perlin(
-                        (this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.025f,
-                        (this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.025f,
-                        (this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.025f) * CHUNK_HEIGHT; //multiply by vertical distribution
+                float h = 0;
+                //X is bigger
+                if(this.getPosX()+i > World.CHUNK_NUM_XZ*CHUNK_SIZE/2)
+                {
+                    //both are bigger
+                    if(this.getPosZ()+k > World.CHUNK_NUM_XZ*CHUNK_SIZE/2)
+                    {
+                        h = Math.min(Chunk.CHUNK_HEIGHT-(this.getPosX()+i), Chunk.CHUNK_HEIGHT-(this.getPosZ()+k));
+                    }
+                    //only X is bigger
+                    else
+                    {
+                        h = Math.min(Chunk.CHUNK_HEIGHT-(this.getPosX()+i), this.getPosZ()+k);
+                    }
+                }
+                //Z is bigger
+                else if(this.getPosZ()+k > World.CHUNK_NUM_XZ*CHUNK_SIZE/2)
+                {
+                    //both are bigger
+                    if(this.getPosX()+i > World.CHUNK_NUM_XZ*CHUNK_SIZE/2)
+                    {
+                        h = Math.min(Chunk.CHUNK_HEIGHT-(this.getPosX()+i), Chunk.CHUNK_HEIGHT-(this.getPosZ()+k));
+                    }
+                    //only Z is bigger
+                    else
+                    {
+                        h = Math.min(this.getPosX()+i, Chunk.CHUNK_HEIGHT-(this.getPosZ()+k));
+                    }
+                }
+                //neither are bigger
+                else
+                {
+                    h = Math.min(this.getPosX()+i, this.getPosZ()+k);
+                }
+
+
+
+
+                for (int j = 0; j < (PerlinNoise.perlin(
+                        (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.025f,
+                        (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.025f,
+                        (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.025f) * CHUNK_HEIGHT/4f) + 0.75f*(h); //multiply by vertical distribution
                      ++j)
                 {
                     if(j < 0 || j >= CHUNK_HEIGHT)
@@ -83,7 +121,12 @@ public class Chunk
                         setTile(Tile.Tiles.tileGrass, i, j, k);
                         setTile(Tile.Tiles.tileSoil, i, j-1, k);
                         setTile(Tile.Tiles.tileSoil, i, j-2, k);
-                        setTile(Tile.Tiles.tileClay, i, j-3, k);
+                        setTile(Tile.Tiles.tileSoil, i, j-3, k);
+                        setTile(Tile.Tiles.tileSoil, i, j-4, k);
+                        setTile(Tile.Tiles.tileSoil, i, j-5, k);
+                        setTile(Tile.Tiles.tileClay, i, j-6, k);
+                        setTile(Tile.Tiles.tileClay, i, j-7, k);
+                        setTile(Tile.Tiles.tileClay, i, j-8, k);
                         break;
                     }
                 }

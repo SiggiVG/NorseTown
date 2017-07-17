@@ -2,10 +2,12 @@ package com.deadvikingstudios.norsetown.model.world.gen;
 
 /**
  * Created by SiggiVG on 6/24/2017.
+ *
+ * Flafla2's Implementation: https://gist.github.com/Flafla2/f0260a861be0ebdeef76
  */
 public class PerlinNoise
 {
-    public static double OctavePerlin(double x, double y, double z, int octaves, double persistence) {
+    public double OctavePerlin(double x, double y, double z, int octaves, double persistence) {
         double total = 0;
         double frequency = 1;
         double amplitude = 1;
@@ -18,9 +20,10 @@ public class PerlinNoise
 
         return total;
     }
-
-    private static final int[] permutation = { 151,160,137,91,90,15,					// Hash lookup table as defined by Ken Perlin.  This is a randomly
-            131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,	// arranged array of all numbers from 0-255 inclusive.
+    // Hash lookup table as defined by Ken Perlin.  This is a randomly
+    // arranged array of all numbers from 0-255 inclusive.
+    private static final int[] permutation = { 151,160,137,91,90,15,
+            131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
             190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
             88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
             77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
@@ -34,7 +37,7 @@ public class PerlinNoise
             138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180
     };
 
-    private static final int[] p; 													// Doubled permutation to avoid overflow
+    private static final int[] p;// Doubled permutation to avoid overflow
 
     static {
         p = new int[512];
@@ -45,28 +48,28 @@ public class PerlinNoise
 
     public static double perlin(double x, double y, double z)
     {
-        /*if(repeat > 0) {									// If we have any repeat on, change the coordinates to their "local" repetitions
+        /*if(repeat > 0) { // If we have any repeat on, change the coordinates to their "local" repetitions
             x = x%repeat;
             y = y%repeat;
             z = z%repeat;
         }*/
 
-        int xi = (int)x & 255;								// Calculate the "unit cube" that the point asked will be located in
-        int yi = (int)y & 255;								// The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
-        int zi = (int)z & 255;								// plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
-        double xf = x-(int)x;								// We also fade the location to smooth the result.
+        int xi = (int)x & 255; // Calculate the "unit cube" that the point asked will be located in
+        int yi = (int)y & 255; // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
+        int zi = (int)z & 255; // plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
+        double xf = x-(int)x; // We also fade the location to smooth the result.
         double yf = y-(int)y;
         double zf = z-(int)z;
         double u = fade(xf);
         double v = fade(yf);
         double w = fade(zf);
 
-        int a  = p[xi]  +yi;								// This here is Perlin's hash function.  We take our x value (remember,
-        int aa = p[a]   +zi;								// between 0 and 255) and get a random value (from our p[] array above) between
-        int ab = p[a+1] +zi;								// 0 and 255.  We then add y to it and plug that into p[], and add z to that.
-        int b  = p[xi+1]+yi;								// Then, we get another random value by adding 1 to that and putting it into p[]
-        int ba = p[b]   +zi;								// and add z to it.  We do the whole thing over again starting with x+1.  Later
-        int bb = p[b+1] +zi;								// we plug aa, ab, ba, and bb back into p[] along with their +1's to get another set.
+        int a  = p[xi]  +yi; // This here is Perlin's hash function.  We take our x value (remember,
+        int aa = p[a]   +zi; // between 0 and 255) and get a random value (from our p[] array above) between
+        int ab = p[a+1] +zi; // 0 and 255.  We then add y to it and plug that into p[], and add z to that.
+        int b  = p[xi+1]+yi; // Then, we get another random value by adding 1 to that and putting it into p[]
+        int ba = p[b]   +zi; // and add z to it.  We do the whole thing over again starting with x+1.  Later
+        int bb = p[b+1] +zi; // we plug aa, ab, ba, and bb back into p[] along with their +1's to get another set.
         // in the end we have 8 values between 0 and 255 - one for each vertex on the unit cube.
         // These are all interpolated together using u, v, and w below.
 

@@ -16,6 +16,7 @@ import com.deadvikingstudios.norsetown.view.meshes.MeshTexture;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.Random;
 public class GameContainer implements Runnable, IGameContainer
 {
     public static final String GAME_NAME = "NorseTown";
-    public static final String VERSION = "Indev-0.01d";
+    public static final String VERSION = "Indev-0.01f";
 
     public static final String SRC_PATH = "/src/main/java/com/deadvikingstudios/norsetown/";
     private static boolean outputFPS = false;
@@ -51,6 +52,10 @@ public class GameContainer implements Runnable, IGameContainer
     private static List<ChunkMesh> chunks = new ArrayList<ChunkMesh>();
     private static List<EntityMesh> entityMeshes = new ArrayList<EntityMesh>();
 
+    private static CameraController camera;
+    private static MousePicker picker;
+
+
     private static MeshTexture grassTexture;
     private static MeshTexture entTexture;
 
@@ -63,6 +68,8 @@ public class GameContainer implements Runnable, IGameContainer
         loader = new Loader();
         shader = new StaticShader();
         renderer = new MasterRenderer(shader);
+
+        camera = new CameraController(0, 0, 0);
 
         thread = new Thread(this);
         thread.run();
@@ -105,7 +112,7 @@ public class GameContainer implements Runnable, IGameContainer
                 render = true;
 
                 game.update((float) UPDATE_CAP);
-                InputKeyboard.update();
+
 
                 //FPS output
                 if(MODE.equals("debug"))
@@ -149,14 +156,14 @@ public class GameContainer implements Runnable, IGameContainer
     }
 
     //TODO: make better and move to treeGen
-    private void makeTree(int x, int height, int z, int leafstart)
+    private static void makeTree(int x, int height, int z, int leafstart)
     {
         for (int j = Chunk.CHUNK_HEIGHT - 1; j >= 0; --j)
         {
-            if(World.getWorld().getTileAt(x,j,z) != 0)
+            if(World.getWorld().getTile(x,j,z) == 2)
             {
                 System.out.println("Tree created at: " + x + "," + j + "," + z);
-                for (int i = 1; i < height+1; i++)
+                for (int i = 2; i < height+2; i++)
                 {
                     World.getWorld().setTile(Tile.Tiles.tileLog, x, j+i, z);
                     //world.setTile(Tile.Tiles.tileLog, x, j+i, z);
@@ -166,8 +173,39 @@ public class GameContainer implements Runnable, IGameContainer
                         World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z);
                         World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i, z+1);
                         World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i, z-1);
+                        if(i % 6 == 0)
+                        {
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+2, j+i, z);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-2, j+i, z);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i, z+2);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i, z-2);
+
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z-2);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z+2);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z+2);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z-2);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+2, j+i, z-1);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-2, j+i, z+1);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+2, j+i, z+1);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-2, j+i, z-1);
+                        }
+                        if(i % 3 == 0)
+                        {
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z-1);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z+1);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z+1);
+                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z-1);
+                        }
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z);
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+2, z);
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+3, z);
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i+1, z);
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i+1, z);
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z+1);
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z-1);
+
                     }
-                    World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z);
+
                 }
                 return;
             }
@@ -179,19 +217,22 @@ public class GameContainer implements Runnable, IGameContainer
         Tile.Tiles.init();
 
 
-        CameraController.setRotation(35, 135, 0);
-        CameraController.setPosition(0, Chunk.CHUNK_HEIGHT * 0.5f * Tile.TILE_HEIGHT, 0);
+        camera.setRotation(35, 135, 0);
+        camera.setPosition(0, Chunk.CHUNK_HEIGHT * 0.5f * Tile.TILE_HEIGHT, 0);
 
         grassTexture = new MeshTexture(loader.loadTexture("textures/terrain"));//"textures/tiles/grass_top"));
         entTexture = new MeshTexture(loader.loadTexture("textures/entTexture"));
-        currentWorld = new World(1);
+        currentWorld = new World();
+
+        picker = new MousePicker(camera, renderer.getProjectionMatrix(), currentWorld);
 
         Random random = World.getWorld().getRandom();
 
-        //this isnt working because it's not updating the mesh!!!
-        for (int i = 0; i < random.nextInt(World.CHUNK_NUM_XZ * 2) + World.CHUNK_NUM_XZ; i++)
+        for (int i = 0; i < random.nextInt(World.CHUNK_NUM_XZ * 8) + World.CHUNK_NUM_XZ*4; i++)
         {
-            makeTree(random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE), random.nextInt(Chunk.CHUNK_HEIGHT / 4) + Chunk.CHUNK_HEIGHT/4, random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE), 6);
+            makeTree(random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE),
+                    random.nextInt(Chunk.CHUNK_HEIGHT / 16) + Chunk.CHUNK_HEIGHT/16,
+                    random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE), 6);
         }
 
         for (int i = 0; i < World.CHUNK_NUM_XZ; i++)
@@ -207,7 +248,8 @@ public class GameContainer implements Runnable, IGameContainer
 
 
 
-        World.getWorld().getEntities().add(new EntityHumanoid(Chunk.CHUNK_SIZE, 10, Chunk.CHUNK_SIZE, 0, 0, 0));
+        World.getWorld().getEntities().add(new EntityHumanoid(
+                Chunk.CHUNK_SIZE, 10, Chunk.CHUNK_SIZE, 0, 0, 0));
 
         float[] vertices = {
                 0,1,1,
@@ -303,7 +345,15 @@ public class GameContainer implements Runnable, IGameContainer
 
     public void update(float dt)
     {
-        if (InputKeyboard.getKeyDown(Keyboard.KEY_F1))
+        KeyboardInput.update();
+        MouseInput.update();
+
+        camera.move();
+        picker.update();
+        //System.out.println(picker.getCurrentRay());
+        //System.out.println(picker.getCurrentWorldPoint());
+
+        if (KeyboardInput.getKeyDown(Keyboard.KEY_F1))
         {
             if(renderWireFrame)
             {
@@ -318,8 +368,16 @@ public class GameContainer implements Runnable, IGameContainer
             renderWireFrame = !renderWireFrame;
         }
 
+        for (Entity ent : World.getWorld().getEntities())
+        {
+            if(picker.getCurrentWorldPoint() != null)
+            {
 
-        CameraController.move();
+                ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE,
+                        picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT+1,
+                        picker.getCurrentWorldPoint().z*Tile.TILE_SIZE));
+            }
+        }
     }
 
     public void render()
@@ -332,7 +390,7 @@ public class GameContainer implements Runnable, IGameContainer
         //ent.scale(-0.001f);
         //ent.rotate(0f, 0f,0.1f);
         shader.start();
-        shader.loadViewMatrix();
+        shader.loadViewMatrix(camera);
 
         for (ChunkMesh chunk : chunks)
         {

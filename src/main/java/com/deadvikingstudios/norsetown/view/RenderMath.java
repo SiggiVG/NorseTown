@@ -41,15 +41,15 @@ public class RenderMath
         return matrix;
     }
 
-    public static Matrix4f createViewMatrix()
+    public static Matrix4f createViewMatrix(CameraController camera)
     {
         Matrix4f matrix = new Matrix4f();
         matrix.setIdentity();
 
-        Matrix4f.rotate((float)Math.toRadians(CameraController.getRoll()), new Vector3f(1,0,0), matrix, matrix);
-        Matrix4f.rotate((float)Math.toRadians(CameraController.getPitch()), new Vector3f(0,1,0), matrix, matrix);
-        Matrix4f.rotate((float)Math.toRadians(CameraController.getYaw()), new Vector3f(0,0,1), matrix, matrix);
-        Matrix4f.translate(new Vector3f(-CameraController.getPosition().x, -CameraController.getPosition().y, -CameraController.getPosition().z), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(camera.getRoll()), new Vector3f(1,0,0), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(camera.getPitch()), new Vector3f(0,1,0), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(camera.getYaw()), new Vector3f(0,0,1), matrix, matrix);
+        Matrix4f.translate(new Vector3f(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z), matrix, matrix);
 
         return matrix;
     }

@@ -8,7 +8,7 @@ package com.deadvikingstudios.norsetown.model.tiles;
 public class Tile
 {
     public static final float TILE_SIZE = 1f;
-    public static final float TILE_HEIGHT = 0.5f;
+    public static final float TILE_HEIGHT = 1f;
 
     /**
      * unlocalized name, used for localization and texturing

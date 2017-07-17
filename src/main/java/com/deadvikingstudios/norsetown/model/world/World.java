@@ -3,6 +3,7 @@ package com.deadvikingstudios.norsetown.model.world;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.tileenitites.TileEntity;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ public class World
 
 
     private Chunk[][][] chunkList;//List<Chunk> chunkList = new ArrayList<Chunk>();
-    public static final int CHUNK_NUM_XZ = 8, CHUNK_NUM_Y = 1;
+    public static final int CHUNK_NUM_XZ = 16, CHUNK_NUM_Y = 1;
     public static final float CHUNK_OFFSET_Y = Tile.TILE_HEIGHT;
     public static final float CHUNK_OFFSET_XZ = Tile.TILE_SIZE;
     private Chunk emptyChunk = new EmptyChunk(0,0,0);
@@ -56,7 +57,8 @@ public class World
             {
                 for (int k = 0; k < CHUNK_NUM_XZ; k++)
                 {
-                    chunkList[i][j][k] = new Chunk(i*Chunk.CHUNK_SIZE*Tile.TILE_SIZE,j*Chunk.CHUNK_HEIGHT*Tile.TILE_HEIGHT,k*Chunk.CHUNK_SIZE*Tile.TILE_SIZE);
+                    chunkList[i][j][k] = new Chunk(i*Chunk.CHUNK_SIZE*Tile.TILE_SIZE,
+                            j*Chunk.CHUNK_HEIGHT*Tile.TILE_HEIGHT,k*Chunk.CHUNK_SIZE*Tile.TILE_SIZE);
                 }
             }
         }
@@ -86,7 +88,7 @@ public class World
         return this.chunkList[x][y][z];
     }
 
-    public Chunk getChunkAt(int x, int y, int z)
+    public Chunk getChunkAt(float x, float y, float z)
     {
         if(x < 0 || x >= CHUNK_NUM_XZ * Chunk.CHUNK_SIZE
                 || y < 0 || y >= CHUNK_NUM_Y * Chunk.CHUNK_HEIGHT
@@ -95,7 +97,7 @@ public class World
             return null;
         }
 
-        return this.chunkList[x/Chunk.CHUNK_SIZE][y/Chunk.CHUNK_HEIGHT][z/Chunk.CHUNK_SIZE];
+        return this.chunkList[((int)x)/Chunk.CHUNK_SIZE][((int)y)/Chunk.CHUNK_HEIGHT][((int)z)/Chunk.CHUNK_SIZE];
     }
 
     public List<Entity> getEntities()
@@ -108,15 +110,63 @@ public class World
         return emptyChunk;
     }
 
-    public int getTileAt(int x, int y, int z)
+    /**
+     *
+     * @param x
+     * @param y
+     * @param z
+     * @return the tile at Worldspace coords
+     */
+    public int getTileAt(float x, float y, float z)
+    {
+        return this.getTileAt(new Vector3f(x,y,z));
+    }
+
+    /**
+     *
+     * @param position
+     * @return the tile at Worldspace coords
+     */
+    public int getTileAt(Vector3f position)
     {
         //System.out.println(x / Chunk.CHUNK_SIZE + ", " + y / Chunk.CHUNK_HEIGHT + ", " + z / Chunk.CHUNK_SIZE);
-        Chunk chunk = getChunkAt(x, y, z);
+        Chunk chunk = getChunkAt(position.x, position.y, position.z);
         if(chunk != null)
         {
-            return chunk.getTileAt(x % Chunk.CHUNK_SIZE, y % Chunk.CHUNK_HEIGHT, z % Chunk.CHUNK_SIZE);
+            Vector3f tileCoords = worldSpaceToTileCoords(position);
+            return chunk.getTileAt(((int)tileCoords.x) % Chunk.CHUNK_SIZE,
+                    ((int)tileCoords.y) % Chunk.CHUNK_HEIGHT, ((int)tileCoords.z) % Chunk.CHUNK_SIZE);
         }
         return 0;
+    }
+
+    /**
+     * @param position
+     * @return the Tile at Tilespace coords
+     */
+    public int getTile(Vector3f position)
+    {
+        //System.out.println(x / Chunk.CHUNK_SIZE + ", " + y / Chunk.CHUNK_HEIGHT + ", " + z / Chunk.CHUNK_SIZE);
+        Chunk chunk = getChunkAt(position.x, position.y, position.z);
+        if(chunk != null)
+        {
+            //Vector3f tileCoords = worldSpaceToTileCoords(position);
+            return chunk.getTileAt(((int)position.x) % Chunk.CHUNK_SIZE,
+                    ((int)position.y) % Chunk.CHUNK_HEIGHT, ((int)position.z) % Chunk.CHUNK_SIZE);
+        }
+        return 0;
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     * @param z
+     * @return the tile at Tilespace coords
+     */
+    public int getTile(int x, int y, int z)
+    {
+        return this.getTile(new Vector3f(x,y,z));
     }
 
     public void setTile(Tile tile, int x, int y, int z)
@@ -124,7 +174,36 @@ public class World
         Chunk chunk = getChunkAt(x, y, z);
         if(chunk != null)
         {
-            chunk.setTile(tile, x % Chunk.CHUNK_SIZE, y % Chunk.CHUNK_HEIGHT, z % Chunk.CHUNK_SIZE);
+            //Vector3f tileCoords = worldSpaceToTileCoords(x,y,z);
+            chunk.setTile(tile, ((int)x) % Chunk.CHUNK_SIZE,
+                    ((int)y) % Chunk.CHUNK_HEIGHT, ((int)z) % Chunk.CHUNK_SIZE);
         }
+    }
+
+    public void setTileAt(Tile tile, int x, int y, int z)
+    {
+        Chunk chunk = getChunkAt(x, y, z);
+        if(chunk != null)
+        {
+            Vector3f tileCoords = worldSpaceToTileCoords(x,y,z);
+            chunk.setTile(tile, ((int)tileCoords.x) % Chunk.CHUNK_SIZE,
+                    ((int)tileCoords.y) % Chunk.CHUNK_HEIGHT, ((int)tileCoords.z) % Chunk.CHUNK_SIZE);
+        }
+    }
+
+    /**
+     * Transforms a position in World space into the Local Space relative to the tilegrid
+     * @param position
+     * @return
+     */
+    public Vector3f worldSpaceToTileCoords(Vector3f position)
+    {
+        return new Vector3f((int)(Math.round(position.x)/Tile.TILE_SIZE),
+                (int)(Math.round(position.y)/Tile.TILE_HEIGHT), (int)(Math.round(position.z)/Tile.TILE_SIZE));
+    }
+
+    public Vector3f worldSpaceToTileCoords(float x, float y, float z)
+    {
+        return this.worldSpaceToTileCoords(new Vector3f(x,y,z));
     }
 }

@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.view.lwjgl.shaders;
 
+import com.deadvikingstudios.norsetown.controller.CameraController;
 import com.deadvikingstudios.norsetown.view.RenderMath;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -61,8 +62,8 @@ public class StaticShader extends ShaderProgram
         super.loadMatrix(location_projectionMatrix, matrix);
     }
 
-    public void loadViewMatrix()
+    public void loadViewMatrix(CameraController camera)
     {
-        super.loadMatrix(location_viewMatrix, RenderMath.createViewMatrix());
+        super.loadMatrix(location_viewMatrix, RenderMath.createViewMatrix(camera));
     }
 }

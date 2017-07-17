@@ -77,6 +77,11 @@ public class MasterRenderer
         //TODO Orthogonal
     }
 
+    public Matrix4f getProjectionMatrix()
+    {
+        return projectionMatrix;
+    }
+
     public void splash(TexturedMesh image)
     {
         MeshRenderer.render(image);

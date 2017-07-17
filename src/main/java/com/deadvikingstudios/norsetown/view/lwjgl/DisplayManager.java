@@ -58,6 +58,7 @@ public class DisplayManager
         }
         //binds the mouse
         Mouse.setGrabbed(true);
+        Mouse.setCursorPosition(Display.getWidth()/2, Display.getHeight()/2);
     }
 
     /**
@@ -83,10 +84,12 @@ public class DisplayManager
                 if(Keyboard.isKeyDown(Keyboard.KEY_R) && Mouse.isGrabbed())
                 {
                     Mouse.setGrabbed(false);
+                    Mouse.setCursorPosition(Display.getWidth()/2, Display.getHeight()/2);
                 }
                 else if(Keyboard.isKeyDown(Keyboard.KEY_R) && !Mouse.isGrabbed())
                 {
                     Mouse.setGrabbed(true);
+                    Mouse.setCursorPosition(Display.getWidth()/2, Display.getHeight()/2);
                 }
             }
         }

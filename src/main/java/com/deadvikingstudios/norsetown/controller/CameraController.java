@@ -2,6 +2,7 @@ package com.deadvikingstudios.norsetown.controller;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
 /**
@@ -12,22 +13,28 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class CameraController
 {
-    public static boolean isOrthogonal = false;
+    public boolean isOrthogonal = false;
 
-    private static Vector3f position = new Vector3f(0,0,0);
+    private Vector3f position;
     /**
      * x = roll
      * y = pitch
      * z = yaw
      */
-    private static Vector3f rotation = new Vector3f(0,0,0);;
+    private Vector3f rotation;
 
-    private static float speed = 0.2f;
-    private static float turnSpeed = 0.1f;
+    private float speed = 0.2f;
+    private float turnSpeed = 0.1f;
 
-    public static void move()
+    public CameraController(float x, float y, float z)
     {
-        if(InputKeyboard.getKeyDown(Keyboard.KEY_TAB))
+        position = new Vector3f(x,y,z);
+        rotation = new Vector3f(0,0,0);
+    }
+
+    public void move()
+    {
+        if(KeyboardInput.getKeyDown(Keyboard.KEY_TAB))
         {
             isOrthogonal = !isOrthogonal;
             if(isOrthogonal)
@@ -50,13 +57,19 @@ public class CameraController
                 {
                     rotation.y = 315;
                 }
+                Mouse.setGrabbed(false);
+                Mouse.setCursorPosition(Display.getWidth()/2, Display.getHeight()/2);
+            }
+            else
+            {
+                Mouse.setGrabbed(true);
             }
         }
 
 
         float moveAt = speed;
 
-        if(InputKeyboard.getKey(Keyboard.KEY_LSHIFT))
+        if(KeyboardInput.getKey(Keyboard.KEY_LSHIFT))
         {
             moveAt *= 5f;
         }
@@ -65,22 +78,22 @@ public class CameraController
         {
             if(rotation.y == 45)
             {
-                if (InputKeyboard.getKey(Keyboard.KEY_W))
+                if (KeyboardInput.getKey(Keyboard.KEY_W))
                 {
                     position.z -= moveAt;
                     position.x += moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_S))
+                if (KeyboardInput.getKey(Keyboard.KEY_S))
                 {
                     position.z += moveAt;
                     position.x -= moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_A))
+                if (KeyboardInput.getKey(Keyboard.KEY_A))
                 {
                     position.x -= moveAt;
                     position.z -= moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_D))
+                if (KeyboardInput.getKey(Keyboard.KEY_D))
                 {
                     position.x += moveAt;
                     position.z += moveAt;
@@ -88,22 +101,22 @@ public class CameraController
             }
             else if(rotation.y == 135)
             {
-                if (InputKeyboard.getKey(Keyboard.KEY_W))
+                if (KeyboardInput.getKey(Keyboard.KEY_W))
                 {
                     position.x += moveAt;
                     position.z += moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_S))
+                if (KeyboardInput.getKey(Keyboard.KEY_S))
                 {
                     position.x -= moveAt;
                     position.z -= moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_A))
+                if (KeyboardInput.getKey(Keyboard.KEY_A))
                 {
                     position.z -= moveAt;
                     position.x += moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_D))
+                if (KeyboardInput.getKey(Keyboard.KEY_D))
                 {
                     position.z += moveAt;
                     position.x -= moveAt;
@@ -111,22 +124,22 @@ public class CameraController
             }
             else if(rotation.y == 225)
             {
-                if (InputKeyboard.getKey(Keyboard.KEY_W))
+                if (KeyboardInput.getKey(Keyboard.KEY_W))
                 {
                     position.z += moveAt;
                     position.x -= moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_S))
+                if (KeyboardInput.getKey(Keyboard.KEY_S))
                 {
                     position.z -= moveAt;
                     position.x += moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_A))
+                if (KeyboardInput.getKey(Keyboard.KEY_A))
                 {
                     position.x += moveAt;
                     position.z += moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_D))
+                if (KeyboardInput.getKey(Keyboard.KEY_D))
                 {
                     position.x -= moveAt;
                     position.z -= moveAt;
@@ -134,22 +147,22 @@ public class CameraController
             }
             else if(rotation.y == 315)
             {
-                if (InputKeyboard.getKey(Keyboard.KEY_W))
+                if (KeyboardInput.getKey(Keyboard.KEY_W))
                 {
                     position.x -= moveAt;
                     position.z -= moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_S))
+                if (KeyboardInput.getKey(Keyboard.KEY_S))
                 {
                     position.x += moveAt;
                     position.z += moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_A))
+                if (KeyboardInput.getKey(Keyboard.KEY_A))
                 {
                     position.z += moveAt;
                     position.x -= moveAt;
                 }
-                if (InputKeyboard.getKey(Keyboard.KEY_D))
+                if (KeyboardInput.getKey(Keyboard.KEY_D))
                 {
                     position.z -= moveAt;
                     position.x += moveAt;
@@ -159,33 +172,36 @@ public class CameraController
         else
         {
             //rotation start
-            roll(-Mouse.getDY() * turnSpeed);
-            pitch(Mouse.getDX() * turnSpeed);
+            if(Mouse.isGrabbed())
+            {
+                roll(-Mouse.getDY() * turnSpeed);
+                pitch(Mouse.getDX() * turnSpeed);
+            }
             //rotation end
 
             float dx=0;
             float dy=0;
             float dz=0;
 
-            if (InputKeyboard.getKey(Keyboard.KEY_W))
+            if (KeyboardInput.getKey(Keyboard.KEY_W))
             {
                 dx = (moveAt * (float) Math.sin(Math.toRadians(rotation.y)));
                 dy = -(moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
                 dz = -(moveAt * (float) Math.cos(Math.toRadians(rotation.y)));
             }
-            if (InputKeyboard.getKey(Keyboard.KEY_S))
+            if (KeyboardInput.getKey(Keyboard.KEY_S))
             {
                 dx = -(moveAt * (float) Math.sin(Math.toRadians(rotation.y)));
                 dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
                 dz = (moveAt * (float) Math.cos(Math.toRadians(rotation.y)));
             }
-            if (InputKeyboard.getKey(Keyboard.KEY_A))
+            if (KeyboardInput.getKey(Keyboard.KEY_A))
             {
                 dx = (moveAt * (float) Math.sin(Math.toRadians(rotation.y-90)));
                 //dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
                 dz = -(moveAt * (float) Math.cos(Math.toRadians(rotation.y-90)));
             }
-            if (InputKeyboard.getKey(Keyboard.KEY_D))
+            if (KeyboardInput.getKey(Keyboard.KEY_D))
             {
                 dx = -(moveAt * (float) Math.sin(Math.toRadians(rotation.y-90)));
                 //dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
@@ -196,56 +212,56 @@ public class CameraController
         }
 
 
-        if (InputKeyboard.getKey(Keyboard.KEY_E))
+        if (KeyboardInput.getKey(Keyboard.KEY_E))
         {
             position.y += moveAt;
         }
-        else if (InputKeyboard.getKey(Keyboard.KEY_Q))
+        else if (KeyboardInput.getKey(Keyboard.KEY_Q))
         {
             position.y -= moveAt;
         }
     }
 
-    public static Vector3f getPosition()
+    public Vector3f getPosition()
     {
         return position;
     }
 
-    public static void setPosition(float x, float y, float z)
+    public void setPosition(float x, float y, float z)
     {
         position.x = x;
         position.y = y;
         position.z = z;
     }
 
-    public static void translate(float x, float y, float z)
+    public void translate(float x, float y, float z)
     {
         position.x += x;
         position.y += y;
         position.z += z;
     }
 
-    public static Vector3f getRotation()
+    public Vector3f getRotation()
     {
         return rotation;
     }
 
-    public static float getRoll()
+    public float getRoll()
     {
         return rotation.x;
     }
 
-    public static float getPitch()
+    public float getPitch()
     {
         return rotation.y;
     }
 
-    public static float getYaw()
+    public float getYaw()
     {
         return rotation.z;
     }
 
-    public static void roll(float degree)
+    public void roll(float degree)
     {
         rotation.x += degree;
 
@@ -259,7 +275,7 @@ public class CameraController
         }
     }
 
-    public static void pitch(float degree)
+    public void pitch(float degree)
     {
         rotation.y += degree;
 
@@ -272,7 +288,7 @@ public class CameraController
         }
     }
 
-    public static void yaw(float degree)
+    public void yaw(float degree)
     {
         rotation.z += degree;
 
@@ -286,17 +302,17 @@ public class CameraController
         }
     }
 
-    public static void setRotation(float x, float y, float z)
+    public void setRotation(float x, float y, float z)
     {
         rotation = new Vector3f(x, y, z);
     }
 
-    public static void setRotation(Vector3f rot)
+    public void setRotation(Vector3f rot)
     {
         rotation = rot;
     }
 
-    public static void addRotation(float x, float y, float z)
+    public void addRotation(float x, float y, float z)
     {
         roll(x);
         pitch(y);
