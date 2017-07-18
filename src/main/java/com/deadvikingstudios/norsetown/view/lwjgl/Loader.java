@@ -37,12 +37,32 @@ public class Loader
     public RawMesh loadToVAO(float[] vertices, int[] indices, float[] uvs)
     {
         int vaoID = createVAO();
-        storeDataInAttributeList(vertices, 0, 3);
-        bindIndicesBuffer(indices);
-        storeDataInAttributeList(uvs, 1, 2);
+        int vertVboID = storeDataInAttributeList(vertices, 0, 3);
+        int indVboID = bindIndicesBuffer(indices);
+        int uvVboID = storeDataInAttributeList(uvs, 1, 2);
         GL30.glBindVertexArray(0);
 
-        return new RawMesh(vaoID, indices.length);
+        return new RawMesh(vaoID, vertVboID, indVboID, uvVboID, indices.length);
+    }
+
+    public RawMesh reloadToVAO(RawMesh rawMesh, float[] vertices, int[] indices, float[] uvs)
+    {
+        //TODO: change the data within the buffer, rather than deleting them
+        //System.out.println(vaos.size() + "," + vbos.size());
+        int vaoID = rawMesh.getVaoID();
+        GL30.glBindVertexArray(vaoID);
+        GL15.glDeleteBuffers(rawMesh.getVboVertID());
+        vbos.remove(new Integer(rawMesh.getVboVertID()));
+        int vertVboID = storeDataInAttributeList(vertices, 0, 3);
+        GL15.glDeleteBuffers(rawMesh.getVboIndID());
+        vbos.remove(new Integer(rawMesh.getVboIndID()));
+        int indVboID = bindIndicesBuffer(indices);
+        GL15.glDeleteBuffers(rawMesh.getVboUvID());
+        vbos.remove(new Integer(rawMesh.getVboUvID()));
+        int uvVboID = storeDataInAttributeList(uvs, 1, 2);
+        GL30.glBindVertexArray(0);
+
+        return new RawMesh(vaoID, vertVboID, indVboID, uvVboID, indices.length);
     }
 
     private int createVAO()
@@ -54,7 +74,7 @@ public class Loader
         return vaoID;
     }
 
-    private void storeDataInAttributeList(float[] data, int attributeNumber, int dimensions)
+    private int storeDataInAttributeList(float[] data, int attributeNumber, int dimensions)
     {
         int vboID = GL15.glGenBuffers();
         vbos.add(vboID);
@@ -63,14 +83,16 @@ public class Loader
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
         GL20.glVertexAttribPointer(attributeNumber, dimensions, GL11.GL_FLOAT, false, 0,0);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        return vboID;
     }
 
-    private void bindIndicesBuffer(int[] indices)
+    private int bindIndicesBuffer(int[] indices)
     {
         int vboID = GL15.glGenBuffers();
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboID);
         IntBuffer buffer = storeDataInIntBuffer(indices);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        return vboID;
     }
 
     /**
@@ -134,18 +156,25 @@ public class Loader
      */
     public void cleanUp()
     {
-        for (int vao : vaos)
-        {
-            GL30.glDeleteVertexArrays(vao);
-        }
+        //GL20.glDisableVertexAttribArray(0);
 
+        //GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
         for (int vbo : vbos)
         {
             GL15.glDeleteBuffers(vbo);
         }
+        vbos.clear();
+
+        for (int vao : vaos)
+        {
+            GL30.glDeleteVertexArrays(vao);
+        }
+        vaos.clear();
+
         for (int texture : textures)
         {
             GL11.glDeleteTextures(texture);
         }
+        textures.clear();
     }
 }

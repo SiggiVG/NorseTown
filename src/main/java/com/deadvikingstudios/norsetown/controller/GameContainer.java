@@ -29,7 +29,7 @@ import java.util.Random;
 public class GameContainer implements Runnable, IGameContainer
 {
     public static final String GAME_NAME = "NorseTown";
-    public static final String VERSION = "Indev-0.01f";
+    public static final String VERSION = "Indev-0.02a";
 
     public static final String SRC_PATH = "/src/main/java/com/deadvikingstudios/norsetown/";
     private static boolean outputFPS = false;
@@ -167,7 +167,7 @@ public class GameContainer implements Runnable, IGameContainer
                 {
                     World.getWorld().setTile(Tile.Tiles.tileLog, x, j+i, z);
                     //world.setTile(Tile.Tiles.tileLog, x, j+i, z);
-                    if(i-leafstart > 0)
+                    /*if(i-leafstart > 0)
                     {
                         World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z);
                         World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z);
@@ -202,9 +202,9 @@ public class GameContainer implements Runnable, IGameContainer
                         World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i+1, z);
                         World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i+1, z);
                         World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z+1);
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z-1);
+                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z-1);*/
 
-                    }
+                    //}
 
                 }
                 return;
@@ -228,10 +228,10 @@ public class GameContainer implements Runnable, IGameContainer
 
         Random random = World.getWorld().getRandom();
 
-        for (int i = 0; i < random.nextInt(World.CHUNK_NUM_XZ * 8) + World.CHUNK_NUM_XZ*4; i++)
+        for (int i = 0; i < random.nextInt(World.CHUNK_NUM_XZ * 16) + World.CHUNK_NUM_XZ*8; i++)
         {
             makeTree(random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE),
-                    random.nextInt(Chunk.CHUNK_HEIGHT / 16) + Chunk.CHUNK_HEIGHT/16,
+                    Chunk.CHUNK_HEIGHT/32,
                     random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE), 6);
         }
 
@@ -241,15 +241,18 @@ public class GameContainer implements Runnable, IGameContainer
             {
                 for (int k = 0; k < World.CHUNK_NUM_XZ; k++)
                 {
-                    chunks.add(new ChunkMesh(currentWorld.getChunk(i,j,k), grassTexture));
+                    Chunk chunk = currentWorld.getChunk(i,j,k);
+                    chunk.setFlagForReMesh(false);
+                    chunks.add(new ChunkMesh(chunk, grassTexture));
+
                 }
             }
         }
 
 
-
-        World.getWorld().getEntities().add(new EntityHumanoid(
-                Chunk.CHUNK_SIZE, 10, Chunk.CHUNK_SIZE, 0, 0, 0));
+        //TODO remove this
+        //World.getWorld().getEntities().add(new EntityHumanoid(
+                //Chunk.CHUNK_SIZE, 10, Chunk.CHUNK_SIZE, 0, 0, 0));
 
         float[] vertices = {
                 0,1,1,
@@ -339,6 +342,8 @@ public class GameContainer implements Runnable, IGameContainer
         {
             entityMeshes.add(new EntityMesh(ent, loader.loadToVAO(vertices, indices, uv), entTexture));
         }
+
+        System.out.println("Initialization finished");
     }
 
     private boolean renderWireFrame = false;
@@ -352,6 +357,29 @@ public class GameContainer implements Runnable, IGameContainer
         picker.update();
         //System.out.println(picker.getCurrentRay());
         //System.out.println(picker.getCurrentWorldPoint());
+
+        currentWorld.update();
+
+        for (ChunkMesh mesh : chunks)
+        {
+            if(mesh.getChunk().isFlagForReMesh())
+            {
+                mesh.reloadMesh();
+                mesh.getChunk().setFlagForReMesh(false);
+            }
+        }
+
+        //Move to World.update()
+        for (Entity ent : World.getWorld().getEntities())
+        {
+            if(picker.getCurrentWorldPoint() != null)
+            {
+
+                /*ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE,
+                        picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT+1,
+                        picker.getCurrentWorldPoint().z*Tile.TILE_SIZE));*/
+            }
+        }
 
         if (KeyboardInput.getKeyDown(Keyboard.KEY_F1))
         {
@@ -368,16 +396,35 @@ public class GameContainer implements Runnable, IGameContainer
             renderWireFrame = !renderWireFrame;
         }
 
-        for (Entity ent : World.getWorld().getEntities())
+        //TODO remove this
+        if (KeyboardInput.getKeyDown(Keyboard.KEY_1))
         {
-            if(picker.getCurrentWorldPoint() != null)
-            {
-
-                ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE,
-                        picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT+1,
-                        picker.getCurrentWorldPoint().z*Tile.TILE_SIZE));
-            }
+            World.chunkTickSpeed = 4;
         }
+        else if (KeyboardInput.getKeyDown(Keyboard.KEY_2))
+        {
+            World.chunkTickSpeed = 8;
+        }
+        else if (KeyboardInput.getKeyDown(Keyboard.KEY_3))
+        {
+            World.chunkTickSpeed = 16;
+        }
+        else if (KeyboardInput.getKeyDown(Keyboard.KEY_4))
+        {
+            World.chunkTickSpeed = 32;
+        }
+        else if (KeyboardInput.getKeyDown(Keyboard.KEY_5))
+        {
+            World.chunkTickSpeed = 64;
+        }
+        else if (KeyboardInput.getKeyDown(Keyboard.KEY_6))
+        {
+            World.chunkTickSpeed = 128;
+        }
+
+
+
+
     }
 
     public void render()

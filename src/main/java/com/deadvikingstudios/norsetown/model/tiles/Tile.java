@@ -1,5 +1,7 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
+import com.deadvikingstudios.norsetown.model.world.World;
+
 /**
  * Created by SiggiVG on 6/19/2017.
  *
@@ -84,22 +86,6 @@ public class Tile
         return this.isOpaque() && this.isSolid();
     }
 
-    /**
-     * TODO: maybe move all these to chunk data, or shapedata or something?
-     * -1 doesn't render
-     * 0 is a full tileSpace cuboid
-     */
-    private int renderMode = 0;
-    public int getRenderMode()
-    {
-        return renderMode;
-    }
-    public Tile setRenderMode(int mode)
-    {
-        renderMode = mode;
-        return this;
-    }
-
     private int[] textureOffsets = new int[6];
 
     /**
@@ -146,6 +132,20 @@ public class Tile
         return this == Tiles.tileAir || (!isSolid && !isOpaque);
     }
 
+    public void update(World world, int x, int y, int z)
+    {
+    }
+
+    public int getRenderType()
+    {
+        return 0;
+    }
+
+    public boolean isReplacable()
+    {
+        return false;
+    }
+
     public static class Tiles
     {
         private static Tile tiles[] = new Tile[256];
@@ -160,19 +160,86 @@ public class Tile
         public static Tile tileClay;
         public static Tile tileWattleDaub;
         public static Tile tileLeaves;
+        public static Tile tileGrassTall;
 
         public static void init()
         {
-            register(tileAir = new Tile(0,"tile_air", EnumMaterial.AIR).setOpaque(false).setSolid(false));
+            register(tileAir = new Tile(0,"tile_air", EnumMaterial.AIR)
+            {
+                @Override
+                public int getRenderType()
+                {
+                    return -1;
+                }
+
+                @Override
+                public boolean isReplacable()
+                {
+                    return true;
+                }
+            }.setOpaque(false).setSolid(false));
             register(tileGrass = new Tile(1,"tile_sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,3));
             register(tileSoil = new Tile(2, "tile_soil", EnumMaterial.EARTH).setTextureOffset(3));
-            register(tileLog = new Tile(3,"tile_log", EnumMaterial.WOOD).setTextureOffset(6,5));
+            register(tileLog = new Tile(3,"tile_log", EnumMaterial.WOOD)
+            {
+                @Override
+                public void update(World world, int x, int y, int z)
+                {
+                    Tile tileUp = Tiles.get(world.getTile(x,y+1,z));
+                    if( tileUp == Tiles.tileLog)
+                    {
+                        world.incrementMetadataAt(x,y,z);
+                    }
+                    else
+                    {
+                        world.setTileAt(Tiles.tileLog, x, y+1, z, true);
+                        world.setTileAt(Tiles.tileLeaves, x, y+2, z, true);
+                        world.setTileAt(Tiles.tileLeaves, x, y+3, z, true);
+                        if(World.getWorld().getRandom().nextBoolean())
+                        {
+                            World.getWorld().setTileAt(Tile.Tiles.tileLeaves, x + 1, y + 1, z, true);
+                            World.getWorld().setTileAt(Tile.Tiles.tileLeaves, x - 1, y + 1, z, true);
+                            World.getWorld().setTileAt(Tile.Tiles.tileLeaves, x, y + 1, z + 1, true);
+                            World.getWorld().setTileAt(Tile.Tiles.tileLeaves, x, y + 1, z - 1, true);
+
+                            if (World.getWorld().getRandom().nextBoolean())
+                            {
+                                World.getWorld().setTile(Tile.Tiles.tileLeaves, x + 1, y + 1, z - 1, true);
+                                World.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z + 1, true);
+                                World.getWorld().setTile(Tile.Tiles.tileLeaves, x + 1, y + 1, z + 1, true);
+                                World.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z - 1, true);
+                            }
+                        }
+                    }
+                }
+            }.setTextureOffset(6,5));
             register(tilePlank = new Tile(4,"tile_plank", EnumMaterial.WOOD).setTextureOffset(4));
             register(tileStoneCliff = new Tile(5,"tile_stone_cliff", EnumMaterial.STONE).setTextureOffset(7));
             register(tileStoneCobble = new Tile(6,"tile_stone_cobble", EnumMaterial.STONE).setTextureOffset(8));
             register(tileClay = new Tile(7,"tile_clay", EnumMaterial.EARTH).setTextureOffset(9));
             register(tileWattleDaub = new Tile(8,"tile_wattledaub", EnumMaterial.EARTH).setTextureOffset(9,10));
-            register(tileLeaves = new Tile(9,"tile_leaves", EnumMaterial.WOOD).setOpaque(false).setTextureOffset(16));
+            register(tileLeaves = new Tile(9,"tile_leaves", EnumMaterial.PLANT)
+            {
+                @Override
+                public boolean isReplacable()
+                {
+                    return true;
+                }
+            }.setOpaque(false).setTextureOffset(16));
+            register(tileGrassTall = new Tile(10, "tile_grass_tall", EnumMaterial.PLANT)
+            {
+                @Override
+                public int getRenderType()
+                {
+                    return 4;
+                }
+
+                @Override
+                public boolean isReplacable()
+                {
+                    return true;
+                }
+            }.setOpaque(false).setTextureOffset(17));
         }
 
         public static void register(Tile tile)
@@ -208,6 +275,7 @@ public class Tile
         STONE, //Rocks, Stone, Mountains
         METAL, //Copper, Iron, Gold, Silver
         WOOD, //Logs, Planks, Firewood
+        PLANT, //Plants
         ICE, //Snow, Sleet, Ice
         WATER; //Salt Water, Brine, Fresh Water, Waves, Rapids
     }
