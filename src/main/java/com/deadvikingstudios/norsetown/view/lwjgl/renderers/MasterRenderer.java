@@ -52,7 +52,7 @@ public class MasterRenderer
     {
         ChunkRenderer.render(chunkMesh, shader);
         //TODO: render all tile entities
-        /*for (TileEntity te : chunkMesh.getChunk().getTileEntities())
+        /*for (TileEntity te : chunkMesh.getChunkAtIndex().getTileEntities())
         {
             render(te, shader);
         }*/

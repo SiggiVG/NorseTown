@@ -1,9 +1,14 @@
 package com.deadvikingstudios.norsetown.model.entities;
 
+import com.deadvikingstudios.norsetown.controller.GameContainer;
+import com.deadvikingstudios.norsetown.model.world.World;
+import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
 import org.lwjgl.util.vector.Vector3f;
 
 /**
  * Created by SiggiVG on 6/20/2017.
+ *
+ * TODO: make abstract
  */
 public class Entity
 {
@@ -68,6 +73,12 @@ public class Entity
     {
         this(x, y, z, 0, 0, 0);
     }
+
+    public void update()
+    {
+
+    }
+
 
     public Vector3f getPosition()
     {

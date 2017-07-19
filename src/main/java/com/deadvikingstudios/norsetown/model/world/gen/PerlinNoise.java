@@ -1,5 +1,9 @@
 package com.deadvikingstudios.norsetown.model.world.gen;
 
+import com.deadvikingstudios.norsetown.model.world.World;
+
+import java.util.Random;
+
 /**
  * Created by SiggiVG on 6/24/2017.
  *
@@ -43,6 +47,20 @@ public class PerlinNoise
         p = new int[512];
         for(int x=0;x<512;x++) {
             p[x] = permutation[x%256];
+        }
+
+        //Scrambles the permutations
+        for (int l = 0; l < 256; ++l)
+        {
+            int j = World.getWorld().getRandom().nextInt(256 - l) + l;
+            int k = p[l];
+            p[l] = p[j];
+            p[j] = k;
+            p[l + 256] = p[l];
+        }
+
+        for(int x=0;x<256;x++) {
+            p[x+256] = permutation[x];
         }
     }
 

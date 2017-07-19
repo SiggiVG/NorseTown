@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.controller;
 
+import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.Chunk;
 import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.view.RenderMath;
@@ -17,8 +18,8 @@ import org.lwjgl.util.vector.Vector4f;
  */
 public class MousePicker
 {
-    private static final int RECURSION_COUNT = 200;
-    private static final int RAY_RANGE = 600;
+    //private static final int RECURSION_COUNT = 200;
+    private static final int RAY_RANGE = 60;
 
     private Vector3f currentRay = new Vector3f();
 
@@ -28,6 +29,8 @@ public class MousePicker
 
     private World world;
     private Vector3f currentWorldPoint;
+    private Vector3f currentTilePoint;
+    private int currentTileFace;
 
     public MousePicker(CameraController camera, Matrix4f projection, World world)
     {
@@ -43,6 +46,16 @@ public class MousePicker
         return currentWorldPoint;
     }
 
+    public Vector3f getCurrentTilePoint()
+    {
+        return currentTilePoint;
+    }
+
+    public int getCurrentTileFace()
+    {
+        return currentTileFace;
+    }
+
     public Vector3f getCurrentRay()
     {
         return currentRay;
@@ -52,11 +65,21 @@ public class MousePicker
     {
         viewMatrix = RenderMath.createViewMatrix(camera);
         currentRay = calculateMouseRay();
-        //if (intersectionInRange(0, RAY_RANGE, currentRay)) {
-        currentWorldPoint = lookForBlock(0, currentRay, 0, RAY_RANGE);
-        //} else {
-            //currentWorldPoint = null;
-        //}
+        currentWorldPoint = lookForBlock(currentRay, 0, RAY_RANGE);
+        /**
+        Vector4f temp = getFirstTile(currentRay);
+        if(temp != null)
+        {
+            currentTilePoint = new Vector3f(temp.x, temp.y, temp.z);
+            currentWorldPoint = world.tileSpaceToWorldCoords(currentTilePoint);//lookForBlock(0, currentRay, 0, RAY_RANGE);
+            currentTileFace = getTileFace(currentRay, new Vector3f(temp.x, temp.y, temp.z), temp.w);
+        }
+        else
+        {
+            currentTilePoint = null;
+            currentWorldPoint = null;
+            currentTileFace = -1;
+        }**/
     }
 
     private Vector3f calculateMouseRay()
@@ -113,29 +136,85 @@ public class MousePicker
         return Vector3f.add(start, scaledRay, null);
     }
 
-    //TODO: look for face
-    private Vector3f lookForBlock(int count, Vector3f ray, float start, float finish)
+    private Vector4f getFirstTile(Vector3f ray)
     {
-        //exit Case
-        if(count >= RECURSION_COUNT || start == finish)
+        for (float i = 0; i < RAY_RANGE; i+=0.1f)
         {
-            Vector3f endPoint = getPointOnRay(ray, finish);
-            if(world.getTileAt(endPoint) != 0 )
+            Vector3f rayScale = (Vector3f) ray.scale(i);
+            if(world.getTileAt(rayScale) != 0)
             {
-                return world.worldSpaceToTileCoords(endPoint);
+                Vector3f ret = world.worldSpaceToTileCoords(rayScale);
+                return new Vector4f(ret.x, ret.y, ret.z, i);
             }
-            else
+        }
+        return null;
+    }
+
+    private int getTileFace(Vector3f ray, Vector3f tilePos, float scale)
+    {
+        Vector3f empty = world.worldSpaceToTileCoords((Vector3f)ray.scale(scale - 0.5f));
+
+        if(empty.x < tilePos.x)
+        {
+            return 3;
+        }
+        else if(empty.x > tilePos.x)
+        {
+            return 1;
+        }
+        else if(empty.y < tilePos.y)
+        {
+            return 5;
+        }
+        else if(empty.y > tilePos.y)
+        {
+            return 4;
+        }
+        else if(empty.z < tilePos.z)
+        {
+            return 2;
+        }
+        else if(empty.z > tilePos.z)
+        {
+            return 0;
+        }
+        return -1;
+    }
+
+    //TODO: look for face
+    private Vector3f lookForBlock(/*int count,*/ Vector3f ray, float start, float finish)
+    {
+        try
+        {
+            //exit Case
+            if (/**count >= RAY_RANGE ||*/start == finish)
+            {
+                Vector3f endPoint = getPointOnRay(ray, finish);
+                if (world.getTileAt(endPoint) != 0)
+                {
+                    return world.worldSpaceToTileCoords(endPoint);
+                } else
+                {
+                    return null;
+                }
+            }
+            int tileAt = world.getTileAt(getPointOnRay(ray, start));
+            if(tileAt == -1)
             {
                 return null;
             }
-        }
-        if(world.getTileAt(getPointOnRay(ray, start)) != 0)
+            if (!Tile.Tiles.get(tileAt).isReplacable())
+            {
+                return world.worldSpaceToTileCoords(getPointOnRay(ray, start));
+            } else
+            {
+                return lookForBlock(/*count+1,*/ ray, start + 0.1f, finish);
+            }
+        }catch (StackOverflowError e)
         {
-            return world.worldSpaceToTileCoords(getPointOnRay(ray, start));
+            //System.out.println("You see nothing");
+            return null;
         }
-        else
-        {
-            return lookForBlock(count + 1, ray, start + 1f, finish);
-        }
+
     }
 }

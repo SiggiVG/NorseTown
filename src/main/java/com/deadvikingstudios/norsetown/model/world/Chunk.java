@@ -1,6 +1,7 @@
 package com.deadvikingstudios.norsetown.model.world;
 
 import com.deadvikingstudios.norsetown.controller.GameContainer;
+import com.deadvikingstudios.norsetown.model.EnumTileShape;
 import com.deadvikingstudios.norsetown.model.tileenitites.TileEntity;
 import com.deadvikingstudios.norsetown.model.world.gen.PerlinNoise;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
@@ -8,6 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by SiggiVG on 6/19/2017.
@@ -110,7 +112,7 @@ public class Chunk
                     h = Math.min(this.getPosX()+i, this.getPosZ()+k);
                 }
 
-                h*=0.75;
+                //h*=0.75;
 
 
 
@@ -127,7 +129,7 @@ public class Chunk
                         (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.1f,
                         (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.1f,
                         (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.1f) * CHUNK_HEIGHT/32f)
-                        + 0.75f*(h); //multiply by vertical distribution
+                        + h - 10; //multiply by vertical distribution
                      ++j)
                 {
                     if(j < 0 || j >= CHUNK_HEIGHT)
@@ -162,13 +164,14 @@ public class Chunk
 
     public void update(World world)
     {
+        Random random = new Random();
         for (int n = 0; n < World.chunkTickSpeed; n++)
         {
-            int i = world.getRandom().nextInt(CHUNK_SIZE);
-            int j = world.getRandom().nextInt(CHUNK_HEIGHT);
-            int k = world.getRandom().nextInt(CHUNK_SIZE);
+            int i = random.nextInt(CHUNK_SIZE);
+            int j = random.nextInt(CHUNK_HEIGHT);
+            int k = random.nextInt(CHUNK_SIZE);
             //world, not tilegrid coords;
-            Tile.Tiles.get(tiles[i][j][k]).update(world, (int)((this.getPosX()+i)*Tile.TILE_SIZE), (int)((this.getPosY()+j)*Tile.TILE_HEIGHT), (int)((this.getPosZ()+k)*Tile.TILE_SIZE));
+            Tile.Tiles.get(tiles[i][j][k]).update(world, (int)((this.getPosX()+i)), (int)((this.getPosY()+j)), (int)((this.getPosZ()+k)));
         }
     }
 
@@ -187,7 +190,7 @@ public class Chunk
         return position.z;
     }
 
-    public Vector3f getPosition()
+    public Vector3f getChunkPosition()
     {
         return new Vector3f(position);
     }
@@ -197,25 +200,23 @@ public class Chunk
         return (ArrayList)this.tileEntityList;
     }
 
-
-    /*public int getTileAt(float x, float y, float z)
+    private boolean isCoordWithinChunk(int x, int y, int z)
     {
-        return getTile((int)Math.ceil(x * (1f/TILE_SIZE)), (int)Math.ceil(y * (1f/TILE_HEIGHT)), (int)Math.ceil(z * (1f/TILE_SIZE)) );
-    }*/
+        if(x < 0 || x >= CHUNK_SIZE || y < 0 || y >= CHUNK_HEIGHT || z < 0 || z >= CHUNK_SIZE)
+        {
+            return false;
+        }
+        return true;
+    }
 
-    /**
-     * Takes in coordinates within the tile
-     *
-     * Tilespace
-     *
-     * @param x
-     * @param y
-     * @param z
-     * @return
-     */
-    public int getTileAt(int x, int y, int z)
+    private boolean isCoordWithinChunk(Vector3f pos)
     {
-        if(!coordsWithinChunk(x,y,z))
+        return isCoordWithinChunk((int)pos.x, (int)pos.y, (int)pos.z);
+    }
+
+    public int getTile(int x, int y, int z)
+    {
+        if(!isCoordWithinChunk(x,y,z))
         {
             //TODO replace with a call back to world(?)
             return 0;
@@ -223,79 +224,71 @@ public class Chunk
         return tiles[x][y][z];
     }
 
-    /**
-     * Checks if the coordinates specified are within the chunk
-     * @param x
-     * @param y
-     * @param z
-     * @return true if coordinates are within bounds, false if not
-     */
-    private boolean coordsWithinChunk(int x, int y, int z)
+    public int getTile(Vector3f pos)
     {
-        if(x < 0 || x >= CHUNK_SIZE || y < 0 || y >= CHUNK_HEIGHT || z < 0 || z >= CHUNK_SIZE)
-        {
-            return false;
-        }
-        return true;
+        return getTile((int)pos.x, (int)pos.y, (int)pos.z);
     }
 
-    private boolean coordsWithinChunk(float x, float y, float z)
-    {
-        if(x < 0 || x >= CHUNK_SIZE || y < 0 || y >= CHUNK_HEIGHT || z < 0 || z >= CHUNK_SIZE)
-        {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Sets the tile at coords to the tile parameter if it is within bounds
-     * @param tile
-     * @param x
-     * @param y
-     * @param z
-     */
     public void setTile(Tile tile, int x, int y, int z)
     {
-        if(coordsWithinChunk(x,y,z))
+        this.setTile(tile, x,y,z,0);
+    }
+
+    public void setTile(Tile tile, int x, int y, int z, int metadataIn)
+    {
+        if(isCoordWithinChunk(x,y,z))
         {
             tiles[x][y][z] = tile.getIndex();
+            metadata[x][y][z] = (byte)metadataIn;
             this.flagForReMesh = true;
         }
     }
 
-    /**
-     * Sets the tile at coords to Air if it is within bounds
-     * @param x
-     * @param y
-     * @param z
-     */
-    public void setAir(int x, int y, int z)
+    public void setTile(Tile tile, Vector3f pos)
     {
-        if(coordsWithinChunk(x,y,z))
-        {
-            tiles[x][y][z] = 0;
-        }
+        this.setTile(tile, (int)pos.x, (int)pos.y, (int)pos.z);
     }
 
-    public int getMetadataAt(Vector3f pos)
+    public void setTile(Tile tile, Vector3f pos, int metadataIn)
     {
-        if(coordsWithinChunk(pos.x,pos.y,pos.z))
+        this.setTile(tile, (int)pos.x, (int)pos.y, (int)pos.z, metadataIn);
+    }
+
+    public int getMetadata(int x, int y, int z)
+    {
+        if(isCoordWithinChunk(x,y,z))
         {
-            return metadata[(int)pos.x][(int)pos.y][(int)pos.z];
+            //System.out.println("fizz");
+            return metadata[x][y][z];
         }
         return 0;
     }
 
-    public void setMetadataAt(Vector3f pos, int val)
+    public int getMetadata(Vector3f pos)
     {
-        if(coordsWithinChunk(pos.x,pos.y,pos.z))
+        return this.getMetadata((int)pos.x, (int)pos.x, (int)pos.z);
+    }
+
+    public void setMetadata(int x, int y, int z, int metadataIn)
+    {
+        if(isCoordWithinChunk(x,y,z))
         {
-            metadata[(int)pos.x][(int)pos.y][(int)pos.z] = (byte)(val % Byte.MAX_VALUE);
-            if(Tile.Tiles.get(tiles[(int)pos.x][(int)pos.y][(int)pos.z]).getRenderType() != 0)
+            EnumTileShape rType = Tile.Tiles.get(tiles[x][y][z]).getRenderType(metadata[x][y][z]);
+            metadata[x][y][z] = (byte)(metadataIn);
+            if(rType != Tile.Tiles.get(tiles[x][y][z]).getRenderType(metadataIn))
             {
                 this.flagForReMesh = true;
             }
         }
+    }
+
+    public void setMetadata(Vector3f pos, int metadataIn)
+    {
+        this.setMetadata((int)pos.x, (int)pos.x, (int)pos.z, metadataIn);
+    }
+
+    public void setAir(int x, int y, int z)
+    {
+        this.setTile(Tile.Tiles.tileAir, x, y, z);
     }
 }

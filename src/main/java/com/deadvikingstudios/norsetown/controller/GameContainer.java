@@ -13,10 +13,10 @@ import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkMesh;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import com.deadvikingstudios.norsetown.view.meshes.MeshTexture;
+import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector3f;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,6 +52,8 @@ public class GameContainer implements Runnable, IGameContainer
     private static List<ChunkMesh> chunks = new ArrayList<ChunkMesh>();
     private static List<EntityMesh> entityMeshes = new ArrayList<EntityMesh>();
 
+    private static RawMesh defaultMesh;
+
     private static CameraController camera;
     private static MousePicker picker;
 
@@ -70,6 +72,7 @@ public class GameContainer implements Runnable, IGameContainer
         renderer = new MasterRenderer(shader);
 
         camera = new CameraController(0, 0, 0);
+        defaultMesh = loader.loadToVAO(vertices, indices, uv);
 
         thread = new Thread(this);
         thread.run();
@@ -162,50 +165,11 @@ public class GameContainer implements Runnable, IGameContainer
         {
             if(World.getWorld().getTile(x,j,z) == 2)
             {
-                System.out.println("Tree created at: " + x + "," + j + "," + z);
+                //System.out.println("Tree created at: " + x + "," + j + "," + z);
                 for (int i = 2; i < height+2; i++)
                 {
-                    World.getWorld().setTile(Tile.Tiles.tileLog, x, j+i, z);
-                    //world.setTile(Tile.Tiles.tileLog, x, j+i, z);
-                    /*if(i-leafstart > 0)
-                    {
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z);
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z);
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i, z+1);
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i, z-1);
-                        if(i % 6 == 0)
-                        {
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+2, j+i, z);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-2, j+i, z);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i, z+2);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i, z-2);
-
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z-2);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z+2);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z+2);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z-2);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+2, j+i, z-1);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-2, j+i, z+1);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+2, j+i, z+1);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-2, j+i, z-1);
-                        }
-                        if(i % 3 == 0)
-                        {
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z-1);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z+1);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i, z+1);
-                            World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i, z-1);
-                        }
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z);
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+2, z);
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+3, z);
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x+1, j+i+1, z);
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x-1, j+i+1, z);
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z+1);
-                        World.getWorld().setTile(Tile.Tiles.tileLeaves, x, j+i+1, z-1);*/
-
-                    //}
-
+                    World.getWorld().setTile(Tile.Tiles.tileLogThick, x, j+i, z, false);
+                    World.getWorld().setMetadata(1, x,j,z);
                 }
                 return;
             }
@@ -214,15 +178,16 @@ public class GameContainer implements Runnable, IGameContainer
 
     public void init()
     {
-        Tile.Tiles.init();
+        System.out.println("Initialization started");
 
+        Tile.Tiles.init();
 
         camera.setRotation(35, 135, 0);
         camera.setPosition(0, Chunk.CHUNK_HEIGHT * 0.5f * Tile.TILE_HEIGHT, 0);
 
         grassTexture = new MeshTexture(loader.loadTexture("textures/terrain"));//"textures/tiles/grass_top"));
         entTexture = new MeshTexture(loader.loadTexture("textures/entTexture"));
-        currentWorld = new World();
+        currentWorld = new World(1);
 
         picker = new MousePicker(camera, renderer.getProjectionMatrix(), currentWorld);
 
@@ -231,7 +196,7 @@ public class GameContainer implements Runnable, IGameContainer
         for (int i = 0; i < random.nextInt(World.CHUNK_NUM_XZ * 16) + World.CHUNK_NUM_XZ*8; i++)
         {
             makeTree(random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE),
-                    Chunk.CHUNK_HEIGHT/32,
+                    1,//(Chunk.CHUNK_HEIGHT/32),
                     random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE), 6);
         }
 
@@ -241,106 +206,22 @@ public class GameContainer implements Runnable, IGameContainer
             {
                 for (int k = 0; k < World.CHUNK_NUM_XZ; k++)
                 {
-                    Chunk chunk = currentWorld.getChunk(i,j,k);
-                    chunk.setFlagForReMesh(false);
-                    chunks.add(new ChunkMesh(chunk, grassTexture));
+                    Chunk chunk = currentWorld.getChunkAtIndex(i,j,k);
+                    if(chunk != null)
+                    {
+                        chunk.setFlagForReMesh(false);
+                        chunks.add(new ChunkMesh(chunk, grassTexture));
+                    }
 
                 }
             }
         }
 
-
-        //TODO remove this
-        //World.getWorld().getEntities().add(new EntityHumanoid(
-                //Chunk.CHUNK_SIZE, 10, Chunk.CHUNK_SIZE, 0, 0, 0));
-
-        float[] vertices = {
-                0,1,1,
-                0,0,1,
-                1,0,1,
-                1,1,1,
-
-                1,1,1,
-                1,0,1,
-                1,0,0,
-                1,1,0,
-
-                1,1,0,
-                1,0,0,
-                0,0,0,
-                0,1,0,
-
-                0,1,0,
-                0,0,0,
-                0,0,1,
-                0,1,1,
-
-                1,1,1,
-                1,1,0,
-                0,1,0,
-                0,1,1,
-
-                0,0,1,
-                0,0,0,
-                1,0,0,
-                1,0,1
-        };
-
-        float[] uv = {
-                0,0,
-                0,1,
-                1,1,
-                1,0,
-
-                0,0,
-                0,1,
-                1,1,
-                1,0,
-
-                0,0,
-                0,1,
-                1,1,
-                1,0,
-
-                0,0,
-                0,1,
-                1,1,
-                1,0,
-
-                0,0,
-                0,1,
-                1,1,
-                1,0,
-
-                0,0,
-                0,1,
-                1,1,
-                1,0
-        };
-
-        int[] indices = {
-                0, 1, 3,
-                3, 1, 2,
-
-                4, 5, 7,
-                7, 5, 6,
-
-                8, 9, 11,
-                11, 9, 10,
-
-                12, 13, 15,
-                15, 13, 14,
-
-                16, 17, 19,
-                19, 17, 18,
-
-                20, 21, 23,
-                23, 21, 22
-        };
+        currentWorld.getEntities().add(new EntityHumanoid(0,0,0,0,0,0));
 
         for (Entity ent : World.getWorld().getEntities())
         {
-            entityMeshes.add(new EntityMesh(ent, loader.loadToVAO(vertices, indices, uv), entTexture));
+            entityMeshes.add(new EntityMesh(ent, defaultMesh, entTexture));
         }
 
         System.out.println("Initialization finished");
@@ -372,13 +253,71 @@ public class GameContainer implements Runnable, IGameContainer
         //Move to World.update()
         for (Entity ent : World.getWorld().getEntities())
         {
-            if(picker.getCurrentWorldPoint() != null)
+            ent.update();
+            /*if(picker.getCurrentWorldPoint() != null && picker.getCurrentTileFace() != -1)
             {
+                ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE,
+                        picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT,
+                        picker.getCurrentWorldPoint().z*Tile.TILE_SIZE));
 
-                /*ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE,
-                        picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT+1,
-                        picker.getCurrentWorldPoint().z*Tile.TILE_SIZE));*/
-            }
+                /*switch (picker.getCurrentTileFace())
+                {
+                    case 0:
+                    {
+                        System.out.println("NORTH");
+                        ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE,
+                            picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT,
+                            picker.getCurrentWorldPoint().z*Tile.TILE_SIZE+Tile.TILE_SIZE));
+                        break;
+                    }
+                    case 1:
+                    {
+                        System.out.println("EAST");
+                        ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE+ Tile.TILE_SIZE,
+                                picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT,
+                                picker.getCurrentWorldPoint().z*Tile.TILE_SIZE));
+                        break;
+                    }
+                    case 2:
+                    {
+                        System.out.println("South");
+                        ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE,
+                                picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT,
+                                picker.getCurrentWorldPoint().z*Tile.TILE_SIZE-Tile.TILE_SIZE));
+                        break;
+                    }
+                    case 3:
+                    {
+                        System.out.println("West");
+                        ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE-Tile.TILE_SIZE,
+                                picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT,
+                                picker.getCurrentWorldPoint().z*Tile.TILE_SIZE));
+                        break;
+                    }
+                    case 4:
+                    {
+                        System.out.println("Up");
+                        ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE,
+                                picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT+Tile.TILE_HEIGHT,
+                                picker.getCurrentWorldPoint().z*Tile.TILE_SIZE));
+                        break;
+                    }
+                    case 5:
+                    {
+                        System.out.println("Down");
+                        ent.setPosition(new Vector3f(picker.getCurrentWorldPoint().x*Tile.TILE_SIZE,
+                                picker.getCurrentWorldPoint().y*Tile.TILE_HEIGHT- Tile.TILE_HEIGHT,
+                                picker.getCurrentWorldPoint().z*Tile.TILE_SIZE));
+                        break;
+                    }
+                    default:
+                    {
+                        System.out.println("null");
+                        break;
+                    }
+                }*/
+
+            //}
         }
 
         if (KeyboardInput.getKeyDown(Keyboard.KEY_F1))
@@ -421,6 +360,14 @@ public class GameContainer implements Runnable, IGameContainer
         {
             World.chunkTickSpeed = 128;
         }
+        else if (KeyboardInput.getKeyDown(Keyboard.KEY_7))
+        {
+            World.chunkTickSpeed = 256;
+        }
+        else if (KeyboardInput.getKeyDown(Keyboard.KEY_8))
+        {
+            World.chunkTickSpeed = 512;
+        }
 
 
 
@@ -446,8 +393,8 @@ public class GameContainer implements Runnable, IGameContainer
         for (EntityMesh mesh : entityMeshes)
         {
             renderer.render(mesh, shader);
-            //System.out.println("CameraController: " + CameraController.getPosition());
-            //System.out.println(mesh.getEntity().getPosition());
+            //System.out.println("CameraController: " + CameraController.getChunkPosition());
+            //System.out.println(mesh.getEntity().getChunkPosition());
         }
 
         //renderer.render(mesh, shader);
@@ -466,8 +413,96 @@ public class GameContainer implements Runnable, IGameContainer
 
     public static void main(String[] args)
     {
-        String fileNatives = OperatingSystem.getOSforLWJGLNatives();
-        System.setProperty("org.lwjgl.librarypath", new File("libs" + File.separator + "native" + File.separator + fileNatives).getAbsolutePath());
+        System.setProperty("org.lwjgl.librarypath", new File("libs" + File.separator + "native" + File.separator + OperatingSystem.getOSforLWJGLNatives()).getAbsolutePath());
         new GameContainer().start();
     }
+
+    public static RawMesh getDefaultMesh()
+    {
+        return defaultMesh;
+    }
+
+    private static float[] vertices = {
+            0,1,1,
+            0,0,1,
+            1,0,1,
+            1,1,1,
+
+            1,1,1,
+            1,0,1,
+            1,0,0,
+            1,1,0,
+
+            1,1,0,
+            1,0,0,
+            0,0,0,
+            0,1,0,
+
+            0,1,0,
+            0,0,0,
+            0,0,1,
+            0,1,1,
+
+            1,1,1,
+            1,1,0,
+            0,1,0,
+            0,1,1,
+
+            0,0,1,
+            0,0,0,
+            1,0,0,
+            1,0,1
+    };
+
+    private static int[] indices = {
+            0, 1, 3,
+            3, 1, 2,
+
+            4, 5, 7,
+            7, 5, 6,
+
+            8, 9, 11,
+            11, 9, 10,
+
+            12, 13, 15,
+            15, 13, 14,
+
+            16, 17, 19,
+            19, 17, 18,
+
+            20, 21, 23,
+            23, 21, 22
+    };
+
+    private static float[] uv = {
+            0,0,
+            0,1,
+            1,1,
+            1,0,
+
+            0,0,
+            0,1,
+            1,1,
+            1,0,
+
+            0,0,
+            0,1,
+            1,1,
+            1,0,
+
+            0,0,
+            0,1,
+            1,1,
+            1,0,
+
+            0,0,
+            0,1,
+            1,1,
+            1,0,
+
+            0,0,
+            0,1,
+            1,1,
+            1,0
+    };
 }

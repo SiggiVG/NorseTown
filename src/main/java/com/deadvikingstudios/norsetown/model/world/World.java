@@ -1,7 +1,6 @@
 package com.deadvikingstudios.norsetown.model.world;
 
 import com.deadvikingstudios.norsetown.model.entities.Entity;
-import com.deadvikingstudios.norsetown.model.tileenitites.TileEntity;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -18,9 +17,9 @@ public class World
 
     public static int chunkTickSpeed = 16;
     private Chunk[][][] chunkList;//List<Chunk> chunkList = new ArrayList<Chunk>();
-    public static final int CHUNK_NUM_XZ = 12, CHUNK_NUM_Y = 1;
-    public static final float CHUNK_OFFSET_Y = Tile.TILE_HEIGHT;
-    public static final float CHUNK_OFFSET_XZ = Tile.TILE_SIZE;
+    public static final int CHUNK_NUM_XZ = 1, CHUNK_NUM_Y = 1;
+    public static final float CHUNK_OFFSET_Y = 0;//Tile.TILE_HEIGHT;
+    public static final float CHUNK_OFFSET_XZ = 0;//Tile.TILE_SIZE;
     private Chunk emptyChunk = new EmptyChunk(0,0,0);
 
     public List<Entity> entityList = new ArrayList<Entity>();
@@ -78,8 +77,7 @@ public class World
      * @param z
      * @return The chunk at x,y,z in the chunk array
      */
-    @Deprecated
-    public Chunk getChunk(int x, int y, int z)
+    public Chunk getChunkAtIndex(int x, int y, int z)
     {
         if(x < 0 || x >= CHUNK_NUM_XZ || y < 0 || y >= CHUNK_NUM_Y || z < 0 || z >= CHUNK_NUM_XZ)
         {
@@ -89,17 +87,42 @@ public class World
         return this.chunkList[x][y][z];
     }
 
-    public Chunk getChunkAt(float x, float y, float z)
+    public Chunk getChunk(int x, int y, int z)
     {
-        if(x < 0 || x >= CHUNK_NUM_XZ * Chunk.CHUNK_SIZE
-                || y < 0 || y >= CHUNK_NUM_Y * Chunk.CHUNK_HEIGHT
-                || z < 0 || z >= CHUNK_NUM_XZ * Chunk.CHUNK_SIZE)
+        if(x < 0 || x >= CHUNK_NUM_XZ*Chunk.CHUNK_SIZE || y < 0 || y >= CHUNK_NUM_Y *Chunk.CHUNK_HEIGHT|| z < 0 || z >= CHUNK_NUM_XZ*Chunk.CHUNK_SIZE)
         {
             return null;
         }
 
-        return this.chunkList[((int)x)/Chunk.CHUNK_SIZE][((int)y)/Chunk.CHUNK_HEIGHT][((int)z)/Chunk.CHUNK_SIZE];
+        return this.chunkList[x/Chunk.CHUNK_SIZE][y/Chunk.CHUNK_HEIGHT][z/Chunk.CHUNK_SIZE];
     }
+
+    public Chunk getChunk(float x, float y, float z)
+    {
+        return getChunk((int)x, (int)y, (int)z);
+    }
+
+    public Chunk getChunk(Vector3f pos)
+    {
+        return getChunk((int)pos.x, (int)pos.y, (int)pos.z);
+    }
+
+    public Chunk getChunkAt(int x, int y, int z)
+    {
+        return getChunk(worldSpaceToTileCoords(new Vector3f(x,y,z)));
+    }
+
+    public Chunk getChunkAt(float x, float y, float z)
+    {
+        return getChunk(worldSpaceToTileCoords(new Vector3f(x,y,z)));
+    }
+
+    public Chunk getChunkAt(Vector3f pos)
+    {
+        return getChunk(worldSpaceToTileCoords(pos));
+    }
+
+
 
     public List<Entity> getEntities()
     {
@@ -113,29 +136,17 @@ public class World
 
     /**
      *
-     * @param x
-     * @param y
-     * @param z
-     * @return the tile at Worldspace coords
-     */
-    public int getTileAt(float x, float y, float z)
-    {
-        return this.getTileAt(new Vector3f(x,y,z));
-    }
-
-    /**
-     *
      * @param position
      * @return the tile at Worldspace coords
      */
     public int getTileAt(Vector3f position)
     {
         //System.out.println(x / Chunk.CHUNK_SIZE + ", " + y / Chunk.CHUNK_HEIGHT + ", " + z / Chunk.CHUNK_SIZE);
-        Chunk chunk = getChunkAt(position.x, position.y, position.z);
+        Chunk chunk = getChunkAt(worldSpaceToTileCoords(position));
         if(chunk != null)
         {
             Vector3f tileCoords = worldSpaceToTileCoords(position);
-            return chunk.getTileAt(((int)tileCoords.x) % Chunk.CHUNK_SIZE,
+            return chunk.getTile(((int)tileCoords.x) % Chunk.CHUNK_SIZE,
                     ((int)tileCoords.y) % Chunk.CHUNK_HEIGHT, ((int)tileCoords.z) % Chunk.CHUNK_SIZE);
         }
         return 0;
@@ -147,15 +158,7 @@ public class World
      */
     public int getTile(Vector3f position)
     {
-        //System.out.println(x / Chunk.CHUNK_SIZE + ", " + y / Chunk.CHUNK_HEIGHT + ", " + z / Chunk.CHUNK_SIZE);
-        Chunk chunk = getChunkAt(position.x, position.y, position.z);
-        if(chunk != null)
-        {
-            //Vector3f tileCoords = worldSpaceToTileCoords(position);
-            return chunk.getTileAt(((int)position.x) % Chunk.CHUNK_SIZE,
-                    ((int)position.y) % Chunk.CHUNK_HEIGHT, ((int)position.z) % Chunk.CHUNK_SIZE);
-        }
-        return 0;
+        return getTile((int)position.x, (int)position.y, (int)position.z);
     }
 
     /**
@@ -167,12 +170,28 @@ public class World
      */
     public int getTile(int x, int y, int z)
     {
-        return this.getTile(new Vector3f(x,y,z));
+        //System.out.println(x / Chunk.CHUNK_SIZE + ", " + y / Chunk.CHUNK_HEIGHT + ", " + z / Chunk.CHUNK_SIZE);
+        Chunk chunk = getChunk(x, y, z);
+        if(chunk != null)
+        {
+            //Vector3f tileCoords = worldSpaceToTileCoords(position);
+            return chunk.getTile((x) % Chunk.CHUNK_SIZE,
+                    (y) % Chunk.CHUNK_HEIGHT, (z) % Chunk.CHUNK_SIZE);
+        }
+        return 0;
     }
 
+    /**
+     * Use when within Tilespace
+     * @param tile
+     * @param x
+     * @param y
+     * @param z
+     * @param checkReplacable
+     */
     public void setTile(Tile tile, int x, int y, int z, boolean checkReplacable)
     {
-        Chunk chunk = getChunkAt(x, y, z);
+        Chunk chunk = getChunk(x, y, z);
         if(chunk != null)
         {
             if(checkReplacable)
@@ -191,11 +210,26 @@ public class World
         }
     }
 
+    /**
+     * Use when within Tilespace
+     * @param tile
+     * @param x
+     * @param y
+     * @param z
+     */
     public void setTile(Tile tile, int x, int y, int z)
     {
         this.setTile(tile,x,y,z,false);
     }
 
+    /**
+     * Use when in Worldspace
+     * @param tile
+     * @param x
+     * @param y
+     * @param z
+     * @param checkReplacable
+     */
     public void setTileAt(Tile tile, int x, int y, int z, boolean checkReplacable)
     {
         Chunk chunk = getChunkAt(x, y, z);
@@ -204,7 +238,7 @@ public class World
             Vector3f tileCoords = worldSpaceToTileCoords(x,y,z);
             if(checkReplacable)
             {
-                if (Tile.Tiles.get(getTile(x, y, z)).isReplacable())
+                if (Tile.Tiles.get(getTile(tileCoords)).isReplacable())
                 {
                     chunk.setTile(tile, ((int) tileCoords.x) % Chunk.CHUNK_SIZE,
                             ((int) tileCoords.y) % Chunk.CHUNK_HEIGHT, ((int) tileCoords.z) % Chunk.CHUNK_SIZE);
@@ -218,6 +252,13 @@ public class World
         }
     }
 
+    /**
+     * Use when in WorldSpace
+     * @param tile
+     * @param x
+     * @param y
+     * @param z
+     */
     public void setTileAt(Tile tile, int x, int y, int z)
     {
         this.setTileAt(tile,x,y,z, false);
@@ -230,13 +271,29 @@ public class World
      */
     public Vector3f worldSpaceToTileCoords(Vector3f position)
     {
-        return new Vector3f((int)(Math.floor(position.x)/Tile.TILE_SIZE),
-                (int)(Math.floor(position.y)/Tile.TILE_HEIGHT), (int)(Math.floor(position.z)/Tile.TILE_SIZE));
+        return new Vector3f((int)(Math.round(position.x/Tile.TILE_SIZE)),
+                (int)(Math.round(position.y/Tile.TILE_HEIGHT)), (int)(Math.round(position.z/Tile.TILE_SIZE)));
     }
 
     public Vector3f worldSpaceToTileCoords(float x, float y, float z)
     {
         return this.worldSpaceToTileCoords(new Vector3f(x,y,z));
+    }
+
+    /**
+     * Transforms a position in Local Space relative to the tilegrid into World Space
+     * @param position
+     * @return
+     */
+    public Vector3f tileSpaceToWorldCoords(Vector3f position)
+    {
+        return new Vector3f(position.x * Tile.TILE_SIZE, position.y * Tile.TILE_HEIGHT, position.z * Tile.TILE_SIZE);
+    }
+
+
+    public Vector3f tileSpaceToWorldCoords(float x, float y, float z)
+    {
+        return this.tileSpaceToWorldCoords(new Vector3f(x,y,z));
     }
 
     public void update()
@@ -254,44 +311,129 @@ public class World
 
     }
 
+    /**
+     * World space
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
     public int getMetadataAt(int x, int y, int z)
     {
-        Chunk chunk = getChunkAt(x,y,z);
+        Chunk chunk = getChunkAt(worldSpaceToTileCoords(x, y, z));
         if(chunk != null)
         {
-            return chunk.getMetadataAt(worldSpaceToTileCoords(x,y,z));
+            return chunk.getMetadata(worldSpaceToTileCoords(x,y,z));
         }
         return 0;
     }
 
-    public void setMetadataAt(int val, int x, int y, int z)
+    /**
+     * World space
+     * @param metadataIn
+     * @param x
+     * @param y
+     * @param z
+     */
+    public void setMetadataAt(int metadataIn, int x, int y, int z)
     {
-        val = val % Byte.MAX_VALUE;
-        Chunk chunk = getChunkAt(x,y,z);
+        metadataIn = metadataIn % Byte.MAX_VALUE;
+        Chunk chunk = getChunkAt(worldSpaceToTileCoords(x, y, z));
         if(chunk != null)
         {
-            chunk.setMetadataAt(worldSpaceToTileCoords(x,y,z), (byte)val);
+            chunk.setMetadata(worldSpaceToTileCoords(x,y,z), (byte)metadataIn);
         }
     }
 
-    public void incrementMetadataAt(int x, int y, int z)
+    /**
+     * Tilespace
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
+    public int getMetadata(int x, int y, int z)
     {
-        Chunk chunk = getChunkAt(x,y,z);
+        Chunk chunk = getChunk(x,y,z);
         if(chunk != null)
         {
-            chunk.setMetadataAt(worldSpaceToTileCoords(x,y,z),getMetadataAt(x,y,z)+1);
+            return chunk.getMetadata(x,y,z);
+        }
+        return 0;
+    }
+
+    /**
+     * Tilespace
+     * @param val
+     * @param x
+     * @param y
+     * @param z
+     */
+    public void setMetadata(int val, int x, int y, int z)
+    {
+        val = val % Byte.MAX_VALUE;
+        Chunk chunk = getChunk(x,y,z);
+        if(chunk != null)
+        {
+            chunk.setMetadata(x,y,z, (byte)val);
+        }
+    }
+
+    /*public void incrementMetadataAt(int x, int y, int z)
+    {
+        Chunk chunk = getChunkAt(worldSpaceToTileCoords(x, y, z));
+        if(chunk != null)
+        {
+            chunk.setMetadata(worldSpaceToTileCoords(x,y,z),getMetadataAt(x,y,z)+1);
         }
     }
 
     public void decrementMetadataAt(int x, int y, int z)
     {
-        Chunk chunk = getChunkAt(x,y,z);
+        Chunk chunk = getChunkAt(worldSpaceToTileCoords(x, y, z));
         if(chunk != null)
         {
             int val = getMetadataAt(x,y,z);
             if(val > 0)
             {
-                chunk.setMetadataAt(worldSpaceToTileCoords(x, y, z), val-1);
+                chunk.setMetadata(worldSpaceToTileCoords(x, y, z), val-1);
+            }
+        }
+    }*/
+
+    /**
+     * Tilespace
+     * @param x
+     * @param y
+     * @param z
+     */
+    public void incrementMetadata(int x, int y, int z)
+    {
+        Chunk chunk = getChunk(x,y,z);
+        if(chunk != null)
+        {
+            //System.out.println();
+            //System.out.println(getMetadata(x,y,z));
+            chunk.setMetadata(x,y,z,getMetadata(x,y,z)+1);
+            //System.out.println(getMetadata(x,y,z));
+        }
+    }
+
+    /**
+     * Tilespace
+     * @param x
+     * @param y
+     * @param z
+     */
+    public void decrementMetadata(int x, int y, int z)
+    {
+        Chunk chunk = getChunk(x,y,z);
+        if(chunk != null)
+        {
+            int val = getMetadata(x,y,z);
+            if(val > 0)
+            {
+                chunk.setMetadata(x, y, z, val-1);
             }
         }
     }
