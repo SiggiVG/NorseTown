@@ -12,7 +12,7 @@ public class CalendarNorse
      * The current tick number
      */
     private int time = 0;
-    public static final int DAY_LENGTH = 10800;
+    public static final int DAY_LENGTH = 10800/2;
 
     public int getCurrentDay()
     {

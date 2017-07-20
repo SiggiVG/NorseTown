@@ -32,14 +32,15 @@ public enum EnumTileShape
     HALF_COL_THIN_BOT, //no bigger face*/
 
     CROSS, //faces of 1 crossing //not standard render
+    CROSS_FULL,
     CROSS_EXTENDED, //faces of 1.5 crossing //not standard render
-    FULL_CROSS_EXTENDED, //full cube and faces of 1.5 crossing // all faces full
+    CUBE_CROSS_EXTENDED, //full cube and faces of 1.5 crossing // all faces full
 
     NULL;
 
     public boolean coversFullFace(EnumTileFace face)
     {
-        if(this == FULL_CUBE || this == FULL_CROSS_EXTENDED)
+        if(this == FULL_CUBE || this == CUBE_CROSS_EXTENDED)
         {
             return true;
         }
@@ -156,12 +157,12 @@ public enum EnumTileShape
 
     public boolean isCuboid()
     {
-        return this != NULL && this != CROSS && this != CROSS_EXTENDED;
+        return this != NULL && this != CROSS && this != CROSS_EXTENDED && this != CROSS_FULL;
     }
 
     public boolean isCross()
     {
-        return this == CROSS || this == CROSS_EXTENDED || this == FULL_CROSS_EXTENDED;
+        return this == CROSS || this == CROSS_EXTENDED || this == CUBE_CROSS_EXTENDED || this == CROSS_FULL;
     }
 
     public boolean isHalfCube()
@@ -353,7 +354,7 @@ public enum EnumTileShape
             return false;
         }
         //if this shares the face with a full cube
-        if(this.isOnFace(thisFace) && (otherTile == FULL_CUBE || otherTile == FULL_CROSS_EXTENDED))
+        if(this.isOnFace(thisFace) && (otherTile == FULL_CUBE || otherTile == CUBE_CROSS_EXTENDED))
         {
             return false;
         }

@@ -17,9 +17,9 @@ public class TileLeaves extends Tile
     }
 
     @Override
-    public EnumTileShape getRenderType(int metadata)
+    public EnumTileShape getTileShape(int metadata)
     {
-        return EnumTileShape.FULL_CUBE;
+        return EnumTileShape.CUBE_CROSS_EXTENDED;
     }
 
     @Override

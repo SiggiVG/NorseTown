@@ -77,8 +77,11 @@ public class Chunk
         {
             for (int k = 0; k < CHUNK_SIZE; ++k)
             {
-                float h = 0;
-                //X is bigger
+                float h = CHUNK_SIZE*World.CHUNK_NUM_XZ - (float)Math.sqrt(
+                        (((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosX()+i))*((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosX()+i)))
+                        +(((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosZ()+k))*((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosZ()+k)))
+                );
+                /*/X is bigger
                 if(this.getPosX()+i > World.CHUNK_NUM_XZ*CHUNK_SIZE/2)
                 {
                     //both are bigger
@@ -110,14 +113,14 @@ public class Chunk
                 else
                 {
                     h = Math.min(this.getPosX()+i, this.getPosZ()+k);
-                }
+                }*/
 
                 //h*=0.75;
 
 
 
 
-                for (int j = 0; j < (PerlinNoise.perlin(
+                for (int j = 0; j < ((PerlinNoise.perlin(
                         (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.025f,
                         (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.025f,
                         (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.025f) * CHUNK_HEIGHT/4f) +
@@ -129,7 +132,7 @@ public class Chunk
                         (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.1f,
                         (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.1f,
                         (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.1f) * CHUNK_HEIGHT/32f)
-                        + h - Chunk.CHUNK_HEIGHT*0.25; //multiply by vertical distribution
+                        + h);// - CHUNK_HEIGHT*0.75f);
                      ++j)
                 {
                     if(j < 0 || j >= CHUNK_HEIGHT)
@@ -273,9 +276,9 @@ public class Chunk
     {
         if(isCoordWithinChunk(x,y,z))
         {
-            EnumTileShape rType = Tile.Tiles.get(tiles[x][y][z]).getRenderType(metadata[x][y][z]);
+            EnumTileShape rType = Tile.Tiles.get(tiles[x][y][z]).getTileShape(metadata[x][y][z]);
             metadata[x][y][z] = (byte)(metadataIn);
-            if(rType != Tile.Tiles.get(tiles[x][y][z]).getRenderType(metadataIn))
+            if(rType != Tile.Tiles.get(tiles[x][y][z]).getTileShape(metadataIn))
             {
                 this.flagForReMesh = true;
             }

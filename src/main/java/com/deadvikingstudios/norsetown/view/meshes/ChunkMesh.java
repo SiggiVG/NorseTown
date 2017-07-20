@@ -30,11 +30,12 @@ public class ChunkMesh extends TexturedMesh
         List<Float> vertices = new ArrayList<Float>();
         List<Integer> indices = new ArrayList<Integer>();
         List<Float> uvs = new ArrayList<Float>();
+        List<Float> norms = new ArrayList<Float>();
 
-        createMesh(vertices, indices, uvs);
+        createMesh(vertices, indices, uvs, norms);
 
         rawMesh = loader.loadToVAO(ArrayUtils.floatFromFloat(vertices),
-                ArrayUtils.intFromInteger(indices), ArrayUtils.floatFromFloat(uvs));
+                ArrayUtils.intFromInteger(indices), ArrayUtils.floatFromFloat(uvs), ArrayUtils.floatFromFloat(norms));
     }
 
     protected ChunkMesh(){}
@@ -49,7 +50,7 @@ public class ChunkMesh extends TexturedMesh
         return chunk;
     }
 
-    protected void createMesh(List<Float> vertices, List<Integer> indices, List<Float> uvs)
+    protected void createMesh(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms)
     {
         for (int i = 0; i < Chunk.CHUNK_SIZE; i++)
         {
@@ -57,15 +58,32 @@ public class ChunkMesh extends TexturedMesh
             {
                 for (int k = 0; k < Chunk.CHUNK_SIZE; k++)
                 {
-                    EnumTileShape renderType = Tile.Tiles.get(chunk.getTile(i, j, k)).getRenderType(chunk.getMetadata(i,j,k));
-                    if(renderType != EnumTileShape.NULL && renderType.isCuboid())
+                    Tile tile = Tile.Tiles.get(chunk.getTile(i, j, k));
+                    EnumTileShape tileShape = tile.getTileShape(chunk.getMetadata(i,j,k));
+                    /*if(tile == Tile.Tiles.tileGrass && Tile.Tiles.get(chunk.getTile(i, j+1, k)).isAir())
                     {
-                        createCuboid(vertices, indices, uvs, i,j,k);
-                    }
-                    if(renderType.isCross())
+                        createFullCross(vertices, indices, uvs, i, j+1, k, true);
+                    }*/
+                    if(tileShape != EnumTileShape.NULL && tileShape.isCuboid())
                     {
-                        createCross(vertices, indices, uvs, i,j,k);
+                        createCuboid(vertices, indices, uvs, norms, i,j,k);
                     }
+                    /*if(tileShape.isCross())
+                    {
+
+                        if(tileShape == EnumTileShape.CUBE_CROSS_EXTENDED || tileShape == EnumTileShape.CROSS_EXTENDED)
+                        {
+                            createExtendedCross(vertices, indices, uvs, norms, i,j,k);
+                        }
+                        else if(tileShape == EnumTileShape.CROSS_FULL)
+                        {
+                            createFullCross(vertices, indices, uvs, norms, i, j, k);
+                        }
+                        else
+                        {
+                            createCross(vertices, indices, uvs, norms, i, j, k);
+                        }
+                    }*/
 
 
                 }
@@ -74,7 +92,7 @@ public class ChunkMesh extends TexturedMesh
         }
     }
 
-    private void createCuboid(List<Float> vertices, List<Integer> indices, List<Float> uvs, int x, int y, int z)
+    private void createCuboid(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms, int x, int y, int z)
     {
         float[] verts;
 
@@ -82,9 +100,10 @@ public class ChunkMesh extends TexturedMesh
 
         Tile thisTile = Tile.Tiles.get(chunk.getTile(x, y, z));
         int thisMetadata = chunk.getTile(x, y, z);
-        EnumTileShape thisTileShape = thisTile.getRenderType(thisMetadata);
+        EnumTileShape thisTileShape = thisTile.getTileShape(thisMetadata);
         //System.out.println(thisTileShape);
         float[] uvFace;
+        float[] normFace;
 
         Tile tileCheck;
         int tileCheckMeta;
@@ -117,7 +136,7 @@ public class ChunkMesh extends TexturedMesh
         tileCheck = Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX()+x,(int)chunk.getPosY()+y,(int)chunk.getPosZ()+z+1));
         //System.out.println(tileCheck.getUnlocalizedName());
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z+1));
-        tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
+        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
                // && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.NORTH, EnumTileFace.SOUTH) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
@@ -136,12 +155,20 @@ public class ChunkMesh extends TexturedMesh
             {
                 uvs.add(uvFace[i]);
             }
+
+            normFace = getFaceNormals(EnumTileFace.NORTH);
+            for (int i = 0; i < normFace.length; i++)
+            {
+                norms.add(normFace[i]);
+            }
+
+
         }//END NORTH
 
         //EAST
         tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) chunk.getPosX() + x+1, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z));
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x+1, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z));
-        tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
+        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
@@ -161,12 +188,18 @@ public class ChunkMesh extends TexturedMesh
             {
                 uvs.add(uvFace[i]);
             }
+
+            normFace = getFaceNormals(EnumTileFace.EAST);
+            for (int i = 0; i < normFace.length; i++)
+            {
+                norms.add(normFace[i]);
+            }
         }//END EAST
 
         //SOUTH
         tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) chunk.getPosX() + x, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z-1));
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z-1));
-        tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
+        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
@@ -186,12 +219,18 @@ public class ChunkMesh extends TexturedMesh
             {
                 uvs.add(uvFace[i]);
             }
+
+            normFace = getFaceNormals(EnumTileFace.SOUTH);
+            for (int i = 0; i < normFace.length; i++)
+            {
+                norms.add(normFace[i]);
+            }
         }//END SOUTH
 
         //WEST
         tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) chunk.getPosX() + x-1, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z));
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x-1, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z));
-        tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
+        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
@@ -211,12 +250,18 @@ public class ChunkMesh extends TexturedMesh
             {
                 uvs.add(uvFace[i]);
             }
+
+            normFace = getFaceNormals(EnumTileFace.WEST);
+            for (int i = 0; i < normFace.length; i++)
+            {
+                norms.add(normFace[i]);
+            }
         }//END WEST*/
 
         //TOP
         tileCheck = Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y + 1, (int)chunk.getPosZ() + z));
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x, (int) chunk.getPosY() + y + 1, (int) chunk.getPosZ() + z));
-        tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
+        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
@@ -236,14 +281,20 @@ public class ChunkMesh extends TexturedMesh
             {
                 uvs.add(uvFace[i]);
             }
+
+            normFace = getFaceNormals(EnumTileFace.TOP);
+            for (int i = 0; i < normFace.length; i++)
+            {
+                norms.add(normFace[i]);
+            }
         }//END TOP
 
         //BOTTOM
         tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) chunk.getPosX() + x, (int) chunk.getPosY() + y - 1, (int) chunk.getPosZ() + z));
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x, (int) chunk.getPosY() + y - 1, (int) chunk.getPosZ() + z));
-        tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
+        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
-        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck) && (vec.y >= Tile.TILE_HEIGHT) )
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.BOTTOM, EnumTileFace.TOP) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -261,7 +312,135 @@ public class ChunkMesh extends TexturedMesh
             {
                 uvs.add(uvFace[i]);
             }
+
+            normFace = getFaceNormals(EnumTileFace.BOTTOM);
+            for (int i = 0; i < normFace.length; i++)
+            {
+                norms.add(normFace[i]);
+            }
         }//END BOTTOM*/
+    }
+
+    private static float[] getFaceNormals( EnumTileFace face)
+    {
+        float[] norms = new float[12];
+
+        switch (face)
+        {
+            case NORTH:
+            {
+                norms[0] = 0;
+                norms[1] = 0;
+                norms[2] = 1;
+                norms[3] = 0;
+                norms[4] = 0;
+                norms[5] = 1;
+                norms[6] = 0;
+                norms[7] = 0;
+                norms[8] = 1;
+                norms[9] = 0;
+                norms[10] = 0;
+                norms[11] = 1;
+                break;
+            }
+            case EAST:
+            {
+                norms[0] = 1;
+                norms[1] = 0;
+                norms[2] = 0;
+                norms[3] = 1;
+                norms[4] = 0;
+                norms[5] = 0;
+                norms[6] = 1;
+                norms[7] = 0;
+                norms[8] = 0;
+                norms[9] = 1;
+                norms[10] = 0;
+                norms[11] = 0;
+                break;
+            }
+            case SOUTH:
+            {
+                norms[0] = 0;
+                norms[1] = 0;
+                norms[2] = -1;
+                norms[3] = 0;
+                norms[4] = 0;
+                norms[5] = -1;
+                norms[6] = 0;
+                norms[7] = 0;
+                norms[8] = -1;
+                norms[9] = 0;
+                norms[10] = 0;
+                norms[11] = -1;
+                break;
+            }
+            case WEST:
+            {
+                norms[0] = -1;
+                norms[1] = 0;
+                norms[2] = 0;
+                norms[3] = -1;
+                norms[4] = 0;
+                norms[5] = 0;
+                norms[6] = -1;
+                norms[7] = 0;
+                norms[8] = 0;
+                norms[9] = -1;
+                norms[10] = 0;
+                norms[11] = 0;
+                break;
+            }
+            case TOP:
+            {
+                norms[0] = 0;
+                norms[1] = 1;
+                norms[2] = 0;
+                norms[3] = 0;
+                norms[4] = 1;
+                norms[5] = 0;
+                norms[6] = 0;
+                norms[7] = 1;
+                norms[8] = 0;
+                norms[9] = 0;
+                norms[10] = 1;
+                norms[11] = 0;
+                break;
+            }
+            case BOTTOM:
+            {
+                norms[0] = 0;
+                norms[1] = -1;
+                norms[2] = 0;
+                norms[3] = 0;
+                norms[4] = -1;
+                norms[5] = 0;
+                norms[6] = 0;
+                norms[7] = -1;
+                norms[8] = 0;
+                norms[9] = 0;
+                norms[10] = -1;
+                norms[11] = 0;
+                break;
+            }
+            default:
+            {
+                norms[0] = (float) (1/Math.sqrt(3));
+                norms[1] = (float) (1/Math.sqrt(3));
+                norms[2] = (float) (1/Math.sqrt(3));
+                norms[3] = (float) (1/Math.sqrt(3));
+                norms[4] = (float) (1/Math.sqrt(3));
+                norms[5] = (float) (1/Math.sqrt(3));
+                norms[6] = (float) (1/Math.sqrt(3));
+                norms[7] = (float) (1/Math.sqrt(3));
+                norms[8] = (float) (1/Math.sqrt(3));
+                norms[9] = (float) (1/Math.sqrt(3));
+                norms[10] = (float) (1/Math.sqrt(3));
+                norms[11] = (float) (1/Math.sqrt(3));
+                break;
+            }
+        }
+        return norms;
     }
 
     private static float[] getFaceVerticesCuboid(EnumTileFace face, Vector3f vec, float tileSize, float tileHeight)
@@ -276,7 +455,7 @@ public class ChunkMesh extends TexturedMesh
         return fv;
     }
 
-    private void createCross(List<Float> vertices, List<Integer> indices, List<Float> uvs, int x, int y, int z)
+    private void createCross(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms, int x, int y, int z)
     {
         float[] verts;
 
@@ -284,6 +463,7 @@ public class ChunkMesh extends TexturedMesh
 
         int tile = chunk.getTile(x,y,z);
         float[] uvFace;
+        float[] normFace;
 
         for (int j = 0; j < 4; j++)
         {
@@ -298,6 +478,125 @@ public class ChunkMesh extends TexturedMesh
             for (int i = 0; i < uvFace.length; i++)
             {
                 uvs.add(uvFace[i]);
+            }
+
+            normFace = getFaceNormals(EnumTileFace.PARTICLE);
+            for (int i = 0; i < uvFace.length; i++)
+            {
+                norms.add(normFace[i]);
+            }
+        }
+
+    }
+
+    private void createExtendedCross(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms, int x, int y, int z)
+    {
+        float[] verts;
+
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+
+        int tile = chunk.getTile(x,y,z);
+        float[] uvFace;
+        float[] normFace;
+
+        for (int j = 0; j < 4; j++)
+        {
+            verts = getFaceVerticesExtendedCross(EnumTileFace.get(j), vec);
+            int count = vertices.size() / 3;
+            vertices.addAll(ArrayUtils.floatToFloat(verts));
+            for (int i = 0; i < indexList.length; i++)
+            {
+                indices.add(indexList[i] + count);
+            }
+            uvFace = getFaceUVs(false, EnumTileFace.get(j), tile);
+            for (int i = 0; i < uvFace.length; i++)
+            {
+                uvs.add(uvFace[i]);
+            }
+
+            normFace = getFaceNormals(EnumTileFace.PARTICLE);
+            for (int i = 0; i < uvFace.length; i++)
+            {
+                norms.add(normFace[i]);
+            }
+        }
+
+    }
+
+    private void createFullCross(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms, int x, int y, int z)
+    {
+        float[] verts;
+
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+
+        int tile = chunk.getTile(x,y,z);
+        float[] uvFace;
+        float[] normFace;
+
+        for (int j = 0; j < 4; j++)
+        {
+            verts = getFaceVerticesFullCross(EnumTileFace.get(j), vec);
+            int count = vertices.size() / 3;
+            vertices.addAll(ArrayUtils.floatToFloat(verts));
+            for (int i = 0; i < indexList.length; i++)
+            {
+                indices.add(indexList[i] + count);
+            }
+            uvFace = getFaceUVs(false, EnumTileFace.get(j), tile);
+            for (int i = 0; i < uvFace.length; i++)
+            {
+                uvs.add(uvFace[i]);
+            }
+
+            normFace = getFaceNormals(EnumTileFace.PARTICLE);
+            for (int i = 0; i < uvFace.length; i++)
+            {
+                norms.add(normFace[i]);
+            }
+        }
+
+    }
+
+    private void createFullCross(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms, int x, int y, int z, boolean useParticle)
+    {
+        float[] verts;
+
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+
+        int tile = chunk.getTile(x,y,z);
+        float[] uvFace;
+        float[] normFace;
+
+        for (int j = 0; j < 4; j++)
+        {
+            verts = getFaceVerticesFullCross(EnumTileFace.get(j), vec);
+            int count = vertices.size() / 3;
+            vertices.addAll(ArrayUtils.floatToFloat(verts));
+            for (int i = 0; i < indexList.length; i++)
+            {
+                indices.add(indexList[i] + count);
+            }
+            if(useParticle)
+            {
+                uvFace = getFaceUVs(false, EnumTileFace.PARTICLE, tile);
+                for (int i = 0; i < uvFace.length; i++)
+                {
+                    uvs.add(uvFace[i]);
+                }
+            }
+            else
+            {
+                uvFace = getFaceUVs(false, EnumTileFace.get(j), tile);
+                for (int i = 0; i < uvFace.length; i++)
+                {
+                    uvs.add(uvFace[i]);
+                }
+            }
+
+            normFace = getFaceNormals(EnumTileFace.PARTICLE);
+            for (int i = 0; i < uvFace.length; i++)
+            {
+                norms.add(normFace[i]);
             }
         }
 
@@ -369,8 +668,34 @@ public class ChunkMesh extends TexturedMesh
         return fv;
     }
 
+    private static float[] getFaceVerticesExtendedCross(EnumTileFace face, Vector3f vec)
+    {
+        float[] fv = new float[4*3];
+
+        for (int i = 0; i < 4; i++)
+        {
+            fv[i*3] = vertexExtendedCrossList[faceVerticesCross[face.ordinal()][i]][0] + vec.x;
+            fv[i*3+1] = vertexExtendedCrossList[faceVerticesCross[face.ordinal()][i]][1] + vec.y;
+            fv[i*3+2] = vertexExtendedCrossList[faceVerticesCross[face.ordinal()][i]][2] + vec.z;
+        }
+        return fv;
+    }
+
+    private static float[] getFaceVerticesFullCross(EnumTileFace face, Vector3f vec)
+    {
+        float[] fv = new float[4*3];
+
+        for (int i = 0; i < 4; i++)
+        {
+            fv[i*3] = vertexFullCrossList[faceVerticesCross[face.ordinal()][i]][0] + vec.x;
+            fv[i*3+1] = vertexFullCrossList[faceVerticesCross[face.ordinal()][i]][1] + vec.y;
+            fv[i*3+2] = vertexFullCrossList[faceVerticesCross[face.ordinal()][i]][2] + vec.z;
+        }
+        return fv;
+    }
+
     private static float diag0 = ((float)Math.sqrt((Tile.TILE_SIZE*Tile.TILE_SIZE)+(Tile.TILE_SIZE*Tile.TILE_SIZE))-Tile.TILE_SIZE)*0.5f;
-    private static float diag1 = Tile.TILE_SIZE - ((float)Math.sqrt((Tile.TILE_SIZE*Tile.TILE_SIZE)+(Tile.TILE_SIZE*Tile.TILE_SIZE))-Tile.TILE_SIZE)*0.5f;
+    private static float diag1 = Tile.TILE_SIZE - diag0;
 
     private static float[][] vertexCrossList =
             {
@@ -383,6 +708,32 @@ public class ChunkMesh extends TexturedMesh
                     new float[]{ diag1,Tile.TILE_HEIGHT,diag0}, //5
                     new float[]{ diag0,Tile.TILE_HEIGHT,diag1}, //6
                     new float[]{ diag1,Tile.TILE_HEIGHT,diag1}  //7
+            };
+
+    private static float[][] vertexFullCrossList =
+            {
+                    new float[]{ 0,0,0}, //0
+                    new float[]{ Tile.TILE_SIZE,0,0}, //1
+                    new float[]{ 0,0,Tile.TILE_SIZE}, //2
+                    new float[]{ Tile.TILE_SIZE,0,Tile.TILE_SIZE}, //3
+
+                    new float[]{ 0,Tile.TILE_HEIGHT,0}, //4
+                    new float[]{ Tile.TILE_SIZE,Tile.TILE_HEIGHT,0}, //5
+                    new float[]{ 0,Tile.TILE_HEIGHT,Tile.TILE_SIZE}, //6
+                    new float[]{ Tile.TILE_SIZE,Tile.TILE_HEIGHT,Tile.TILE_SIZE}  //7
+            };
+
+    private static float[][] vertexExtendedCrossList =
+            {
+                    new float[]{ -diag0,-diag0,-diag0}, //0
+                    new float[]{ Tile.TILE_SIZE+diag0,-diag0,-diag0}, //1
+                    new float[]{ -diag0,-diag0,Tile.TILE_SIZE+diag0}, //2
+                    new float[]{ Tile.TILE_SIZE+diag0,-diag0,Tile.TILE_SIZE+diag0}, //3
+
+                    new float[]{ -diag0,Tile.TILE_HEIGHT+diag0,-diag0}, //4
+                    new float[]{ Tile.TILE_SIZE+diag0,Tile.TILE_HEIGHT+diag0,-diag0}, //5
+                    new float[]{ -diag0,Tile.TILE_HEIGHT+diag0,Tile.TILE_SIZE+diag0}, //6
+                    new float[]{ Tile.TILE_SIZE+diag0,Tile.TILE_HEIGHT+diag0,Tile.TILE_SIZE+diag0}  //7
             };
 
     private static int[][] faceVerticesCross = //fixed to rotate counterclockwise such that face culling works correctly
@@ -406,11 +757,12 @@ public class ChunkMesh extends TexturedMesh
         List<Float> vertices = new ArrayList<Float>();
         List<Integer> indices = new ArrayList<Integer>();
         List<Float> uvs = new ArrayList<Float>();
+        List<Float> norms = new ArrayList<Float>();
 
-        createMesh(vertices, indices, uvs);
+        createMesh(vertices, indices, uvs, norms);
 
-        rawMesh = loader.reloadToVAO(rawMesh, ArrayUtils.floatFromFloat(vertices),
-                ArrayUtils.intFromInteger(indices), ArrayUtils.floatFromFloat(uvs));
+        rawMesh = loader.loadToVAO(ArrayUtils.floatFromFloat(vertices),
+                ArrayUtils.intFromInteger(indices), ArrayUtils.floatFromFloat(uvs), ArrayUtils.floatFromFloat(norms));
     }
 
 

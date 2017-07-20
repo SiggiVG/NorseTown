@@ -17,7 +17,7 @@ public class TileSod extends Tile
     }
 
     @Override
-    public EnumTileShape getRenderType(int metadata)
+    public EnumTileShape getTileShape(int metadata)
     {
         return EnumTileShape.FULL_CUBE;
     }

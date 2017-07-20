@@ -1,6 +1,8 @@
 package com.deadvikingstudios.norsetown.view.lwjgl.shaders;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
+import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
+import com.deadvikingstudios.norsetown.model.lighting.SpotLight;
 import com.deadvikingstudios.norsetown.view.RenderMath;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -10,13 +12,18 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class StaticShader extends ShaderProgram
 {
-    private static final String VERTEX_FILE = /*GameContainer.RES_PATH + */"/shaders/basic_chunk_shader.vert";
-    private static final String FRAGMENT_FILE = /*GameContainer.RES_PATH + */"/shaders/basic_chunk_shader.frag";
+    private static final String VERTEX_FILE = /*GameContainer.RES_PATH + */"/shaders/vertex.vs";
+    private static final String FRAGMENT_FILE = /*GameContainer.RES_PATH + */"/shaders/fragment.fs";
 
     private int location_transformationMatrix;
     private int location_projectionMatrix;
     private int location_viewMatrix;
-    //private int location_time;
+    private int location_lightPosition;
+    private int location_spotLightColor;
+    private int location_ambientLight;
+    private int location_directionalLightColor;
+    private int location_directionalLightDirection;
+    private int location_directionalLightIntensity;
 
     public StaticShader()
     {
@@ -28,6 +35,7 @@ public class StaticShader extends ShaderProgram
     {
         super.bindAttribute(0, "position");
         super.bindAttribute(1, "uvs");
+        super.bindAttribute(2,"normals");
     }
 
     @Override
@@ -36,7 +44,12 @@ public class StaticShader extends ShaderProgram
         location_transformationMatrix = super.getUniformLocation("transformationMatrix");
         location_projectionMatrix = super.getUniformLocation("projectionMatrix");
         location_viewMatrix = super.getUniformLocation("viewMatrix");
-        //location_time = super.getUniformLocation("time");
+        location_lightPosition = super.getUniformLocation("lightPosition");
+        location_spotLightColor = super.getUniformLocation("spotLightColor");
+        location_ambientLight = super.getUniformLocation("ambientLight");
+        location_directionalLightColor = super.getUniformLocation("directionalLight.color");
+        location_directionalLightDirection = super.getUniformLocation("directionalLight.direction");
+        location_directionalLightIntensity = super.getUniformLocation("directionalLight.intensity");
     }
 
     /**
@@ -69,8 +82,21 @@ public class StaticShader extends ShaderProgram
         super.loadMatrix(location_viewMatrix, RenderMath.createViewMatrix(camera));
     }
 
-    /*public void loadTime(int time)
+    public void loadDirectionalLight(DirectionalLight light)
     {
-        super.loadFloat(location_time, time);
-    }*/
+        super.loadVector3D(location_directionalLightColor, light.getColor());
+        super.loadVector3D(location_directionalLightDirection, light.getDirection());
+        super.loadFloat(location_directionalLightIntensity, light.getIntensity());
+    }
+
+    public void loadSpotLight(SpotLight light)
+    {
+        super.loadVector3D(location_lightPosition, light.getPosition());
+        super.loadVector3D(location_spotLightColor, light.getColor());
+    }
+
+    public void loadAmbientLight(Vector3f lightColor)
+    {
+        super.loadVector3D(location_ambientLight, lightColor);
+    }
 }

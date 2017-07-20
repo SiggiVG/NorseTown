@@ -13,6 +13,7 @@ public enum EnumTileFace
     WEST("west", new Vector3f(-1,0,0)),
     TOP("top", new Vector3f(0,1,0)),
     BOTTOM("bottom", new Vector3f(0,-1,0)),
+    PARTICLE("particle", new Vector3f(0,0,0)),
     NULL("null", new Vector3f(0,0,0));
 
     private String name;
@@ -35,6 +36,7 @@ public enum EnumTileFace
             case 3: return WEST;
             case 4: return TOP;
             case 5: return BOTTOM;
+            case 6: return PARTICLE;
             default: return null;
         }
     }

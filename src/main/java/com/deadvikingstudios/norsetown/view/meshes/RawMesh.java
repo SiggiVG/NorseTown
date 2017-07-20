@@ -13,6 +13,7 @@ public class RawMesh
     private int vboVertID;
     private int vboIndID;
     private int vboUvID;
+    private int vboNormID;
     private int vertexCount;
 
     public RawMesh(int vaoID, int vertexCount)
@@ -27,6 +28,16 @@ public class RawMesh
         this.vboVertID = vboVertID;
         this.vboIndID = vboIndID;
         this.vboUvID = vboUvID;
+        this.vertexCount = vertexCount;
+    }
+
+    public RawMesh(int vaoID, int vboVertID, int vboIndID, int vboUvID, int vboNormID, int vertexCount)
+    {
+        this.vaoID = vaoID;
+        this.vboVertID = vboVertID;
+        this.vboIndID = vboIndID;
+        this.vboUvID = vboUvID;
+        this.vboNormID = vboNormID;
         this.vertexCount = vertexCount;
     }
 
@@ -48,6 +59,11 @@ public class RawMesh
     public int getVboUvID()
     {
         return vboUvID;
+    }
+
+    public int getVboNormID()
+    {
+        return vboNormID;
     }
 
     public int getVertexCount()

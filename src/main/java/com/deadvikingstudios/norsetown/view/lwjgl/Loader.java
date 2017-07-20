@@ -34,7 +34,7 @@ public class Loader
      * @param vertices an array of coordinates
      * @return the model for rendering
      */
-    public RawMesh loadToVAO(float[] vertices, int[] indices, float[] uvs)
+    /*public RawMesh loadToVAO(float[] vertices, int[] indices, float[] uvs)
     {
         int vaoID = createVAO();
         int vertVboID = storeDataInAttributeList(vertices, 0, 3);
@@ -43,6 +43,18 @@ public class Loader
         GL30.glBindVertexArray(0);
 
         return new RawMesh(vaoID, vertVboID, indVboID, uvVboID, indices.length);
+    }*/
+
+    public RawMesh loadToVAO(float[] vertices, int[] indices, float[] uvs, float[] norms)
+    {
+        int vaoID = createVAO();
+        int vertVboID = storeDataInAttributeList(vertices, 0, 3);
+        int indVboID = bindIndicesBuffer(indices);
+        int uvVboID = storeDataInAttributeList(uvs, 1, 2);
+        int normVboID = storeDataInAttributeList(norms, 2, 3);
+        GL30.glBindVertexArray(0);
+
+        return new RawMesh(vaoID, vertVboID, indVboID, uvVboID, normVboID, indices.length);
     }
 
     public RawMesh reloadToVAO(RawMesh rawMesh, float[] vertices, int[] indices, float[] uvs)
@@ -59,6 +71,8 @@ public class Loader
         int indVboID = bindIndicesBuffer(indices);
         GL15.glDeleteBuffers(rawMesh.getVboUvID());
         vbos.remove(new Integer(rawMesh.getVboUvID()));
+        GL15.glDeleteBuffers(rawMesh.getVboNormID());
+        vbos.remove(new Integer(rawMesh.getVboNormID()));
         int uvVboID = storeDataInAttributeList(uvs, 1, 2);
         GL30.glBindVertexArray(0);
 

@@ -67,11 +67,11 @@ public abstract class Tile
         return this;
     }
 
-    public boolean isFullCuboid(){return this.getRenderType(0) == EnumTileShape.FULL_CUBE;}
+    public boolean isFullCuboid(){return this.getTileShape(0) == EnumTileShape.FULL_CUBE;}
 
     public boolean isSolidCuboid(){return this.isOpaque && isFullCuboid();}
 
-    private int[] textureOffsets = new int[6];
+    private int[] textureOffsets = new int[7];
 
     /**
      * @param side
@@ -109,6 +109,18 @@ public abstract class Tile
         return this;
     }
 
+    public Tile setTextureOffset(int north, int east, int south, int west, int top, int bottom, int particle)
+    {
+        textureOffsets[0] = north;
+        textureOffsets[1] = east;
+        textureOffsets[2] = south;
+        textureOffsets[3] = west;
+        textureOffsets[4] = top;
+        textureOffsets[5] = bottom;
+        textureOffsets[6] = particle;
+        return this;
+    }
+
     /**
      * @return flags it to not render
      */
@@ -119,7 +131,7 @@ public abstract class Tile
 
     public abstract void update(World world, int x, int y, int z);
 
-    public abstract EnumTileShape getRenderType(int metadata);
+    public abstract EnumTileShape getTileShape(int metadata);
 
     public boolean isReplacable()
     {
@@ -150,7 +162,7 @@ public abstract class Tile
             int i =0;
 
             register(tileAir = new TileAir(i++,"tile_air").setOpaque(false));
-            register(tileGrass = new TileSod(i++,"tile_sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,3));
+            register(tileGrass = new TileSod(i++,"tile_sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,3, 4));
             register(tileSoil = new TileSoil(i++, "tile_soil", EnumMaterial.EARTH).setTextureOffset(3));
             register(tileLogThin = new TileTree(i++,"tile_log_thin").setTextureOffset(6,5));
             register(tileLogMed = new TileTree(i++,"tile_log_med").setTextureOffset(6,5));
@@ -171,9 +183,9 @@ public abstract class Tile
                 }
 
                 @Override
-                public EnumTileShape getRenderType(int metadata)
+                public EnumTileShape getTileShape(int metadata)
                 {
-                    return EnumTileShape.CROSS;
+                    return EnumTileShape.CROSS_FULL;
                 }
 
                 @Override

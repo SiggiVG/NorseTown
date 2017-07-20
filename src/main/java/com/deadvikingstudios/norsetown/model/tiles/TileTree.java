@@ -11,7 +11,7 @@ public class TileTree extends Tile
     }
 
     @Override
-    public EnumTileShape getRenderType(int metadata)
+    public EnumTileShape getTileShape(int metadata)
     {
         if(this.equals(Tiles.tileLogThin))
         {
