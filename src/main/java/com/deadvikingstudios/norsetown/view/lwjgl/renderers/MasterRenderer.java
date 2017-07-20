@@ -19,7 +19,7 @@ public class MasterRenderer
 
     private static final float P_FOV = 70;
     private static final float P_NEAR_PLANE = 0.1f;
-    private static final float P_FAR_PLANE = 250f;
+    public static final float P_FAR_PLANE = 250f;
 
     public MasterRenderer(StaticShader shader)
     {

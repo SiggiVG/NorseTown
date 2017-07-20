@@ -8,7 +8,6 @@ public class TileTree extends Tile
     public TileTree(int index, String unlocalizedName)
     {
         super(index, unlocalizedName, EnumMaterial.WOOD);
-        this.isOpaque = false;
     }
 
     @Override
@@ -66,7 +65,7 @@ public class TileTree extends Tile
                 }
             }
         }
-        else if(metaData > growthMeta *2)
+        else //if(metaData > growthMeta)
         {
             world.setTile(Tiles.tileLogThin, x, y+1, z, true);
 

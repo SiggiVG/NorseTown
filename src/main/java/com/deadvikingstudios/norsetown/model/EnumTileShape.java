@@ -11,25 +11,25 @@ public enum EnumTileShape
     HALF_CUBE_TOP, //top face full
     HALF_CUBE_BOT, //bot face full
 
-    QUART_CUBE_NORTH_EAST_TOP, //no full faces
+    /*QUART_CUBE_NORTH_EAST_TOP, //no full faces
     QUART_CUBE_NORTH_EAST_BOT, //no full faces
     QUART_CUBE_NORTH_WEST_TOP, //no full faces
     QUART_CUBE_NORTH_WEST_BOT, //no full faces
     QUART_CUBE_SOUTH_EAST_TOP, //no full faces
     QUART_CUBE_SOUTH_EAST_BOT, //no full faces
     QUART_CUBE_SOUTH_WEST_TOP, //no full faces
-    QUART_CUBE_SOUTH_WEST_BOT, //no full faces
+    QUART_CUBE_SOUTH_WEST_BOT, //no full faces*/
 
     COL_THICK, //top and bot faces bigger than med and thin
     COL_MED, //top and bot faces bigger than thin
     COL_THIN, //no bigger face
 
-    HALF_COL_THICK_TOP, //top faces bigger than med and thin
+    /*HALF_COL_THICK_TOP, //top faces bigger than med and thin
     HALF_COL_THICK_BOT, //bot faces bigger than med and thin
     HALF_COL_MED_TOP, //top faces bigger than thin
     HALF_COL_MED_BOT, //bot faces bigger than thin
-    HALF_THIN_TOP, //no bigger face
-    HALF_THIN_BOT, //no bigger face
+    HALF_COL_THIN_TOP, //no bigger face
+    HALF_COL_THIN_BOT, //no bigger face*/
 
     CROSS, //faces of 1 crossing //not standard render
     CROSS_EXTENDED, //faces of 1.5 crossing //not standard render
@@ -77,12 +77,12 @@ public enum EnumTileShape
             case COL_THICK:
             case COL_MED:
             case COL_THIN:
-            case HALF_COL_THICK_TOP:
-            case HALF_COL_THICK_BOT:
-            case HALF_COL_MED_TOP:
-            case HALF_COL_MED_BOT:
-            case HALF_THIN_TOP:
-            case HALF_THIN_BOT:
+            //case HALF_COL_THICK_TOP:
+            //case HALF_COL_THICK_BOT:
+            //case HALF_COL_MED_TOP:
+            //case HALF_COL_MED_BOT:
+            //case HALF_COL_THIN_TOP:
+            //case HALF_COL_THIN_BOT:
 
                 return true;
             default:
@@ -101,12 +101,12 @@ public enum EnumTileShape
             case COL_THICK:
             case COL_MED:
             case COL_THIN:
-            //case HALF_COL_THICK_TOP:
+            /*//case HALF_COL_THICK_TOP:
             case HALF_COL_THICK_BOT:
             //case HALF_COL_MED_TOP:
             case HALF_COL_MED_BOT:
-            //case HALF_THIN_TOP:
-            case HALF_THIN_BOT:
+            //case HALF_COL_THIN_TOP:
+            case HALF_COL_THIN_BOT:
             //case QUART_CUBE_NORTH_EAST_TOP:
             case QUART_CUBE_NORTH_EAST_BOT:
             //case QUART_CUBE_NORTH_WEST_TOP:
@@ -114,7 +114,7 @@ public enum EnumTileShape
             //case QUART_CUBE_SOUTH_EAST_TOP:
             case QUART_CUBE_SOUTH_EAST_BOT:
             //case QUART_CUBE_SOUTH_WEST_TOP:
-            case QUART_CUBE_SOUTH_WEST_BOT:
+            case QUART_CUBE_SOUTH_WEST_BOT:*/
 
                 return true;
             default:
@@ -133,12 +133,12 @@ public enum EnumTileShape
             case COL_THICK:
             case COL_MED:
             case COL_THIN:
-            case HALF_COL_THICK_TOP:
+            /*case HALF_COL_THICK_TOP:
             //case HALF_COL_THICK_BOT:
             case HALF_COL_MED_TOP:
             //case HALF_COL_MED_BOT:
-            case HALF_THIN_TOP:
-            //case HALF_THIN_BOT:
+            case HALF_COL_THIN_TOP:
+            //case HALF_COL_THIN_BOT:
             case QUART_CUBE_NORTH_EAST_TOP:
             //case QUART_CUBE_NORTH_EAST_BOT:
             case QUART_CUBE_NORTH_WEST_TOP:
@@ -146,7 +146,7 @@ public enum EnumTileShape
             case QUART_CUBE_SOUTH_EAST_TOP:
             //case QUART_CUBE_SOUTH_EAST_BOT:
             case QUART_CUBE_SOUTH_WEST_TOP:
-            //case QUART_CUBE_SOUTH_WEST_BOT:
+            //case QUART_CUBE_SOUTH_WEST_BOT:*/
 
                 return true;
             default:
@@ -179,7 +179,7 @@ public enum EnumTileShape
         return false;
     }
 
-    public float getThickness()
+    /*public float getThickness()
     {
         if(this.coversFullFace(EnumTileFace.BOTTOM) || this.coversFullFace(EnumTileFace.TOP))
         {
@@ -207,15 +207,36 @@ public enum EnumTileShape
                 case HALF_COL_MED_BOT:
                     return 0.5f;
                 case COL_THIN:
-                case HALF_THIN_TOP:
-                case HALF_THIN_BOT:
+                case HALF_COL_THIN_TOP:
+                case HALF_COL_THIN_BOT:
                     return 0.25f;
             }
         }
         return 0.0f;
-    }
+    }*/
 
-    public boolean isQuarterTile()
+    /*public boolean isHalfColum()
+    {
+        if(this.isCenteredColumn())
+        {
+            switch (this)
+            {
+                case HALF_COL_THIN_BOT:
+                case HALF_COL_THIN_TOP:
+                case HALF_COL_MED_BOT:
+                case HALF_COL_MED_TOP:
+                case HALF_COL_THICK_BOT:
+                case HALF_COL_THICK_TOP:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        return false;
+    }*/
+
+
+    /*public boolean isQuarterTile()
     {
         switch (this)
         {
@@ -231,9 +252,119 @@ public enum EnumTileShape
             default:
                 return false;
         }
+    }*/
+
+    public boolean isOnFace(EnumTileFace face)
+    {
+        if(this == NULL)
+        {
+            return false;
+        }
+        //full cubes and half cubes
+        if(this.coversFullFace(face))
+        {
+            return true;
+        }
+        //crosses that arent full cubes
+        if(this.isCross() && !this.isCuboid())
+        {
+            return false;
+        }
+        switch (face)
+        {
+            case NORTH:
+            {
+                if(this.isHalfCube() && this != HALF_CUBE_WEST)
+                {
+                    return true;
+                }
+                break;
+            }
+            case EAST:
+            {
+                if(this.isHalfCube() && this != HALF_CUBE_SOUTH)
+                {
+                    return true;
+                }
+                break;
+            }
+            case SOUTH:
+            {
+                if(this.isHalfCube() && this != HALF_CUBE_NORTH)
+                {
+                    return true;
+                }
+                break;
+            }
+            case WEST:
+            {
+                if(this.isHalfCube() && this != HALF_CUBE_EAST)
+                {
+                    return true;
+                }
+                break;
+            }
+            case TOP:
+            {
+                if(this.isHalfCube() && this != HALF_CUBE_BOT)
+                {
+                    return true;
+                }
+                if(this.isCenteredColumn())
+                {
+                    return true;
+                }
+
+                break;
+            }
+            case BOTTOM:
+            {
+                if(this.isHalfCube() && this != HALF_CUBE_TOP)
+                {
+                    return true;
+                }
+                if(this.isCenteredColumn())
+                {
+                    return true;
+                }
+                break;
+            }
+        }
+        return false;
     }
 
-    public boolean isOtherFaceGTThisFace(EnumTileShape otherTile, EnumTileFace thisFace, EnumTileFace otherFace)
+    public boolean renderThisFace(EnumTileFace thisFace, EnumTileShape otherTile)
+    {
+        //if it's not on the face, render it
+        if(this.isOnFace(thisFace) && otherTile.coversFullFace(thisFace.getOpposite()))
+        {
+            return false;
+        }
+        if(this == COL_THIN && (otherTile == COL_THIN || otherTile == COL_MED || otherTile == COL_THICK))
+        {
+            return false;
+        }
+        if(this == COL_MED && (otherTile == COL_MED || otherTile == COL_THICK))
+        {
+            return false;
+        }
+        if(this == COL_THICK && otherTile == COL_THICK)
+        {
+            return false;
+        }
+        //if this shares the face with a full cube
+        if(this.isOnFace(thisFace) && (otherTile == FULL_CUBE || otherTile == FULL_CROSS_EXTENDED))
+        {
+            return false;
+        }
+
+
+
+        return true;
+
+    }
+
+    /*public boolean isOtherFaceGTThisFace(EnumTileShape otherTile, EnumTileFace thisFace, EnumTileFace otherFace)
     {
         if(otherTile == EnumTileShape.NULL) return false;
         if(otherTile.coversFullFace(thisFace) && this.coversFullFace(otherFace))
@@ -284,14 +415,6 @@ public enum EnumTileShape
         }
         return false;
     }
-
-    /**
-     * Mixed up the parameters woops
-     * @param otherTile
-     * @param thisFace
-     * @param otherFace
-     * @return
-     */
     public boolean isOtherFaceGTEQThisFace(EnumTileShape otherTile, EnumTileFace thisFace, EnumTileFace otherFace)
     {
         if(otherTile == EnumTileShape.NULL) return false;
@@ -340,5 +463,5 @@ public enum EnumTileShape
         }
         //TODO add clause for quarter tiles that share a face
         return false;
-    }
+    }*/
 }

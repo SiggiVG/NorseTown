@@ -4,6 +4,7 @@ package com.deadvikingstudios.norsetown.controller;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.entities.humanoids.EntityHumanoid;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
+import com.deadvikingstudios.norsetown.model.world.CalendarNorse;
 import com.deadvikingstudios.norsetown.model.world.Chunk;
 import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.view.lwjgl.DisplayManager;
@@ -29,7 +30,7 @@ import java.util.Random;
 public class GameContainer implements Runnable, IGameContainer
 {
     public static final String GAME_NAME = "NorseTown";
-    public static final String VERSION = "Indev-0.02a";
+    public static final String VERSION = "Indev-0.02b";
 
     public static final String SRC_PATH = "/src/main/java/com/deadvikingstudios/norsetown/";
     private static boolean outputFPS = false;
@@ -57,9 +58,13 @@ public class GameContainer implements Runnable, IGameContainer
     private static CameraController camera;
     private static MousePicker picker;
 
-
+    private static Entity skybox;
+    private static RawMesh skyMesh;
+    private static EntityMesh skyEntMesh;
+    private static MeshTexture skyboxTexture;
     private static MeshTexture grassTexture;
     private static MeshTexture entTexture;
+    public CalendarNorse calendar;
 
     public GameContainer() {this.game = this;}
 
@@ -73,6 +78,7 @@ public class GameContainer implements Runnable, IGameContainer
 
         camera = new CameraController(0, 0, 0);
         defaultMesh = loader.loadToVAO(vertices, indices, uv);
+        skyMesh = loader.loadToVAO(skyVertices, indices, skyboxUV);
 
         thread = new Thread(this);
         thread.run();
@@ -165,11 +171,9 @@ public class GameContainer implements Runnable, IGameContainer
         {
             if(World.getWorld().getTile(x,j,z) == 2)
             {
-                //System.out.println("Tree created at: " + x + "," + j + "," + z);
                 for (int i = 2; i < height+2; i++)
                 {
-                    World.getWorld().setTile(Tile.Tiles.tileLogThick, x, j+i, z, false);
-                    World.getWorld().setMetadata(1, x,j,z);
+                    World.getWorld().setTile(Tile.Tiles.tileLogMed, x, j+i, z, false);
                 }
                 return;
             }
@@ -185,18 +189,23 @@ public class GameContainer implements Runnable, IGameContainer
         camera.setRotation(35, 135, 0);
         camera.setPosition(0, Chunk.CHUNK_HEIGHT * 0.5f * Tile.TILE_HEIGHT, 0);
 
+        skybox = new Entity(0,0,0,0,0,0);
+
         grassTexture = new MeshTexture(loader.loadTexture("textures/terrain"));//"textures/tiles/grass_top"));
+        skyboxTexture = new MeshTexture(loader.loadTexture("textures/skybox"));
         entTexture = new MeshTexture(loader.loadTexture("textures/entTexture"));
+        calendar = new CalendarNorse();
         currentWorld = new World(1);
+
 
         picker = new MousePicker(camera, renderer.getProjectionMatrix(), currentWorld);
 
         Random random = World.getWorld().getRandom();
 
-        for (int i = 0; i < random.nextInt(World.CHUNK_NUM_XZ * 16) + World.CHUNK_NUM_XZ*8; i++)
+        for (int i = 0; i < random.nextInt(World.CHUNK_NUM_XZ * 32) + World.CHUNK_NUM_XZ*16; i++)
         {
             makeTree(random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE),
-                    1,//(Chunk.CHUNK_HEIGHT/32),
+                    3,//(Chunk.CHUNK_HEIGHT/32),
                     random.nextInt(World.CHUNK_NUM_XZ * Chunk.CHUNK_SIZE), 6);
         }
 
@@ -219,9 +228,12 @@ public class GameContainer implements Runnable, IGameContainer
 
         currentWorld.getEntities().add(new EntityHumanoid(0,0,0,0,0,0));
 
+        skyEntMesh = new EntityMesh(skybox, skyMesh, skyboxTexture);
+        //skybox.setRotationY(45);
+
         for (Entity ent : World.getWorld().getEntities())
         {
-            entityMeshes.add(new EntityMesh(ent, defaultMesh, entTexture));
+            //entityMeshes.add(new EntityMesh(ent, defaultMesh, entTexture));
         }
 
         System.out.println("Initialization finished");
@@ -231,10 +243,14 @@ public class GameContainer implements Runnable, IGameContainer
 
     public void update(float dt)
     {
+        calendar.update();
+
         KeyboardInput.update();
         MouseInput.update();
 
         camera.move();
+        skybox.setPosition(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
+        skybox.rotate(0,0,0.01f);
         picker.update();
         //System.out.println(picker.getCurrentRay());
         //System.out.println(picker.getCurrentWorldPoint());
@@ -248,6 +264,11 @@ public class GameContainer implements Runnable, IGameContainer
                 mesh.reloadMesh();
                 mesh.getChunk().setFlagForReMesh(false);
             }
+        }
+
+        if(MouseInput.getButtonDown(0))
+        {
+            System.out.println("Time: " + calendar.getTime());
         }
 
         //Move to World.update()
@@ -355,7 +376,7 @@ public class GameContainer implements Runnable, IGameContainer
         else if (KeyboardInput.getKeyDown(Keyboard.KEY_5))
         {
             World.chunkTickSpeed = 64;
-        }
+        }/*
         else if (KeyboardInput.getKeyDown(Keyboard.KEY_6))
         {
             World.chunkTickSpeed = 128;
@@ -367,11 +388,7 @@ public class GameContainer implements Runnable, IGameContainer
         else if (KeyboardInput.getKeyDown(Keyboard.KEY_8))
         {
             World.chunkTickSpeed = 512;
-        }
-
-
-
-
+        }*/
     }
 
     public void render()
@@ -379,12 +396,16 @@ public class GameContainer implements Runnable, IGameContainer
         //Display is cleared before drawing
         renderer.clear();
         //start rendering
-
         //ent.translate(0.001f, 0.001f, 0);
         //ent.scale(-0.001f);
         //ent.rotate(0f, 0f,0.1f);
         shader.start();
         shader.loadViewMatrix(camera);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        renderer.render(skyEntMesh, shader);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+        //shader.loadTime(calendar.getTime()/CalendarNorse.DAY_LENGTH);
 
         for (ChunkMesh chunk : chunks)
         {
@@ -452,6 +473,71 @@ public class GameContainer implements Runnable, IGameContainer
             0,0,0,
             1,0,0,
             1,0,1
+    };
+
+    private static float skyboxSize = 10;//(float)((MasterRenderer.P_FAR_PLANE-10f)/(Math.sqrt(3)));
+    private static float[] skyVertices = {
+            skyboxSize,skyboxSize,skyboxSize,
+            skyboxSize,-skyboxSize,skyboxSize,
+            -skyboxSize,-skyboxSize,skyboxSize,
+            -skyboxSize,skyboxSize,skyboxSize,
+
+            skyboxSize,skyboxSize,-skyboxSize,
+            skyboxSize,-skyboxSize,-skyboxSize,
+            skyboxSize,-skyboxSize,skyboxSize,
+            skyboxSize,skyboxSize,skyboxSize,
+
+            -skyboxSize,skyboxSize,-skyboxSize,
+            -skyboxSize,-skyboxSize,-skyboxSize,
+            skyboxSize,-skyboxSize,-skyboxSize,
+            skyboxSize,skyboxSize,-skyboxSize,
+
+            -skyboxSize,skyboxSize,skyboxSize,
+            -skyboxSize,-skyboxSize,skyboxSize,
+            -skyboxSize,-skyboxSize,-skyboxSize,
+            -skyboxSize,skyboxSize,-skyboxSize,
+
+            -skyboxSize,skyboxSize,skyboxSize,
+            -skyboxSize,skyboxSize,-skyboxSize,
+            skyboxSize,skyboxSize,-skyboxSize,
+            skyboxSize,skyboxSize,skyboxSize,
+
+            skyboxSize,-skyboxSize,skyboxSize,
+            skyboxSize,-skyboxSize,-skyboxSize,
+            -skyboxSize,-skyboxSize,-skyboxSize,
+            -skyboxSize,-skyboxSize,skyboxSize
+    };
+
+    private static float[] skyboxUV = {
+            0.5f,0,
+            0.5f,0.5f,
+            1f,0.5f,
+            1f,0,
+
+            1f,0,
+            1f,0.5f,
+            0.5f,0.5f,
+            0.5f,0,
+
+            0.5f,0,
+            0.5f,0.5f,
+            1f,0.5f,
+            1f,0,
+
+            1f,0,
+            1f,0.5f,
+            0.5f,0.5f,
+            0.5f,0,
+
+            0,0,
+            0,0.5f,
+            0.5f,0.5f,
+            0.5f,0,
+
+            0.5f,0.5f,
+            0.5f,1f,
+            1f,1f,
+            1f,0.5f,
     };
 
     private static int[] indices = {

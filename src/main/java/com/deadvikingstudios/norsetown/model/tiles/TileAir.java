@@ -8,6 +8,7 @@ public class TileAir extends Tile
     public TileAir(int index, String unlocalizedName)
     {
         super(index, unlocalizedName, EnumMaterial.AIR);
+        this.isOpaque = false;
     }
 
     @Override

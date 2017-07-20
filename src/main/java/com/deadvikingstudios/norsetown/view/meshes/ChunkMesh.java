@@ -114,12 +114,13 @@ public class ChunkMesh extends TexturedMesh
         }
 
         //NORTH
-        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) chunk.getPosX() + x, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z+1));
+        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX()+x,(int)chunk.getPosY()+y,(int)chunk.getPosZ()+z+1));
+        //System.out.println(tileCheck.getUnlocalizedName());
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z+1));
         tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
 
-        if (((!tileCheck.isOpaque()) || tileCheck.isAir())
-                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.NORTH, EnumTileFace.SOUTH) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
+               // && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.NORTH, EnumTileFace.SOUTH) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
         {
             verts = getFaceVerticesCuboid(EnumTileFace.NORTH, vec, ts, th);
             int count = vertices.size() / 3;
@@ -142,8 +143,9 @@ public class ChunkMesh extends TexturedMesh
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x+1, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z));
         tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
 
-        if (((!tileCheck.isOpaque()) || tileCheck.isAir())
-                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.EAST, EnumTileFace.WEST) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
+        /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
+                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.EAST, EnumTileFace.WEST) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
             verts = getFaceVerticesCuboid(EnumTileFace.EAST, vec, ts, th);
             int count = vertices.size() / 3;
@@ -166,8 +168,9 @@ public class ChunkMesh extends TexturedMesh
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z-1));
         tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
 
-        if (((!tileCheck.isOpaque()) || tileCheck.isAir())
-                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.SOUTH, EnumTileFace.NORTH) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
+        /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
+                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.SOUTH, EnumTileFace.NORTH) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
             verts = getFaceVerticesCuboid(EnumTileFace.SOUTH, vec, ts, th);
             int count = vertices.size() / 3;
@@ -190,8 +193,9 @@ public class ChunkMesh extends TexturedMesh
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x-1, (int) chunk.getPosY() + y, (int) chunk.getPosZ() + z));
         tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
 
-        if (((!tileCheck.isOpaque()) || tileCheck.isAir())
-                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.WEST, EnumTileFace.EAST) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
+        /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
+                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.WEST, EnumTileFace.EAST) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
             verts = getFaceVerticesCuboid(EnumTileFace.WEST, vec, ts, th);
             int count = vertices.size() / 3;
@@ -207,15 +211,16 @@ public class ChunkMesh extends TexturedMesh
             {
                 uvs.add(uvFace[i]);
             }
-        }//END WEST
+        }//END WEST*/
 
         //TOP
-        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) chunk.getPosX() + x, (int) chunk.getPosY() + y + 1, (int) chunk.getPosZ() + z));
+        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y + 1, (int)chunk.getPosZ() + z));
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x, (int) chunk.getPosY() + y + 1, (int) chunk.getPosZ() + z));
         tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
 
-        if (((!tileCheck.isOpaque()) || tileCheck.isAir())
-                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.TOP, EnumTileFace.BOTTOM) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
+        /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
+                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.TOP, EnumTileFace.BOTTOM) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
             verts = getFaceVerticesCuboid(EnumTileFace.TOP, vec, ts, th);
             int count = vertices.size() / 3;
@@ -238,8 +243,9 @@ public class ChunkMesh extends TexturedMesh
         tileCheckMeta = (World.getWorld().getMetadata((int) chunk.getPosX() + x, (int) chunk.getPosY() + y - 1, (int) chunk.getPosZ() + z));
         tileShapeCheck = tileCheck.getRenderType(tileCheckMeta);
 
-        if (((!tileCheck.isOpaque()) || tileCheck.isAir())
-                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.BOTTOM, EnumTileFace.TOP) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
+        /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
+                && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.BOTTOM, EnumTileFace.TOP) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
             verts = getFaceVerticesCuboid(EnumTileFace.BOTTOM, vec, ts, th);
             int count = vertices.size() / 3;
@@ -255,7 +261,7 @@ public class ChunkMesh extends TexturedMesh
             {
                 uvs.add(uvFace[i]);
             }
-        }//END BOTTOM
+        }//END BOTTOM*/
     }
 
     private static float[] getFaceVerticesCuboid(EnumTileFace face, Vector3f vec, float tileSize, float tileHeight)

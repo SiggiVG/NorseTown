@@ -3,6 +3,7 @@
 in vec2 pass_uvs;
 //uniform inputs
 uniform sampler2D textureSampler;
+uniform float time;
 //output
 out vec4 out_Color;
 

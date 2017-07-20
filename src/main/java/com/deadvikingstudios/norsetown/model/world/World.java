@@ -17,7 +17,7 @@ public class World
 
     public static int chunkTickSpeed = 16;
     private Chunk[][][] chunkList;//List<Chunk> chunkList = new ArrayList<Chunk>();
-    public static final int CHUNK_NUM_XZ = 1, CHUNK_NUM_Y = 1;
+    public static final int CHUNK_NUM_XZ = 16, CHUNK_NUM_Y = 1;
     public static final float CHUNK_OFFSET_Y = 0;//Tile.TILE_HEIGHT;
     public static final float CHUNK_OFFSET_XZ = 0;//Tile.TILE_SIZE;
     private Chunk emptyChunk = new EmptyChunk(0,0,0);

@@ -129,7 +129,7 @@ public class Chunk
                         (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.1f,
                         (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.1f,
                         (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.1f) * CHUNK_HEIGHT/32f)
-                        + h - 10; //multiply by vertical distribution
+                        + h - Chunk.CHUNK_HEIGHT*0.25; //multiply by vertical distribution
                      ++j)
                 {
                     if(j < 0 || j >= CHUNK_HEIGHT)

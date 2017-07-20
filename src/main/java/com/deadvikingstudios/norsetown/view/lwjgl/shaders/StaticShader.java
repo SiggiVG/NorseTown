@@ -16,6 +16,7 @@ public class StaticShader extends ShaderProgram
     private int location_transformationMatrix;
     private int location_projectionMatrix;
     private int location_viewMatrix;
+    //private int location_time;
 
     public StaticShader()
     {
@@ -35,6 +36,7 @@ public class StaticShader extends ShaderProgram
         location_transformationMatrix = super.getUniformLocation("transformationMatrix");
         location_projectionMatrix = super.getUniformLocation("projectionMatrix");
         location_viewMatrix = super.getUniformLocation("viewMatrix");
+        //location_time = super.getUniformLocation("time");
     }
 
     /**
@@ -66,4 +68,9 @@ public class StaticShader extends ShaderProgram
     {
         super.loadMatrix(location_viewMatrix, RenderMath.createViewMatrix(camera));
     }
+
+    /*public void loadTime(int time)
+    {
+        super.loadFloat(location_time, time);
+    }*/
 }

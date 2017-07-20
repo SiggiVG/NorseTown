@@ -10,7 +10,7 @@ import com.deadvikingstudios.norsetown.model.world.World;
  */
 public abstract class Tile
 {
-    public static final float TILE_SIZE = 0.5f;
+    public static final float TILE_SIZE = 1.0f;
     public static final float TILE_HEIGHT = 0.5f;
 
     /**
@@ -53,21 +53,6 @@ public abstract class Tile
     }
 
     /**
-     * physically takes up entire tilespace
-     * @return
-     */
-    public boolean isSolid()
-    {
-        return isSolid && !isAir();
-    }
-
-    public Tile setSolid(boolean solid)
-    {
-        isSolid = solid;
-        return this;
-    }
-
-    /**
      * Visually takes up entire tilespace
      * @return
      */
@@ -82,10 +67,9 @@ public abstract class Tile
         return this;
     }
 
-    public boolean isFullTile()
-    {
-        return this.isOpaque() && this.isSolid();
-    }
+    public boolean isFullCuboid(){return this.getRenderType(0) == EnumTileShape.FULL_CUBE;}
+
+    public boolean isSolidCuboid(){return this.isOpaque && isFullCuboid();}
 
     private int[] textureOffsets = new int[6];
 
@@ -165,13 +149,13 @@ public abstract class Tile
         {
             int i =0;
 
-            register(tileAir = new TileAir(i++,"tile_air").setOpaque(false).setSolid(false));
+            register(tileAir = new TileAir(i++,"tile_air").setOpaque(false));
             register(tileGrass = new TileSod(i++,"tile_sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,3));
             register(tileSoil = new TileSoil(i++, "tile_soil", EnumMaterial.EARTH).setTextureOffset(3));
-            register(tileLogThin = new TileTree(i++,"tile_log_thin").setOpaque(false).setTextureOffset(6,5));
-            register(tileLogMed = new TileTree(i++,"tile_log_med").setOpaque(false).setTextureOffset(6,5));
-            register(tileLogThick = new TileTree(i++,"tile_log_thick").setOpaque(false).setTextureOffset(6,5));
-            register(tileLogFull = new TileTree(i++,"tile_log_fill").setOpaque(true).setTextureOffset(6,5));
+            register(tileLogThin = new TileTree(i++,"tile_log_thin").setTextureOffset(6,5));
+            register(tileLogMed = new TileTree(i++,"tile_log_med").setTextureOffset(6,5));
+            register(tileLogThick = new TileTree(i++,"tile_log_thick").setTextureOffset(6,5));
+            register(tileLogFull = new TileTree(i++,"tile_log_fill").setTextureOffset(6,5));
             register(tilePlank = new TileWood(i++,"tile_plank", EnumMaterial.WOOD).setTextureOffset(4));
             register(tileStoneCliff = new TileStone(i++,"tile_stone_cliff", EnumMaterial.STONE).setTextureOffset(7));
             register(tileStoneCobble = new TileStone(i++,"tile_stone_cobble", EnumMaterial.STONE).setTextureOffset(8));
