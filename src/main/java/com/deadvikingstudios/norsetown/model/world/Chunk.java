@@ -1,15 +1,14 @@
 package com.deadvikingstudios.norsetown.model.world;
 
 import com.deadvikingstudios.norsetown.controller.GameContainer;
-import com.deadvikingstudios.norsetown.model.EnumTileShape;
+import com.deadvikingstudios.norsetown.model.tiles.EnumTileShape;
+import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.tileenitites.TileEntity;
 import com.deadvikingstudios.norsetown.model.world.gen.PerlinNoise;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import org.lwjgl.util.vector.Vector3f;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by SiggiVG on 6/19/2017.
@@ -17,7 +16,7 @@ import java.util.Random;
  * Chunks are 3D arrays of Tiles that shape the terrain
  *
  */
-public class Chunk
+public class Chunk extends Entity
 {
     /**
      * Horizontal Axis, CHUNK_SIZE*CHUNK_SIZE tiles in a vertical slice
@@ -26,12 +25,12 @@ public class Chunk
     /**
      * Vertical Axis, how many vertical slices are in a chunk
      */
-    public static final int CHUNK_HEIGHT = 256;
+    public static final int CHUNK_HEIGHT = 16;
 
-    protected Vector3f position;
-
-    protected int[][][] tiles;
+    protected byte[][][] tiles;
     protected byte[][][] metadata;
+    //This is what it saves to a file
+    protected Map<Vector3f, TileData> blocksChanged = new HashMap<>();
 
     /**
      * Tile Entities are stored per chunk, and are self aware.
@@ -61,10 +60,11 @@ public class Chunk
      */
     public Chunk(float x, float y, float z)
     {
+        super();
         this.position = new Vector3f(x,y,z);
         if(GameContainer.MODE == "debug") System.out.println("Chunk created at: " + position + "; Containing " + CHUNK_SIZE * CHUNK_HEIGHT * CHUNK_SIZE + "tiles.");
 
-        this.tiles = new int[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
+        this.tiles = new byte[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
         this.metadata = new byte[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
         init();
     }
@@ -81,49 +81,14 @@ public class Chunk
                         (((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosX()+i))*((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosX()+i)))
                         +(((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosZ()+k))*((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosZ()+k)))
                 );
-                /*/X is bigger
-                if(this.getPosX()+i > World.CHUNK_NUM_XZ*CHUNK_SIZE/2)
-                {
-                    //both are bigger
-                    if(this.getPosZ()+k > World.CHUNK_NUM_XZ*CHUNK_SIZE/2)
-                    {
-                        h = Math.min(World.CHUNK_NUM_XZ*CHUNK_SIZE-(this.getPosX()+i), World.CHUNK_NUM_XZ*CHUNK_SIZE-(this.getPosZ()+k));
-                    }
-                    //only X is bigger
-                    else
-                    {
-                        h = Math.min(World.CHUNK_NUM_XZ*CHUNK_SIZE-(this.getPosX()+i), this.getPosZ()+k);
-                    }
-                }
-                //Z is bigger
-                else if(this.getPosZ()+k > World.CHUNK_NUM_XZ*CHUNK_SIZE/2)
-                {
-                    //both are bigger
-                    if(this.getPosX()+i > World.CHUNK_NUM_XZ*CHUNK_SIZE/2)
-                    {
-                        h = Math.min(World.CHUNK_NUM_XZ*CHUNK_SIZE-(this.getPosX()+i), World.CHUNK_NUM_XZ*CHUNK_SIZE-(this.getPosZ()+k));
-                    }
-                    //only Z is bigger
-                    else
-                    {
-                        h = Math.min(this.getPosX()+i, World.CHUNK_NUM_XZ*CHUNK_SIZE-(this.getPosZ()+k));
-                    }
-                }
-                //neither are bigger
-                else
-                {
-                    h = Math.min(this.getPosX()+i, this.getPosZ()+k);
-                }*/
 
-                //h*=0.75;
+                //TODO move this to a terrain generator
 
-
-
-
-                for (int j = 0; j < ((PerlinNoise.perlin(
-                        (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.025f,
-                        (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.025f,
-                        (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.025f) * CHUNK_HEIGHT/4f) +
+                int terrainHeight = (int)(PerlinNoise.perlin(
+                        (seedVal + this.position.x / Tile.TILE_SIZE + i),//*Tile.TILE_SIZE*0.025f,
+                        (seedVal + this.position.y / Tile.TILE_HEIGHT),//*Tile.TILE_HEIGHT*0.025f,
+                        (seedVal + this.position.z / Tile.TILE_SIZE + k))//*Tile.TILE_SIZE*0.025f) * CHUNK_HEIGHT/4f)
+                        /*+
                         (PerlinNoise.perlin(
                         (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.05f,
                         (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.05f,
@@ -131,36 +96,55 @@ public class Chunk
                         (PerlinNoise.perlin(
                         (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.1f,
                         (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.1f,
-                        (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.1f) * CHUNK_HEIGHT/32f)
-                        + h);// - CHUNK_HEIGHT*0.75f);
+                        (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.1f) * CHUNK_HEIGHT/32f)*/
+                        + h);
+
+                for (int j = (int)this.getPosY(); j < terrainHeight+this.getPosY();// + CHUNK_HEIGHT*0.5f;
                      ++j)
                 {
-                    if(j < 0 || j >= CHUNK_HEIGHT)
+                    //System.out.println("j");
+                    if(j+this.getPosY() < this.getPosY() || j >= CHUNK_HEIGHT*World.CHUNK_NUM_Y)
                     {
                         continue;
                     }
                     setTile(Tile.Tiles.tileStoneCliff, i, j, k);
                 }
+                //local coords TODO: move to terrain decorator
                 for (int j = CHUNK_HEIGHT - 1; j >= 0; --j)
                 {
                     if(tiles[i][j][k] != 0)
                     {
-                        if(World.getWorld().getRandom().nextBoolean())
+                        if(j >= World.SEA_LEVEL+World.BEACH_HEIGHT)
                         {
-                            setTile(Tile.Tiles.tileGrassTall, i, j+1, k);
+                            setTile(Tile.Tiles.tileGrass, i, j, k);
+                            if (World.getWorld().getRandom().nextBoolean())
+                            {
+                                setTile(Tile.Tiles.tileGrassTall, i, j + 1, k);
+
+                            }
+                            setTile(Tile.Tiles.tileSoil, i, j-1, k);
+                            setTile(Tile.Tiles.tileSoil, i, j-2, k);
+                            setTile(Tile.Tiles.tileSoil, i, j-3, k);
+                            setTile(Tile.Tiles.tileSoil, i, j-4, k);
+                            setTile(Tile.Tiles.tileSoil, i, j-5, k);
                         }
-                        setTile(Tile.Tiles.tileGrass, i, j, k);
-                        setTile(Tile.Tiles.tileSoil, i, j-1, k);
-                        setTile(Tile.Tiles.tileSoil, i, j-2, k);
-                        setTile(Tile.Tiles.tileSoil, i, j-3, k);
-                        setTile(Tile.Tiles.tileSoil, i, j-4, k);
-                        setTile(Tile.Tiles.tileSoil, i, j-5, k);
+                        else
+                        {
+                            setTile(Tile.Tiles.tileClay, i, j, k);
+                            setTile(Tile.Tiles.tileClay, i, j-1, k);
+                            setTile(Tile.Tiles.tileClay, i, j-2, k);
+                            setTile(Tile.Tiles.tileClay, i, j-3, k);
+                            setTile(Tile.Tiles.tileClay, i, j-4, k);
+                            setTile(Tile.Tiles.tileClay, i, j-5, k);
+                        }
+
                         setTile(Tile.Tiles.tileClay, i, j-6, k);
                         setTile(Tile.Tiles.tileClay, i, j-7, k);
                         setTile(Tile.Tiles.tileClay, i, j-8, k);
                         break;
                     }
                 }
+                //setTile(Tile.Tiles.tilePlank, i, Chunk.CHUNK_HEIGHT-1, k);
             }
         }
     }
@@ -241,7 +225,7 @@ public class Chunk
     {
         if(isCoordWithinChunk(x,y,z))
         {
-            tiles[x][y][z] = tile.getIndex();
+            tiles[x][y][z] = (byte)(tile.getIndex()%Byte.MAX_VALUE);
             metadata[x][y][z] = (byte)metadataIn;
             this.flagForReMesh = true;
         }
@@ -261,7 +245,6 @@ public class Chunk
     {
         if(isCoordWithinChunk(x,y,z))
         {
-            //System.out.println("fizz");
             return metadata[x][y][z];
         }
         return 0;
@@ -274,14 +257,18 @@ public class Chunk
 
     public void setMetadata(int x, int y, int z, int metadataIn)
     {
+        //System.out.println(x+","+y+","+z);
         if(isCoordWithinChunk(x,y,z))
         {
+            //System.out.println();
+            //System.out.println(metadata[x][y][z]);
             EnumTileShape rType = Tile.Tiles.get(tiles[x][y][z]).getTileShape(metadata[x][y][z]);
             metadata[x][y][z] = (byte)(metadataIn);
             if(rType != Tile.Tiles.get(tiles[x][y][z]).getTileShape(metadataIn))
             {
                 this.flagForReMesh = true;
             }
+            //System.out.println(metadata[x][y][z]);
         }
     }
 
@@ -293,5 +280,58 @@ public class Chunk
     public void setAir(int x, int y, int z)
     {
         this.setTile(Tile.Tiles.tileAir, x, y, z);
+    }
+
+    public boolean isEmpty()
+    {
+        return Arrays.deepEquals(tiles, new byte[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE])
+                && Arrays.deepEquals(metadata, new byte[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE]);
+    }
+
+    public class TileData
+    {
+        public byte id, metadata;
+
+        public TileData(byte id, byte metadata)
+        {
+            this.id = id;
+            this.metadata = metadata;
+        }
+
+        @Override
+        public String toString()
+        {
+            return this.id+"_"+this.metadata;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return (((int)this.id) << 8 & 0x0000ff00) | (((int)this.metadata) & 0x000000ff);
+        }
+    }
+
+    public class TilePos
+    {
+        public byte x, y, z;
+
+        public TilePos(byte x, byte y, byte z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        @Override
+        public String toString()
+        {
+            return x+"_"+y+"_"+z;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return (((int)this.x) << 16 & 0x00ff0000) | (((int)this.y) << 8 & 0x0000ff00) | (((int)this.z) & 0x000000ff);
+        }
     }
 }

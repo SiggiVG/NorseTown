@@ -12,20 +12,20 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class Entity
 {
-    protected float posX, posY, posZ;
-    protected float rotationX, rotationY, rotationZ;
+    protected Vector3f position = new Vector3f();
+    protected Vector3f rotation = new Vector3f();
     protected float scale = 1;
 
-    private Entity(){}
+    protected Entity(){}
 
     public Entity(float posX, float posY, float posZ, float rotationX, float rotationY, float rotationZ, float scale)
     {
-        this.posX = posX;
-        this.posY = posY;
-        this.posZ = posZ;
-        this.rotationX = rotationX;
-        this.rotationY = rotationY;
-        this.rotationZ = rotationZ;
+        this.position.x = posX;
+        this.position.y = posY;
+        this.position.z = posZ;
+        this.rotation.x = rotationX;
+        this.rotation.y = rotationY;
+        this.rotation.z = rotationZ;
         this.scale = scale;
     }
 
@@ -82,7 +82,7 @@ public class Entity
 
     public Vector3f getPosition()
     {
-        return new Vector3f(posX, posY, posZ);
+        return new Vector3f(position);
     }
 
     public void setPosition(Vector3f position)
@@ -92,69 +92,69 @@ public class Entity
 
     public void setPosition(float x, float y, float z)
     {
-        this.posX = x;
-        this.posY = y;
-        this.posZ = z;
+        this.position.x = x;
+        this.position.y = y;
+        this.position.z = z;
     }
 
     public float getPosX()
     {
-        return posX;
+        return position.x;
     }
 
     public void setPosX(float posX)
     {
-        this.posX = posX;
+        this.position.x = posX;
     }
 
     public float getPosY()
     {
-        return posY;
+        return position.y;
     }
 
     public void setPosY(float posY)
     {
-        this.posY = posY;
+        this.position.y = posY;
     }
 
     public float getPosZ()
     {
-        return posZ;
+        return position.z;
     }
 
     public void setPosZ(float posZ)
     {
-        this.posZ = posZ;
+        this.position.z = posZ;
     }
 
     public float getRotationX()
     {
-        return rotationX;
+        return rotation.x;
     }
 
     public void setRotationX(float rotationX)
     {
-        this.rotationX = rotationX;
+        this.rotation.x = rotationX;
     }
 
     public float getRotationY()
     {
-        return rotationY;
+        return rotation.y;
     }
 
     public void setRotationY(float rotationY)
     {
-        this.rotationY = rotationY;
+        this.rotation.y = rotationY;
     }
 
     public float getRotationZ()
     {
-        return rotationZ;
+        return rotation.z;
     }
 
     public void setRotationZ(float rotationZ)
     {
-        this.rotationZ = rotationZ;
+        this.rotation.z = rotationZ;
     }
 
     public float getScale()
@@ -169,9 +169,9 @@ public class Entity
 
     public void translate(float dx, float dy, float dz)
     {
-        this.posX += dx;
-        this.posY += dy;
-        this.posZ += dz;
+        this.position.x += dx;
+        this.position.y += dy;
+        this.position.z += dz;
     }
 
     public void translate(Vector3f dVec)
@@ -181,9 +181,9 @@ public class Entity
 
     public void rotate(float dx, float dy, float dz)
     {
-        this.rotationX += dx;
-        this.rotationY += dy;
-        this.rotationZ += dz;
+        this.rotation.x += dx;
+        this.rotation.y += dy;
+        this.rotation.z += dz;
     }
 
     public void rotate(Vector3f dVec)

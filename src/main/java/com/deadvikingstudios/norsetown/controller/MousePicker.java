@@ -1,9 +1,8 @@
 package com.deadvikingstudios.norsetown.controller;
 
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
-import com.deadvikingstudios.norsetown.model.world.Chunk;
 import com.deadvikingstudios.norsetown.model.world.World;
-import com.deadvikingstudios.norsetown.view.RenderMath;
+import com.deadvikingstudios.norsetown.utils.RenderMath;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Matrix4f;

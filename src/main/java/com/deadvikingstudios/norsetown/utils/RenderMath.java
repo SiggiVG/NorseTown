@@ -1,4 +1,4 @@
-package com.deadvikingstudios.norsetown.view;
+package com.deadvikingstudios.norsetown.utils;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
 import org.lwjgl.util.vector.Matrix4f;

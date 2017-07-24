@@ -11,10 +11,23 @@ public class EntityMesh extends TexturedMesh
 {
     Entity entity;
 
+    protected EntityMesh(Entity entity, MeshTexture texture)
+    {
+        super(texture);
+        this.entity = entity;
+    }
+
     public EntityMesh(Entity entity, RawMesh rawMesh, MeshTexture texture)
     {
         super(rawMesh, texture);
         this.entity = entity;
+    }
+
+    public EntityMesh(Entity entity, RawMesh rawMesh, MeshTexture texture, float shineDamper, float reflectivity)
+    {
+        super(rawMesh, texture, shineDamper, reflectivity);
+        this.entity = entity;
+
     }
 
     //Getters and Setters

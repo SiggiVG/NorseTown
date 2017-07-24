@@ -1,6 +1,5 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
-import com.deadvikingstudios.norsetown.model.EnumTileShape;
 import com.deadvikingstudios.norsetown.model.world.World;
 
 public class TileTree extends Tile
@@ -28,7 +27,7 @@ public class TileTree extends Tile
         return EnumTileShape.FULL_CUBE;
     }
 
-    private int growthMeta = 4;
+    private static int growthMeta = 4;
 
     @Override
     public void update(World world, int x, int y, int z)
@@ -38,30 +37,31 @@ public class TileTree extends Tile
         Tile tileDown = Tiles.get(world.getTile(x,y-1,z));
         int metaData = world.getMetadata(x,y,z);
 
-        if(tileUp instanceof TileTree && !(this == Tiles.tileLogFull))
+        if(tileUp instanceof TileTree && this != Tiles.tileLogFull)
         {
-            if(!(tileDown instanceof TileTree))
+            if(tileDown == Tiles.tileSoil || tileDown == Tiles.tileGrass)
             {
+                //System.out.println("tileDown is not a Tree");
                 world.incrementMetadata(x,y,z);
             }
             else
             {
-                if(this == Tiles.tileLogThin && metaData > growthMeta )
+                if(this == Tiles.tileLogThin && metaData < 16)
                 {
 
                     world.incrementMetadata(x,y,z);
-                    world.incrementMetadata(x,y,z);
-                    world.incrementMetadata(x,y-1,z);
+                    //world.incrementMetadata(x,y,z);
+                    //world.incrementMetadata(x,y-1,z);
                 }
-                else if(this == Tiles.tileLogMed && tileDown != Tiles.tileLogThin)
+                else if(this == Tiles.tileLogMed && tileDown != Tiles.tileLogThin && metaData < 16)
                 {
                     world.incrementMetadata(x,y,z);
-                    world.incrementMetadata(x,y-1,z);
+                    //world.incrementMetadata(x,y-1,z);
                 }
-                else if(this == Tiles.tileLogThick && tileDown != Tiles.tileLogThin && tileDown != Tiles.tileLogMed)
+                else if(this == Tiles.tileLogThick && tileDown != Tiles.tileLogThin && tileDown != Tiles.tileLogMed  && metaData < 16)
                 {
                     world.incrementMetadata(x,y,z);
-                    world.incrementMetadata(x,y-1,z);
+                    //world.incrementMetadata(x,y-1,z);
                 }
             }
         }
@@ -72,6 +72,7 @@ public class TileTree extends Tile
             world.setTile(Tiles.tileLeaves, x, y+2, z, true);
             world.setTile(Tiles.tileLeaves, x, y+3, z, true);
 
+            /*
             World.getWorld().setTile(Tile.Tiles.tileLeaves, x + 1, y + 1, z, true);
             World.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z, true);
             World.getWorld().setTile(Tile.Tiles.tileLeaves, x, y + 1, z + 1, true);
@@ -83,23 +84,20 @@ public class TileTree extends Tile
                 World.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z + 1, true);
                 World.getWorld().setTile(Tile.Tiles.tileLeaves, x + 1, y + 1, z + 1, true);
                 World.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z - 1, true);
-            }
+            }*/
         }
-
-        if(metaData > growthMeta)
+        //System.out.println(metaData);
+        if(this == Tiles.tileLogThin && tileDown != Tiles.tileLogThin && metaData >= growthMeta * 4)
         {
-            if(this.equals(Tiles.tileLogThin))
-            {
-                world.setTile(Tiles.tileLogMed, x, y, z);
-            }
-            else if(this.equals(Tiles.tileLogMed))
-            {
-                world.setTile(Tiles.tileLogThick, x, y, z);
-            }
-            else if(this.equals(Tiles.tileLogThick))
-            {
-                world.setTile(Tiles.tileLogFull, x, y, z);
-            }
+            world.setTile(Tiles.tileLogMed, x, y, z);
+        }
+        else if(this ==Tiles.tileLogMed && tileDown != Tiles.tileLogThin && tileDown != Tiles.tileLogMed  && metaData >= growthMeta*2)
+        {
+            world.setTile(Tiles.tileLogThick, x, y, z);
+        }
+        else if(this == Tiles.tileLogThick&& tileDown != Tiles.tileLogThin && tileDown != Tiles.tileLogMed && tileDown != Tiles.tileLogThick  && metaData >= growthMeta)
+        {
+            world.setTile(Tiles.tileLogFull, x, y, z);
         }
     }
 }

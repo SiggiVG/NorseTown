@@ -1,7 +1,7 @@
-package com.deadvikingstudios.norsetown.model;
+package com.deadvikingstudios.norsetown.model.tiles;
 
-import static com.deadvikingstudios.norsetown.model.EnumTileFace.BOTTOM;
-import static com.deadvikingstudios.norsetown.model.EnumTileFace.TOP;
+import static com.deadvikingstudios.norsetown.model.tiles.EnumTileFace.BOTTOM;
+import static com.deadvikingstudios.norsetown.model.tiles.EnumTileFace.TOP;
 
 public enum EnumTileShape
 {

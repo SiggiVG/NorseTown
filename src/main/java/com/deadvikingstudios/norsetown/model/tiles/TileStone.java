@@ -1,6 +1,5 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
-import com.deadvikingstudios.norsetown.model.EnumTileShape;
 import com.deadvikingstudios.norsetown.model.world.World;
 
 public class TileStone extends Tile

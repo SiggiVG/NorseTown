@@ -3,7 +3,7 @@ package com.deadvikingstudios.norsetown.view.lwjgl.shaders;
 import com.deadvikingstudios.norsetown.controller.CameraController;
 import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
 import com.deadvikingstudios.norsetown.model.lighting.SpotLight;
-import com.deadvikingstudios.norsetown.view.RenderMath;
+import com.deadvikingstudios.norsetown.utils.RenderMath;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -12,22 +12,39 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class StaticShader extends ShaderProgram
 {
-    private static final String VERTEX_FILE = /*GameContainer.RES_PATH + */"/shaders/vertex.vs";
-    private static final String FRAGMENT_FILE = /*GameContainer.RES_PATH + */"/shaders/fragment.fs";
+    private static final String VERTEX_FILE = /*GameContainer.RES_PATH + */"/shaders/vertex.vert";
+    private static final String FRAGMENT_FILE = /*GameContainer.RES_PATH + */"/shaders/fragment.frag";
 
-    private int location_transformationMatrix;
-    private int location_projectionMatrix;
-    private int location_viewMatrix;
-    private int location_lightPosition;
-    private int location_spotLightColor;
+    //matrices
+    protected int location_transformationMatrix;
+    protected int location_projectionMatrix;
+    protected int location_viewMatrix;
+
+    //Lighting
     private int location_ambientLight;
+
+    //spot light
+    private int location_spotLightPosition;
+    private int location_spotLightColor;
+    private int location_spotLightIntensity;
+
+    //directional light
     private int location_directionalLightColor;
     private int location_directionalLightDirection;
     private int location_directionalLightIntensity;
 
+    //for specular lighting
+    private int location_shineDamper;
+    private int location_reflectivity;
+
+
     public StaticShader()
     {
         super(VERTEX_FILE, FRAGMENT_FILE);
+    }
+    protected StaticShader(String vertexPath, String fragmentPath)
+    {
+        super(vertexPath, fragmentPath);
     }
 
     @Override
@@ -44,9 +61,16 @@ public class StaticShader extends ShaderProgram
         location_transformationMatrix = super.getUniformLocation("transformationMatrix");
         location_projectionMatrix = super.getUniformLocation("projectionMatrix");
         location_viewMatrix = super.getUniformLocation("viewMatrix");
-        location_lightPosition = super.getUniformLocation("lightPosition");
-        location_spotLightColor = super.getUniformLocation("spotLightColor");
+        //lighting
+        location_shineDamper = super.getUniformLocation("meshSpecularProps.shineDamper");
+        location_reflectivity = super.getUniformLocation("meshSpecularProps.reflectivity");
+
         location_ambientLight = super.getUniformLocation("ambientLight");
+
+        location_spotLightColor = super.getUniformLocation("spotLight.color");
+        location_spotLightPosition = super.getUniformLocation("spotLight.position");
+        location_spotLightIntensity = super.getUniformLocation("spotLight.intensity");
+
         location_directionalLightColor = super.getUniformLocation("directionalLight.color");
         location_directionalLightDirection = super.getUniformLocation("directionalLight.direction");
         location_directionalLightIntensity = super.getUniformLocation("directionalLight.intensity");
@@ -91,12 +115,20 @@ public class StaticShader extends ShaderProgram
 
     public void loadSpotLight(SpotLight light)
     {
-        super.loadVector3D(location_lightPosition, light.getPosition());
         super.loadVector3D(location_spotLightColor, light.getColor());
+        super.loadVector3D(location_spotLightPosition, light.getPosition());
+        super.loadFloat(location_spotLightIntensity, light.getIntensity());
     }
 
     public void loadAmbientLight(Vector3f lightColor)
     {
         super.loadVector3D(location_ambientLight, lightColor);
+    }
+
+    //for specular lighting
+    public void loadShineVariables(float damper, float reflectivity)
+    {
+        super.loadFloat(location_shineDamper, damper);
+        super.loadFloat(location_reflectivity, reflectivity);
     }
 }

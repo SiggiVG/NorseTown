@@ -17,9 +17,13 @@ public class World
 
     public static int chunkTickSpeed = 16;
     private Chunk[][][] chunkList;//List<Chunk> chunkList = new ArrayList<Chunk>();
-    public static final int CHUNK_NUM_XZ = 2, CHUNK_NUM_Y = 1;
+    public static final int CHUNK_NUM_XZ = 8, CHUNK_NUM_Y = 8;
     public static final float CHUNK_OFFSET_Y = 0;//Tile.TILE_HEIGHT;
     public static final float CHUNK_OFFSET_XZ = 0;//Tile.TILE_SIZE;
+    public static final float SEA_LEVEL = 7.6f;
+    public static final float BEACH_HEIGHT = 3.4f;
+
+
     private Chunk emptyChunk = new EmptyChunk(0,0,0);
 
     public List<Entity> entityList = new ArrayList<Entity>();
@@ -43,6 +47,31 @@ public class World
         return random;
     }
 
+    public int getNumberOfNonEmptyChunks()
+    {
+        int chunkNum = 0;
+        for (int i = 0; i < CHUNK_NUM_XZ; i++)
+        {
+            for (int k = 0; k < CHUNK_NUM_XZ; k++)
+            {
+                for (int j = 0; j < CHUNK_NUM_Y; j++)
+                {
+                    if(chunkList[i][j][k] != null)
+                    if(!chunkList[i][j][k].isEmpty())
+                    {
+                        ++chunkNum;
+                    }
+                }
+            }
+        }
+        return chunkNum;
+    }
+
+    public int getMaxPossibleNumberOfChunks()
+    {
+        return CHUNK_NUM_XZ*CHUNK_NUM_XZ*CHUNK_NUM_Y;
+    }
+
     public World(int seed)
     {
         this.SEED = seed;
@@ -57,8 +86,9 @@ public class World
             {
                 for (int k = 0; k < CHUNK_NUM_XZ; k++)
                 {
-                    chunkList[i][j][k] = new Chunk(i*Chunk.CHUNK_SIZE*Tile.TILE_SIZE,
+                    Chunk chunk = new Chunk(i*Chunk.CHUNK_SIZE*Tile.TILE_SIZE,
                             j*Chunk.CHUNK_HEIGHT*Tile.TILE_HEIGHT,k*Chunk.CHUNK_SIZE*Tile.TILE_SIZE);
+                    if(!chunk.isEmpty()) chunkList[i][j][k] = chunk;
                 }
             }
         }
@@ -94,7 +124,7 @@ public class World
             return null;
         }
 
-        return this.chunkList[x/Chunk.CHUNK_SIZE][y/Chunk.CHUNK_HEIGHT][z/Chunk.CHUNK_SIZE];
+        return this.getChunkAtIndex(x/Chunk.CHUNK_SIZE,y/Chunk.CHUNK_HEIGHT,z/Chunk.CHUNK_SIZE);
     }
 
     public Chunk getChunk(float x, float y, float z)
@@ -233,7 +263,7 @@ public class World
     public void setTileAt(Tile tile, int x, int y, int z, boolean checkReplacable)
     {
         Chunk chunk = getChunkAt(x, y, z);
-        if(chunk != null)
+        if(chunk != null) //TODO create a new chunk if one does not exist
         {
             Vector3f tileCoords = worldSpaceToTileCoords(x,y,z);
             if(checkReplacable)
@@ -304,6 +334,7 @@ public class World
             {
                 for (int j = 0; j < CHUNK_NUM_Y; ++j)
                 {
+                    if(chunkList[i][j][k] != null)
                     chunkList[i][j][k].update(getWorld());
                 }
             }
@@ -337,11 +368,10 @@ public class World
      */
     public void setMetadataAt(int metadataIn, int x, int y, int z)
     {
-        metadataIn = metadataIn % Byte.MAX_VALUE;
         Chunk chunk = getChunkAt(worldSpaceToTileCoords(x, y, z));
         if(chunk != null)
         {
-            chunk.setMetadata(worldSpaceToTileCoords(x,y,z), (byte)metadataIn);
+            chunk.setMetadata(worldSpaceToTileCoords(x,y,z), metadataIn);
         }
     }
 
@@ -357,25 +387,24 @@ public class World
         Chunk chunk = getChunk(x,y,z);
         if(chunk != null)
         {
-            return chunk.getMetadata(x,y,z);
+            return chunk.getMetadata(x%Chunk.CHUNK_SIZE,y%Chunk.CHUNK_HEIGHT,z%Chunk.CHUNK_SIZE);
         }
         return 0;
     }
 
     /**
      * Tilespace
-     * @param val
+     * @param metadataIn
      * @param x
      * @param y
      * @param z
      */
-    public void setMetadata(int val, int x, int y, int z)
+    public void setMetadata(int metadataIn, int x, int y, int z)
     {
-        val = val % Byte.MAX_VALUE;
         Chunk chunk = getChunk(x,y,z);
         if(chunk != null)
         {
-            chunk.setMetadata(x,y,z, (byte)val);
+            chunk.setMetadata(x%Chunk.CHUNK_SIZE,y%Chunk.CHUNK_HEIGHT,z%Chunk.CHUNK_SIZE, metadataIn);
         }
     }
 
@@ -412,9 +441,10 @@ public class World
         Chunk chunk = getChunk(x,y,z);
         if(chunk != null)
         {
+
             //System.out.println();
             //System.out.println(getMetadata(x,y,z));
-            chunk.setMetadata(x,y,z,getMetadata(x,y,z)+1);
+            setMetadata(getMetadata(x,y,z)+1, x,y,z);
             //System.out.println(getMetadata(x,y,z));
         }
     }
@@ -430,10 +460,10 @@ public class World
         Chunk chunk = getChunk(x,y,z);
         if(chunk != null)
         {
-            int val = getMetadata(x,y,z);
-            if(val > 0)
+            int metadata = getMetadata(x,y,z);
+            if(metadata > 0)
             {
-                chunk.setMetadata(x, y, z, val-1);
+                setMetadata(x, y, z, metadata-1);
             }
         }
     }

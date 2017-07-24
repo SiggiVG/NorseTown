@@ -4,12 +4,24 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class SpotLight
 {
-    private Vector3f position;
     private Vector3f color;
+    private Vector3f position;
+    private float intensity;
 
-    public SpotLight(Vector3f position, Vector3f color)
+    public SpotLight(Vector3f color, Vector3f position, float intensity)
     {
+        this.color = color;
         this.position = position;
+        this.intensity = intensity;
+    }
+
+    public Vector3f getColor()
+    {
+        return color;
+    }
+
+    public void setColor(Vector3f color)
+    {
         this.color = color;
     }
 
@@ -23,13 +35,13 @@ public class SpotLight
         this.position = position;
     }
 
-    public Vector3f getColor()
+    public float getIntensity()
     {
-        return color;
+        return intensity;
     }
 
-    public void setColor(Vector3f color)
+    public void setIntensity(float intensity)
     {
-        this.color = color;
+        this.intensity = intensity;
     }
 }

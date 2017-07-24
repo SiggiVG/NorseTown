@@ -15,8 +15,8 @@ import javax.swing.*;
  */
 public class Renderer
 {
-    //old
     private Matrix4f projectionMatrix;
+    private StaticShader shader;
 
     private static final float P_FOV = 70;
     private static final float P_NEAR_PLANE = 0.5f;
@@ -24,6 +24,7 @@ public class Renderer
 
     public Renderer(StaticShader shader)
     {
+        this.shader = shader;
         createProjectionMatrix(shader, false);
         GL11.glEnable(GL11.GL_CULL_FACE); //Culls inner faces
         GL11.glCullFace(GL11.GL_BACK);
@@ -91,7 +92,8 @@ public class Renderer
         GL20.glEnableVertexAttribArray(1);
         GL20.glEnableVertexAttribArray(2);
 
-        Matrix4f transform = RenderMath.createTransformationMatrix(chunkMesh.getPosition(), chunkMesh.getRotationX(),chunkMesh.getRotationY(),chunkMesh.getRotationZ(), chunkMesh.getScale());
+        Matrix4f transform = RenderMath.createTransformationMatrix(chunkMesh.getPosition(),
+                chunkMesh.getRotationX(),chunkMesh.getRotationY(),chunkMesh.getRotationZ(), chunkMesh.getScale());
         shader.loadTransformationMatrix(transform);
 
         shader.loadShineVariables(chunkMesh.getShineDamper(), chunkMesh.getReflectivity());
@@ -105,14 +107,14 @@ public class Renderer
         GL30.glBindVertexArray(0);
     }
 
-    public static void render(TexturedMesh mesh, StaticShader shader )
+    /*public static void render(TexturedMesh mesh, StaticShader shader )
     {
         GL30.glBindVertexArray(mesh.getMesh().getVaoID());
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);
         GL20.glEnableVertexAttribArray(2);
         /*Matrix4f transform = RenderMath.createTransformationMatrix(chunkMesh.getPosition(), 0,0,0, 1);
-        shader.loadTransformationMatrix(transform);*/
+        shader.loadTransformationMatrix(transform);*//*
         shader.loadShineVariables(mesh.getShineDamper(), mesh.getReflectivity());
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
@@ -122,10 +124,5 @@ public class Renderer
         GL20.glDisableVertexAttribArray(1);
         GL20.glDisableVertexAttribArray(2);
         GL30.glBindVertexArray(0);
-    }
-
-    public void splash(TexturedMesh image, StaticShader shader)
-    {
-        render(image, shader);
-    }
+    }*/
 }

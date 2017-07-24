@@ -1,4 +1,4 @@
-package com.deadvikingstudios.norsetown.model;
+package com.deadvikingstudios.norsetown.utils;
 
 import java.util.ArrayList;
 import java.util.List;

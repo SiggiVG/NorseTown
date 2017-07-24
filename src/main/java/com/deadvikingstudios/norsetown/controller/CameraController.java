@@ -25,6 +25,7 @@ public class CameraController
 
     private float speed = 0.2f;
     private float turnSpeed = 0.1f;
+    public static final float UPPER_LIMIT = 1000f, LOWER_LIMIT = 0f;
 
     public CameraController(float x, float y, float z)
     {
@@ -219,6 +220,15 @@ public class CameraController
         else if (KeyboardInput.getKey(Keyboard.KEY_Q))
         {
             position.y -= moveAt;
+        }
+
+        if(position.y < LOWER_LIMIT)
+        {
+            position.y = LOWER_LIMIT;
+        }
+        else if(position.y > UPPER_LIMIT)
+        {
+            position.y = UPPER_LIMIT;
         }
     }
 

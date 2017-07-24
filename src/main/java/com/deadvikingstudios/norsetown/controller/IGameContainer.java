@@ -6,6 +6,7 @@ package com.deadvikingstudios.norsetown.controller;
 public interface IGameContainer
 {
     void init();
+    void input() throws Exception;
     void update(float dt);
     void render();
 }

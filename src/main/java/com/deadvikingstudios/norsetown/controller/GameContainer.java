@@ -11,7 +11,8 @@ import com.deadvikingstudios.norsetown.model.world.Chunk;
 import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.view.lwjgl.DisplayManager;
 import com.deadvikingstudios.norsetown.view.lwjgl.Loader;
-import com.deadvikingstudios.norsetown.view.lwjgl.renderers.MasterRenderer;
+import com.deadvikingstudios.norsetown.view.lwjgl.renderers.Renderer;
+import com.deadvikingstudios.norsetown.view.lwjgl.shaders.LightlessStaticShader;
 import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkMesh;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
@@ -38,16 +39,18 @@ public class GameContainer implements Runnable, IGameContainer
     public static final String SRC_PATH = "/src/main/java/com/deadvikingstudios/norsetown/";
     private static boolean outputFPS = false;
 
-    public Thread thread;
+    private Thread thread;
     private GameContainer game;
 
     protected boolean isRunning = false;
-    private final double UPDATE_CAP = 1.0/60.0;
     public static final int TARGET_FPS = 60;
+    private final double UPDATE_CAP = 1.0/(double)TARGET_FPS;
 
     public static Loader loader = null;
     public static StaticShader shader = null;
-    public static MasterRenderer renderer = null;
+    public static StaticShader shaderNoLight = null;
+    public static Renderer renderer = null;
+    public static Renderer rendererNoLight = null;
 
     public static final String MODE = "debug";
 
@@ -69,6 +72,7 @@ public class GameContainer implements Runnable, IGameContainer
     private static EntityMesh skyEntMesh;
     private static MeshTexture skyboxTexture;
     //private static SunLight curSunLight;
+    private static Vector3f ambientLight = new Vector3f(0.2f,0.2f,0.2f);
     private static SunLight sunLight;
     private static SpotLight spotLight;
 
@@ -80,13 +84,6 @@ public class GameContainer implements Runnable, IGameContainer
     private static EntityMesh seaDeepEntMesh;
     private static MeshTexture seaTexture;
     private static MeshTexture seaDeepTexture;
-
-
-    //temp
-    private static Entity onion;
-    private static RawMesh onionMesh;
-    private static EntityMesh onionEntMesh;
-    private static MeshTexture onionTexture;
 
     //terrain atlas
     private static MeshTexture terrainTexture;
@@ -104,10 +101,9 @@ public class GameContainer implements Runnable, IGameContainer
 
         loader = new Loader();
         shader = new StaticShader();
-        renderer = new MasterRenderer(shader);
-
-        camera = new CameraController(0, 0, 0);
-        defaultMesh = loader.loadToVAO(vertices, indices, uv, cubeNormals);
+        shaderNoLight = new LightlessStaticShader();
+        renderer = new Renderer(shader);
+        rendererNoLight = new Renderer(shaderNoLight);
 
         thread = new Thread(this);
         thread.run();
@@ -127,26 +123,33 @@ public class GameContainer implements Runnable, IGameContainer
         {
             if(World.getWorld().getTile(x,j,z) == 2)
             {
-                for (int i = 2; i < height+2; i++)
+                if(j > World.SEA_LEVEL + World.BEACH_HEIGHT)
                 {
-                    World.getWorld().setTile(Tile.Tiles.tileLogMed, x, j+i, z, false);
+                    for (int i = 2; i < height + 2; i++)
+                    {
+                        World.getWorld().setTile(Tile.Tiles.tileLogMed, x, j + i, z, false);
+                    }
+                    return;
                 }
-                return;
             }
         }
     }
 
+    @Override
     public void init()
     {
         System.out.println("Initialization started");
 
         Tile.Tiles.init();
 
+        defaultMesh = loader.loadToVAO(vertices, indices, uv, cubeNormals);
+
+        camera = new CameraController(0, 0, 0);
         camera.setRotation(35, 135, 0);
         camera.setPosition(0, Chunk.CHUNK_HEIGHT * 0.5f * Tile.TILE_HEIGHT, 0);
 
         //sunLight = new SunLight(new Vector3f(0.8f,0.8f,0.8f), new Vector3f(35f,45f,0.0f), 1.0f);
-        spotLight = new SpotLight(new Vector3f(0,0,0), new Vector3f(0.8f,0.8f,0.8f));
+        spotLight = new SpotLight(new Vector3f(0.8f,0.8f,1f), new Vector3f(0,0,0), 1.0f);
 
         skybox = new Entity(0,0,0,0,0,180);
         skyMesh = loader.loadToVAO(skyVertices, indices, skyboxUV, skyBoxNormals);
@@ -158,7 +161,7 @@ public class GameContainer implements Runnable, IGameContainer
         seaMesh = loader.loadToVAO(seaVertices, seaIndices, seaUV, quadNormals);
         seaTexture = new MeshTexture(loader.loadTexture("textures/sea"));
         seaDeepTexture = new MeshTexture(loader.loadTexture("textures/seaDeep"));
-        seaEntMesh = new EntityMesh(sea, seaMesh, seaTexture);
+        seaEntMesh = new EntityMesh(sea, seaMesh, seaTexture, 0.0f, 0.5f);
         seaDeepEntMesh = new EntityMesh(seaDeep, seaMesh, seaDeepTexture);
 
         terrainTexture = new MeshTexture(loader.loadTexture("textures/terrain"));//"textures/tiles/grass_top"));
@@ -171,9 +174,12 @@ public class GameContainer implements Runnable, IGameContainer
         //entTexture = new MeshTexture(loader.loadTexture("textures/entTexture"));
         calendar = new CalendarNorse();
         currentWorld = new World();
+        System.out.println(currentWorld.getNumberOfNonEmptyChunks());
+        System.out.println(currentWorld.getMaxPossibleNumberOfChunks());
 
         picker = new MousePicker(camera, renderer.getProjectionMatrix(), currentWorld);
 
+        //temp TODO: create a terrain Generator and Decorator
         Random random = World.getWorld().getRandom();
 
         for (int i = 0; i < random.nextInt(World.CHUNK_NUM_XZ * 32) + World.CHUNK_NUM_XZ*16; i++)
@@ -190,15 +196,17 @@ public class GameContainer implements Runnable, IGameContainer
                 for (int k = 0; k < World.CHUNK_NUM_XZ; k++)
                 {
                     Chunk chunk = currentWorld.getChunkAtIndex(i,j,k);
-                    if(chunk != null)
+                    if(chunk != null && !chunk.isEmpty())
                     {
                         chunk.setFlagForReMesh(false);
+                        System.out.println("Mesh created for Chunk located at: " + chunk.getPosition());
                         chunks.add(new ChunkMesh(chunk, terrainTexture));
                     }
 
                 }
             }
         }
+        //end temp
 
         currentWorld.getEntities().add(new EntityHumanoid(0,0,0,0,0,0));
 
@@ -216,21 +224,40 @@ public class GameContainer implements Runnable, IGameContainer
         System.out.println("Initialization finished");
     }
 
+    @Override
+    public void input()
+    {
+        KeyboardInput.update();
+        MouseInput.update();
+    }
+
+    private boolean moveSeaUp = false;
+    private float seaheight = 256f*Tile.TILE_HEIGHT;//Tile.TILE_HEIGHT*World.SEA_LEVEL;;
+
+    @Override
     public void update(float dt)
     {
         calendar.update();
-
-        KeyboardInput.update();
-        MouseInput.update();
 
         camera.move();
 
         skybox.setPosition(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
         skybox.rotate(0,0,15f*24f/(float)CalendarNorse.DAY_LENGTH);
-        sea.setPosition(camera.getPosition().x, 8*Tile.TILE_HEIGHT-(Tile.TILE_HEIGHT*0.3f), camera.getPosition().z);
+
+        if(moveSeaUp)
+        {
+            seaheight+=0.0025;
+            if(seaheight > Tile.TILE_HEIGHT*World.SEA_LEVEL+(Tile.TILE_HEIGHT/5)) moveSeaUp = false;
+        }
+        else
+        {
+            seaheight-=0.0025;
+            if(seaheight < Tile.TILE_HEIGHT*World.SEA_LEVEL-(Tile.TILE_HEIGHT/5)) moveSeaUp = true;
+        }
+        sea.setPosition(camera.getPosition().x, seaheight, camera.getPosition().z);
         seaDeep.setPosition(camera.getPosition().x, 0, camera.getPosition().z);
         //sunLight.update();
-        spotLight.setPosition(new Vector3f(camera.getPosition().x,camera.getPosition().y+10, camera.getPosition().z-10));
+        spotLight.setPosition(new Vector3f(camera.getPosition().x,camera.getPosition().y, camera.getPosition().z));
 
         picker.update();
         //onion.setPosition(camera.getPosition().x, camera.getPosition().y-1, camera.getPosition().z);
@@ -308,25 +335,37 @@ public class GameContainer implements Runnable, IGameContainer
             World.chunkTickSpeed = 512;
         }*/
     }
-    private static Vector3f ambientLight = new Vector3f(0.3f,0.3f,0.3f);
 
+
+    @Override
     public void render()
     {
         //Display is cleared before drawing
         renderer.clear();
+        rendererNoLight.clear();
         //start rendering
         //ent.translate(0.001f, 0.001f, 0);
         //ent.scale(-0.001f);
         //ent.rotate(0f, 0f,0.1f);
+        shaderNoLight.start();
+
+        shaderNoLight.loadViewMatrix(camera);
+
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        rendererNoLight.render(skyEntMesh, shaderNoLight);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+        rendererNoLight.render(seaDeepEntMesh, shaderNoLight);
+
+        shaderNoLight.stop();
         shader.start();
+        shader.loadViewMatrix(camera);
+
         shader.loadAmbientLight(ambientLight);
         //shader.loadDirectionalLight(sunLight);
         shader.loadSpotLight(spotLight);
-        shader.loadViewMatrix(camera);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        renderer.render(skyEntMesh, shader);
 
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
 
 
         //shader.loadTime(calendar.getTime()/CalendarNorse.DAY_LENGTH);
@@ -342,12 +381,7 @@ public class GameContainer implements Runnable, IGameContainer
             //System.out.println(mesh.getEntity().getChunkPosition());
         }
 
-        //renderer.render(onionEntMesh, shader);
-
-        //GL11.glDisable(GL11.GL_DEPTH_TEST);
-        renderer.render(seaDeepEntMesh, shader);
         renderer.render(seaEntMesh, shader);
-        //GL11.glEnable(GL11.GL_DEPTH_TEST);
 
         //renderer.render(mesh, shader);
         shader.stop();
@@ -365,8 +399,16 @@ public class GameContainer implements Runnable, IGameContainer
 
     public static void main(String[] args)
     {
-        System.setProperty("org.lwjgl.librarypath", new File("libs" + File.separator + "native" + File.separator + OperatingSystem.getOSforLWJGLNatives()).getAbsolutePath());
-        new GameContainer().start();
+        try
+        {
+            System.setProperty("org.lwjgl.librarypath", new File("libs" + File.separator + "native" + File.separator + OperatingSystem.getOSforLWJGLNatives()).getAbsolutePath());
+            new GameContainer().start();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     public static RawMesh getDefaultMesh()
@@ -482,7 +524,7 @@ public class GameContainer implements Runnable, IGameContainer
     };
 
 
-    private static float skyboxSize = 10;//(float)((MasterRenderer.P_FAR_PLANE-10f)/(Math.sqrt(3)));
+    private static float skyboxSize = 10;//(float)((Renderer.P_FAR_PLANE-10f)/(Math.sqrt(3)));
     private static float[] skyVertices = {
             skyboxSize,skyboxSize,skyboxSize,
             skyboxSize,-skyboxSize,skyboxSize,
@@ -634,62 +676,69 @@ public class GameContainer implements Runnable, IGameContainer
         int frames = 0;
         int fps = 0;
 
-        game.init();
-
-        while(isRunning && !Display.isCloseRequested())
+        try
         {
-            firstTime = System.nanoTime() / 1_000_000_000.0;
-            passedTime = firstTime - lastTime;
-            lastTime = firstTime;
+            game.init();
 
-            unprocessedTime += passedTime;
-            frameTime += passedTime;
-
-            while(unprocessedTime >= UPDATE_CAP)
+            while (isRunning && !Display.isCloseRequested())
             {
-                unprocessedTime -= UPDATE_CAP;
-                render = true;
+                firstTime = System.nanoTime() / 1_000_000_000.0;
+                passedTime = firstTime - lastTime;
+                lastTime = firstTime;
 
-                game.update((float) UPDATE_CAP);
+                unprocessedTime += passedTime;
+                frameTime += passedTime;
 
-
-                //FPS output
-                if(MODE.equals("debug"))
+                while (unprocessedTime >= UPDATE_CAP)
                 {
-                    if (frameTime >= 1.0)
+                    unprocessedTime -= UPDATE_CAP;
+                    render = true;
+
+                    game.input();
+                    game.update((float) UPDATE_CAP);
+
+
+                    //FPS output
+                    if (MODE.equals("debug"))
                     {
-                        frameTime = 0;
-                        fps = frames;
-                        frames = 0;
+                        if (frameTime >= 1.0)
+                        {
+                            frameTime = 0;
+                            fps = frames;
+                            frames = 0;
+                        }
+                    }
+                }
+
+                if (render)
+                {
+                    renderer.clear();
+                    game.render();
+
+                    if (MODE.equals("debug") && outputFPS)
+                    {
+                        //renderer.drawText("FPS: " + fps, 0, 0, 0xff_00_ff_ff);
+                        System.out.println("FPS: " + fps);
+                    }
+
+                    DisplayManager.resize();
+                    frames++;
+                } else
+                {
+                    try
+                    {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
                     }
                 }
             }
-
-            if(render)
-            {
-                renderer.clear();
-                game.render();
-
-                if(MODE.equals("debug") && outputFPS)
-                {
-                    //renderer.drawText("FPS: " + fps, 0, 0, 0xff_00_ff_ff);
-                    System.out.println("FPS: " + fps);
-                }
-
-                DisplayManager.resize();
-                frames++;
-            }
-            else
-            {
-                try
-                {
-                    Thread.sleep(1);
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-            }
+        }
+        catch (Exception e)
+        {
+            //TODO write to a file
+            e.printStackTrace();
         }
         dispose();
     }

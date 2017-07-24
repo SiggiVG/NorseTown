@@ -1,4 +1,4 @@
-package com.deadvikingstudios.norsetown.model;
+package com.deadvikingstudios.norsetown.model.tiles;
 
 import org.lwjgl.util.vector.Vector3f;
 

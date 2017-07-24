@@ -3,8 +3,8 @@
 //vao inputs
 in vec2 pass_uvs;
 in vec3 surfaceNormal;
-in vec3 toLightVector; //the position of the spotlight relative to worldposition
-in vec3 toCameraVector;
+in vec3 toLightVector;
+in vec3 unitCameraVector;
 
 struct DirectionalLight
 {
@@ -20,47 +20,56 @@ struct SpotLight
     float intensity;
 };
 
+struct MeshSpecular
+{
+    float shineDamper;
+    float reflectivity;
+};
+
 //uniform inputs
-uniform sampler2D textureSampler; //
+uniform sampler2D textureSampler;
+uniform MeshSpecular meshSpecularProps;
 uniform vec3 ambientLight;
 uniform DirectionalLight directionalLight;
 uniform SpotLight spotLight;
-uniform float shineDamper;
-uniform float reflectivity;
 
 //output
 out vec4 out_Color;
 
+vec3 calcDiffuse(vec3 unitNormal, vec3 unitLightVector)
+{
+    float nDot1 = dot(unitNormal,unitLightVector);
+    float brightness = max(nDot1, 0.0);
+    return brightness * spotLight.color;
+}
+
+vec3 calcSpecular(vec3 lightDirection, vec3 unitNormal)
+{
+    vec3 reflectedLightDirection = reflect(lightDirection,  unitNormal);
+    float specularFactor = dot(reflectedLightDirection, unitCameraVector);
+    specularFactor = clamp(specularFactor, 0.0, 1.0);
+    float dampedFactor = pow(specularFactor, meshSpecularProps.shineDamper);
+    return dampedFactor * spotLight.color;
+}
+
 void main(void)
 {
-    //determine the pixel on the texture
     vec4 texel = texture(textureSampler, pass_uvs);
     //exit if completely transparent
     if(texel.a == 0.0) //Only works for point filtering, change to 0.5 if Linear Filtering
         discard;
 
-    //Normalize vectors
     vec3 unitNormal = normalize(surfaceNormal);
-    vec3 unitLightVector = normalize(toLightVector); //this works for spotlights
-    vec3 unitVectorToCamera = normalize(toCameraVector);
+    vec3 unitLightVector = normalize(toLightVector);
 
-    //diffuse lighting
-    float nDot1 = dot(unitNormal,unitLightVector);
-    float brightness = max(nDot1, 0.0); //rather than use an ambient light vector, I can set the second parameter higher
-    vec3 diffuse = brightness * spotLightColor;
+    vec3 diffuse = calcDiffuse(unitNormal, unitLightVector);
 
-    //specular lighting
-    vec3 specular = vec3(0.0,0.0,0.0);
-    if(reflectivity > 0.0) //check if object is reflective at all
+    vec3 specular = vec3(0.0);
+    //if(meshSpecularProps.reflectivity > 0.0)
     {
-
-        vec3 lightDirection = -unitLightVector;
-        vec3 reflrectedLightDirection = reflect(lightDirection, unitNormal);
-        float specularFactor = dot(reflrectedLightDirection, unitVectorToCamera);
-        specularFactor = max(specularFactor,0.0);
-        float dampedFactor = pow(specularFactor, shineDamper);
-        specular = dampedFactor * reflectivity * spotLightColor;
+        specular = calcSpecular(-unitLightVector, unitNormal);
     }
 
-    out_Color = vec4(diffuse+ambientLight+specular,1.0) * texel;//) + vec4(finalSpecular, 1.0);
+    out_Color = vec4(diffuse+specular+ambientLight,1.0) * texel;
 }
+
