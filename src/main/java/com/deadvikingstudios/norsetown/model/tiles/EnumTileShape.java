@@ -1,5 +1,8 @@
 package com.deadvikingstudios.norsetown.model;
 
+import static com.deadvikingstudios.norsetown.model.EnumTileFace.BOTTOM;
+import static com.deadvikingstudios.norsetown.model.EnumTileFace.TOP;
+
 public enum EnumTileShape
 {
     FULL_CUBE,//all faces full
@@ -32,7 +35,9 @@ public enum EnumTileShape
     HALF_COL_THIN_BOT, //no bigger face*/
 
     CROSS, //faces of 1 crossing //not standard render
+    CROSS_TALL,
     CROSS_FULL,
+    CROSS_TALL_FULL,
     CROSS_EXTENDED, //faces of 1.5 crossing //not standard render
     CUBE_CROSS_EXTENDED, //full cube and faces of 1.5 crossing // all faces full
 
@@ -64,7 +69,7 @@ public enum EnumTileShape
         {
             return true;
         }
-        else if(face == EnumTileFace.BOTTOM && this == HALF_CUBE_BOT)
+        else if(face == BOTTOM && this == HALF_CUBE_BOT)
         {
             return true;
         }
@@ -93,7 +98,7 @@ public enum EnumTileShape
 
     public boolean isOnBottom()
     {
-        if(this.coversFullFace(EnumTileFace.BOTTOM))
+        if(this.coversFullFace(BOTTOM))
         {
             return true;
         }
@@ -157,12 +162,12 @@ public enum EnumTileShape
 
     public boolean isCuboid()
     {
-        return this != NULL && this != CROSS && this != CROSS_EXTENDED && this != CROSS_FULL;
+        return this != NULL &&(!this.isCross() || this == CUBE_CROSS_EXTENDED);
     }
 
     public boolean isCross()
     {
-        return this == CROSS || this == CROSS_EXTENDED || this == CUBE_CROSS_EXTENDED || this == CROSS_FULL;
+        return this == CROSS || this == CROSS_EXTENDED || this == CUBE_CROSS_EXTENDED || this == CROSS_FULL || this == CROSS_TALL || this == CROSS_TALL_FULL;
     }
 
     public boolean isHalfCube()
@@ -275,7 +280,7 @@ public enum EnumTileShape
         {
             case NORTH:
             {
-                if(this.isHalfCube() && this != HALF_CUBE_WEST)
+                if(this.isHalfCube() && this != HALF_CUBE_SOUTH)
                 {
                     return true;
                 }
@@ -283,7 +288,7 @@ public enum EnumTileShape
             }
             case EAST:
             {
-                if(this.isHalfCube() && this != HALF_CUBE_SOUTH)
+                if(this.isHalfCube() && this != HALF_CUBE_WEST)
                 {
                     return true;
                 }
@@ -341,23 +346,33 @@ public enum EnumTileShape
         {
             return false;
         }
-        if(this == COL_THIN && (otherTile == COL_THIN || otherTile == COL_MED || otherTile == COL_THICK))
+        if(this.isCenteredColumn())
         {
-            return false;
-        }
-        if(this == COL_MED && (otherTile == COL_MED || otherTile == COL_THICK))
-        {
-            return false;
-        }
-        if(this == COL_THICK && otherTile == COL_THICK)
-        {
-            return false;
+            if(thisFace != BOTTOM && thisFace != TOP)
+            {
+                return true;
+            }
+            else
+            {
+                if (this == COL_THIN && (otherTile == COL_THIN || otherTile == COL_MED || otherTile == COL_THICK))
+                {
+                    return false;
+                }
+                if (this == COL_MED && (otherTile == COL_MED || otherTile == COL_THICK))
+                {
+                    return false;
+                }
+                if (this == COL_THICK && otherTile == COL_THICK)
+                {
+                    return false;
+                }
+            }
         }
         //if this shares the face with a full cube
-        if(this.isOnFace(thisFace) && (otherTile == FULL_CUBE || otherTile == CUBE_CROSS_EXTENDED))
+        /*if(this.isOnFace(thisFace) && (otherTile == FULL_CUBE || otherTile == CUBE_CROSS_EXTENDED))
         {
             return false;
-        }
+        }*/
 
 
 
