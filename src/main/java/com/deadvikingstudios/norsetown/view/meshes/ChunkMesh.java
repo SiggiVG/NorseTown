@@ -114,6 +114,7 @@ public class ChunkMesh extends EntityMesh
         float[] verts;
 
         Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        //System.out.println(vec);
 
         EnumTileShape thisTileShape = thisTile.getTileShape(thisMetadata);
         //System.out.println(thisTileShape);
@@ -149,7 +150,6 @@ public class ChunkMesh extends EntityMesh
 
         //NORTH
         tileCheck = Tile.Tiles.get(World.getWorld().getTile((int)getChunk().getPosX()+x,(int)getChunk().getPosY()+y,(int)getChunk().getPosZ()+z+1));
-        //System.out.println(tileCheck.getUnlocalizedName());
         tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z+1));
         tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 

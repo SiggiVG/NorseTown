@@ -13,11 +13,11 @@ public class EmptyChunk extends Chunk
      * @param y y position of the bottom face
      * @param z z position of the south face
      */
-    public EmptyChunk(int x, int y, int z)
+    public EmptyChunk(float x, float y, float z)
     {
         super(x, y, z);
     }
 
     @Override
-    protected void init(){};
+    protected void init(){}
 }

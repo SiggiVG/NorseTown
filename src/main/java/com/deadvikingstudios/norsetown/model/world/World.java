@@ -15,22 +15,23 @@ public class World
 {
 
 
-    public static int chunkTickSpeed = 16;
+    public static int chunkTickSpeed = 4;
     private Chunk[][][] chunkList;//List<Chunk> chunkList = new ArrayList<Chunk>();
-    public static final int CHUNK_NUM_XZ = 8, CHUNK_NUM_Y = 8;
+    public static final int CHUNK_NUM_XZ = 8;
+    public static final int CHUNK_NUM_Y = 1; //setting to values other than 1 currently breaks rendering
     public static final float CHUNK_OFFSET_Y = 0;//Tile.TILE_HEIGHT;
     public static final float CHUNK_OFFSET_XZ = 0;//Tile.TILE_SIZE;
     public static final float SEA_LEVEL = 7.6f;
     public static final float BEACH_HEIGHT = 3.4f;
-
-
-    private Chunk emptyChunk = new EmptyChunk(0,0,0);
 
     public List<Entity> entityList = new ArrayList<Entity>();
 
     private static World instance;
     private Random random;
     public final int SEED;
+
+    ///private boolean[] coastSides = new boolean[8];
+    private EnumDirection coastSide = EnumDirection.SOUTH;
 
     public World()
     {
@@ -47,6 +48,9 @@ public class World
         return random;
     }
 
+    /**
+     * @return the number of chunks that are not null and are not empty
+     */
     public int getNumberOfNonEmptyChunks()
     {
         int chunkNum = 0;
@@ -67,6 +71,9 @@ public class World
         return chunkNum;
     }
 
+    /**
+     * @return the number of chunks that can be stored in the 3d array
+     */
     public int getMaxPossibleNumberOfChunks()
     {
         return CHUNK_NUM_XZ*CHUNK_NUM_XZ*CHUNK_NUM_Y;
@@ -89,6 +96,7 @@ public class World
                     Chunk chunk = new Chunk(i*Chunk.CHUNK_SIZE*Tile.TILE_SIZE,
                             j*Chunk.CHUNK_HEIGHT*Tile.TILE_HEIGHT,k*Chunk.CHUNK_SIZE*Tile.TILE_SIZE);
                     if(!chunk.isEmpty()) chunkList[i][j][k] = chunk;
+                    //System.out.println(chunk.getPosY());
                 }
             }
         }
@@ -101,7 +109,7 @@ public class World
     }
 
     /**
-     * Depreciates as it is only used when we have a set number of chunks
+     * use to get the chunk at the x,y,z index within the chunk array
      * @param x
      * @param y
      * @param z
@@ -117,41 +125,73 @@ public class World
         return this.chunkList[x][y][z];
     }
 
+    /**
+     * use to get the chunk that contains tilespace coords x,y,z
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
     public Chunk getChunk(int x, int y, int z)
     {
-        if(x < 0 || x >= CHUNK_NUM_XZ*Chunk.CHUNK_SIZE || y < 0 || y >= CHUNK_NUM_Y *Chunk.CHUNK_HEIGHT|| z < 0 || z >= CHUNK_NUM_XZ*Chunk.CHUNK_SIZE)
-        {
-            return null;
-        }
-
         return this.getChunkAtIndex(x/Chunk.CHUNK_SIZE,y/Chunk.CHUNK_HEIGHT,z/Chunk.CHUNK_SIZE);
     }
 
+    /**
+     * use to get the chunk that contains tilespace coords x,y,z
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
     public Chunk getChunk(float x, float y, float z)
     {
         return getChunk((int)x, (int)y, (int)z);
     }
 
+    /**
+     * use to get the chunk that contains tilespace coords pos.x,pos.y,pos.z
+     * @param pos
+     * @return
+     */
     public Chunk getChunk(Vector3f pos)
     {
         return getChunk((int)pos.x, (int)pos.y, (int)pos.z);
     }
 
+    /**
+     * use to get the chunk that contains worldspace coords x,y,z
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
     public Chunk getChunkAt(int x, int y, int z)
     {
         return getChunk(worldSpaceToTileCoords(new Vector3f(x,y,z)));
     }
 
+    /**
+     * use to get the chunk that contains worldspace coords x,y,z
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
     public Chunk getChunkAt(float x, float y, float z)
     {
         return getChunk(worldSpaceToTileCoords(new Vector3f(x,y,z)));
     }
 
+    /**
+     * use to get the chunk that contains worldspace coords pos.x,pos.y,pos.z
+     * @param pos
+     * @return
+     */
     public Chunk getChunkAt(Vector3f pos)
     {
         return getChunk(worldSpaceToTileCoords(pos));
     }
-
 
 
     public List<Entity> getEntities()
@@ -159,9 +199,9 @@ public class World
         return entityList;
     }
 
-    public Chunk getEmptyChunk()
+    public Chunk getEmptyChunk(float x, float y, float z)
     {
-        return emptyChunk;
+        return new EmptyChunk(x,y,z);
     }
 
     /**
@@ -441,11 +481,7 @@ public class World
         Chunk chunk = getChunk(x,y,z);
         if(chunk != null)
         {
-
-            //System.out.println();
-            //System.out.println(getMetadata(x,y,z));
             setMetadata(getMetadata(x,y,z)+1, x,y,z);
-            //System.out.println(getMetadata(x,y,z));
         }
     }
 
@@ -463,7 +499,7 @@ public class World
             int metadata = getMetadata(x,y,z);
             if(metadata > 0)
             {
-                setMetadata(x, y, z, metadata-1);
+                setMetadata(metadata-1, x, y, z );
             }
         }
     }

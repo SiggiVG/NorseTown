@@ -1,26 +1,35 @@
 package com.deadvikingstudios.norsetown.controller;
 
-import org.lwjgl.input.Mouse;
+import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
 import java.util.ArrayList;
 
-/**
- * Created by SiggiVG on 7/16/2017.
- */
-public class MouseInput
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+
+public class MouseInputHandler extends GLFWMouseButtonCallback
 {
-    public static final int NUM_BUTTONS = Mouse.getButtonCount();
+    public static final int NUM_BUTTONS = 9;
 
     private static ArrayList<Integer> currentButtons = new ArrayList<Integer>();
     private static ArrayList<Integer> downButtons= new ArrayList<Integer>();
     private static ArrayList<Integer> upButtons = new ArrayList<Integer>();
+
+
+    @Override
+    public void invoke(long window, int button, int action, int mods)
+    {
+        if(action != GLFW_RELEASE)
+        {
+            currentButtons.add(button);
+        }
+    }
 
     public static void update()
     {
         upButtons.clear();
         for (int i = 0; i < NUM_BUTTONS; ++i)
         {
-            if (!getButton(i) && currentButtons.contains(i))
+            if (!isButtonPressed(i) && currentButtons.contains(i))
             {
                 upButtons.add(i);
             }
@@ -29,7 +38,7 @@ public class MouseInput
         downButtons.clear();
         for (int i = 0; i < NUM_BUTTONS; ++i)
         {
-            if (getButton(i) && !currentButtons.contains(i))
+            if (isButtonPressed(i) && !currentButtons.contains(i))
             {
                 downButtons.add(i);
             }
@@ -38,29 +47,25 @@ public class MouseInput
         currentButtons.clear();
         for (int i = 0; i < NUM_BUTTONS; ++i)
         {
-            if (getButton(i))
+            if (isButtonPressed(i))
             {
                 currentButtons.add(i);
             }
         }
-
-        //System.out.println(Mouse.getButtonName(Mouse.getEventButton()));
     }
 
-    public static boolean getButton(int buttonCode)
+    public static boolean isButtonPressed(int buttonCode)
     {
-        return Mouse.isButtonDown(buttonCode);
+        return currentButtons.contains(buttonCode);
     }
 
-    public static boolean getButtonDown(int buttonCode)
+    public static boolean isButtonDown(int buttonCode)
     {
         return downButtons.contains(buttonCode);
     }
 
-    public static boolean getButtonUP(int buttonCode)
+    public static boolean isButtonReleased(int buttonCode)
     {
         return upButtons.contains(buttonCode);
     }
-
-
 }

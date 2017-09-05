@@ -21,11 +21,11 @@ public class Chunk extends Entity
     /**
      * Horizontal Axis, CHUNK_SIZE*CHUNK_SIZE tiles in a vertical slice
      */
-    public static final int CHUNK_SIZE = 16;
+    public static final int CHUNK_SIZE = 17;
     /**
      * Vertical Axis, how many vertical slices are in a chunk
      */
-    public static final int CHUNK_HEIGHT = 16;
+    public static final int CHUNK_HEIGHT = 512;
 
     protected byte[][][] tiles;
     protected byte[][][] metadata;
@@ -77,6 +77,8 @@ public class Chunk extends Entity
         {
             for (int k = 0; k < CHUNK_SIZE; ++k)
             {
+                //System.out.println((this.getPosX()+i) + "_" + (this.getPosZ()+k));
+
                 float h = CHUNK_SIZE*World.CHUNK_NUM_XZ - (float)Math.sqrt(
                         (((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosX()+i))*((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosX()+i)))
                         +(((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosZ()+k))*((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosZ()+k)))
@@ -85,9 +87,9 @@ public class Chunk extends Entity
                 //TODO move this to a terrain generator
 
                 int terrainHeight = (int)(PerlinNoise.perlin(
-                        (seedVal + this.position.x / Tile.TILE_SIZE + i),//*Tile.TILE_SIZE*0.025f,
-                        (seedVal + this.position.y / Tile.TILE_HEIGHT),//*Tile.TILE_HEIGHT*0.025f,
-                        (seedVal + this.position.z / Tile.TILE_SIZE + k))//*Tile.TILE_SIZE*0.025f) * CHUNK_HEIGHT/4f)
+                        (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.025f,
+                        (seedVal + this.position.y / Tile.TILE_HEIGHT)*Tile.TILE_HEIGHT*0.025f,
+                        (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.025f) * CHUNK_HEIGHT/4f
                         /*+
                         (PerlinNoise.perlin(
                         (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.05f,
@@ -97,7 +99,7 @@ public class Chunk extends Entity
                         (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.1f,
                         (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.1f,
                         (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.1f) * CHUNK_HEIGHT/32f)*/
-                        + h);
+                        + h -128);
 
                 for (int j = (int)this.getPosY(); j < terrainHeight+this.getPosY();// + CHUNK_HEIGHT*0.5f;
                      ++j)

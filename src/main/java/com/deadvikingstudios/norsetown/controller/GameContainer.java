@@ -3,14 +3,14 @@ package com.deadvikingstudios.norsetown.controller;
 
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.entities.humanoids.EntityHumanoid;
+import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
 import com.deadvikingstudios.norsetown.model.lighting.SpotLight;
-import com.deadvikingstudios.norsetown.model.lighting.SunLight;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.CalendarNorse;
 import com.deadvikingstudios.norsetown.model.world.Chunk;
 import com.deadvikingstudios.norsetown.model.world.World;
-import com.deadvikingstudios.norsetown.view.lwjgl.DisplayManager;
 import com.deadvikingstudios.norsetown.view.lwjgl.Loader;
+import com.deadvikingstudios.norsetown.view.lwjgl.WindowManager;
 import com.deadvikingstudios.norsetown.view.lwjgl.renderers.Renderer;
 import com.deadvikingstudios.norsetown.view.lwjgl.shaders.LightlessStaticShader;
 import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
@@ -18,12 +18,13 @@ import com.deadvikingstudios.norsetown.view.meshes.ChunkMesh;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import com.deadvikingstudios.norsetown.view.meshes.MeshTexture;
 import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -62,7 +63,7 @@ public class GameContainer implements Runnable, IGameContainer
     private static RawMesh defaultMesh;
 
     private static CameraController camera;
-    private static MousePicker picker;
+    //private static MousePicker picker;
 
     private static boolean renderWireFrame = false;
 
@@ -72,8 +73,8 @@ public class GameContainer implements Runnable, IGameContainer
     private static EntityMesh skyEntMesh;
     private static MeshTexture skyboxTexture;
     //private static SunLight curSunLight;
-    private static Vector3f ambientLight = new Vector3f(0.2f,0.2f,0.2f);
-    private static SunLight sunLight;
+    private static Vector3f ambientLight = new Vector3f(0.4f,0.4f,0.4f);
+    private static DirectionalLight sunLight;
     private static SpotLight spotLight;
 
     //Sea
@@ -97,7 +98,7 @@ public class GameContainer implements Runnable, IGameContainer
 
     public void start()
     {
-        DisplayManager.create();
+        WindowManager.create();
 
         loader = new Loader();
         shader = new StaticShader();
@@ -127,7 +128,7 @@ public class GameContainer implements Runnable, IGameContainer
                 {
                     for (int i = 2; i < height + 2; i++)
                     {
-                        World.getWorld().setTile(Tile.Tiles.tileLogMed, x, j + i, z, false);
+                        World.getWorld().setTile(Tile.Tiles.tileTrunkFir, x, j + i, z, false);
                     }
                     return;
                 }
@@ -135,10 +136,13 @@ public class GameContainer implements Runnable, IGameContainer
         }
     }
 
+    double initStartTime;
+
     @Override
     public void init()
     {
         System.out.println("Initialization started");
+        initStartTime = System.currentTimeMillis();
 
         Tile.Tiles.init();
 
@@ -148,7 +152,8 @@ public class GameContainer implements Runnable, IGameContainer
         camera.setRotation(35, 135, 0);
         camera.setPosition(0, Chunk.CHUNK_HEIGHT * 0.5f * Tile.TILE_HEIGHT, 0);
 
-        //sunLight = new SunLight(new Vector3f(0.8f,0.8f,0.8f), new Vector3f(35f,45f,0.0f), 1.0f);
+        //TODO: have sun move
+        sunLight = new DirectionalLight(new Vector3f(1f,1f,1f), new Vector3f(0.6f,-1f,0.2f), 1.0f);
         spotLight = new SpotLight(new Vector3f(0.8f,0.8f,1f), new Vector3f(0,0,0), 1.0f);
 
         skybox = new Entity(0,0,0,0,0,180);
@@ -166,18 +171,13 @@ public class GameContainer implements Runnable, IGameContainer
 
         terrainTexture = new MeshTexture(loader.loadTexture("textures/terrain"));//"textures/tiles/grass_top"));
 
-        //temp
-        /*onion = new Entity(0,40,0,0,0,0 );
-        onionTexture = new MeshTexture(loader.loadTexture("meshes/onion"));
-        onionMesh = OBJLoader.loadObjModel("meshes/onion", loader);*/
-
         //entTexture = new MeshTexture(loader.loadTexture("textures/entTexture"));
         calendar = new CalendarNorse();
         currentWorld = new World();
-        System.out.println(currentWorld.getNumberOfNonEmptyChunks());
-        System.out.println(currentWorld.getMaxPossibleNumberOfChunks());
+        //System.out.println(currentWorld.getNumberOfNonEmptyChunks());
+        //System.out.println(currentWorld.getMaxPossibleNumberOfChunks());
 
-        picker = new MousePicker(camera, renderer.getProjectionMatrix(), currentWorld);
+        //picker = new MousePicker(camera, renderer.getProjectionMatrix(), currentWorld);
 
         //temp TODO: create a terrain Generator and Decorator
         Random random = World.getWorld().getRandom();
@@ -221,18 +221,23 @@ public class GameContainer implements Runnable, IGameContainer
             //entityMeshes.add(new EntityMesh(ent, defaultMesh, entTexture));
         }
 
-        System.out.println("Initialization finished");
+        System.out.println("Initialization finished in " + (System.currentTimeMillis() - initStartTime) + " miliseconds");
     }
 
     @Override
     public void input()
     {
-        KeyboardInput.update();
-        MouseInput.update();
+        if(KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_SPACE))
+        {
+            System.out.println("fizz");
+        }
+        KeyboardInputHandler.update();
+        MouseInputHandler.update();
+        MousePositionHandler.update();
     }
 
     private boolean moveSeaUp = false;
-    private float seaheight = 256f*Tile.TILE_HEIGHT;//Tile.TILE_HEIGHT*World.SEA_LEVEL;;
+    private float seaheight = Tile.TILE_HEIGHT*World.SEA_LEVEL;;
 
     @Override
     public void update(float dt)
@@ -259,7 +264,7 @@ public class GameContainer implements Runnable, IGameContainer
         //sunLight.update();
         spotLight.setPosition(new Vector3f(camera.getPosition().x,camera.getPosition().y, camera.getPosition().z));
 
-        picker.update();
+        //picker.update();
         //onion.setPosition(camera.getPosition().x, camera.getPosition().y-1, camera.getPosition().z);
         //System.out.println(picker.getCurrentRay());
         //System.out.println(picker.getCurrentWorldPoint());
@@ -275,7 +280,7 @@ public class GameContainer implements Runnable, IGameContainer
             }
         }
 
-        if(MouseInput.getButtonDown(0))
+        if(MouseInputHandler.isButtonPressed(GLFW.GLFW_MOUSE_BUTTON_RIGHT))
         {
             System.out.println("Time: " + (calendar.getTime()/(float)CalendarNorse.DAY_LENGTH) * 24f);
         }
@@ -286,7 +291,7 @@ public class GameContainer implements Runnable, IGameContainer
             ent.update();
         }
 
-        if (KeyboardInput.getKeyDown(Keyboard.KEY_F1))
+        if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_F1))
         {
             if(renderWireFrame)
             {
@@ -302,35 +307,35 @@ public class GameContainer implements Runnable, IGameContainer
         }
 
         //TODO remove this
-        if (KeyboardInput.getKeyDown(Keyboard.KEY_1))
+        if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_1))
         {
             World.chunkTickSpeed = 4;
         }
-        else if (KeyboardInput.getKeyDown(Keyboard.KEY_2))
+        else if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_2))
         {
             World.chunkTickSpeed = 8;
         }
-        else if (KeyboardInput.getKeyDown(Keyboard.KEY_3))
+        else if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_3))
         {
             World.chunkTickSpeed = 16;
         }
-        else if (KeyboardInput.getKeyDown(Keyboard.KEY_4))
+        else if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_4))
         {
             World.chunkTickSpeed = 32;
         }
-        else if (KeyboardInput.getKeyDown(Keyboard.KEY_5))
+        else if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_5))
         {
             World.chunkTickSpeed = 64;
         }/*
-        else if (KeyboardInput.getKeyDown(Keyboard.KEY_6))
+        else if (KeyboardInputHandler.isKeyDown(Keyboard.KEY_6))
         {
             World.chunkTickSpeed = 128;
         }
-        else if (KeyboardInput.getKeyDown(Keyboard.KEY_7))
+        else if (KeyboardInputHandler.isKeyDown(Keyboard.KEY_7))
         {
             World.chunkTickSpeed = 256;
         }
-        else if (KeyboardInput.getKeyDown(Keyboard.KEY_8))
+        else if (KeyboardInputHandler.isKeyDown(Keyboard.KEY_8))
         {
             World.chunkTickSpeed = 512;
         }*/
@@ -362,8 +367,8 @@ public class GameContainer implements Runnable, IGameContainer
         shader.loadViewMatrix(camera);
 
         shader.loadAmbientLight(ambientLight);
-        //shader.loadDirectionalLight(sunLight);
-        shader.loadSpotLight(spotLight);
+        shader.loadDirectionalLight(sunLight);
+        //shader.loadSpotLight(spotLight);
 
 
 
@@ -387,28 +392,25 @@ public class GameContainer implements Runnable, IGameContainer
         shader.stop();
         //stop rendering
         //Displays to screen
-        DisplayManager.updateDisplay();
+
+
+
+        WindowManager.updateDisplay();
     }
 
     public void dispose()
     {
         shader.cleanUp();
         loader.cleanUp();
-        DisplayManager.dispose();
+        WindowManager.dispose();
     }
 
     public static void main(String[] args)
     {
-        try
-        {
-            System.setProperty("org.lwjgl.librarypath", new File("libs" + File.separator + "native" + File.separator + OperatingSystem.getOSforLWJGLNatives()).getAbsolutePath());
-            new GameContainer().start();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            System.exit(-1);
-        }
+        String fileNatives = OperatingSystem.getOSforLWJGLNatives();
+        System.setProperty("org.lwjgl.librarypath", (new File("libs" + File.separator + "native" + File.separator + fileNatives)).getAbsolutePath());
+        System.out.println(System.getProperty("java.library.path"));
+        new GameContainer().start();
     }
 
     public static RawMesh getDefaultMesh()
@@ -678,9 +680,20 @@ public class GameContainer implements Runnable, IGameContainer
 
         try
         {
+            // This line is critical for LWJGL's interoperation with GLFW's
+            // OpenGL context, or any context that is managed externally.
+            // LWJGL detects the context that is current in the current thread,
+            // creates the GLCapabilities instance and makes the OpenGL
+            // bindings available for use.
+            GL.createCapabilities();
+
+            // Set the clear color
+            GL11.glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+
+
             game.init();
 
-            while (isRunning && !Display.isCloseRequested())
+            while (isRunning && !GLFW.glfwWindowShouldClose(WindowManager.window))
             {
                 firstTime = System.nanoTime() / 1_000_000_000.0;
                 passedTime = firstTime - lastTime;
@@ -712,7 +725,6 @@ public class GameContainer implements Runnable, IGameContainer
 
                 if (render)
                 {
-                    renderer.clear();
                     game.render();
 
                     if (MODE.equals("debug") && outputFPS)
@@ -721,7 +733,7 @@ public class GameContainer implements Runnable, IGameContainer
                         System.out.println("FPS: " + fps);
                     }
 
-                    DisplayManager.resize();
+                    WindowManager.resize();
                     frames++;
                 } else
                 {

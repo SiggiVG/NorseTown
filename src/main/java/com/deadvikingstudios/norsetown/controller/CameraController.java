@@ -1,8 +1,6 @@
 package com.deadvikingstudios.norsetown.controller;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.util.vector.Vector3f;
 
 /**
@@ -35,7 +33,7 @@ public class CameraController
 
     public void move()
     {
-        if(KeyboardInput.getKeyDown(Keyboard.KEY_TAB))
+        if(KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_TAB))
         {
             isOrthogonal = !isOrthogonal;
             if(isOrthogonal)
@@ -58,43 +56,43 @@ public class CameraController
                 {
                     rotation.y = 315;
                 }
-                Mouse.setGrabbed(false);
-                Mouse.setCursorPosition(Display.getWidth()/2, Display.getHeight()/2);
+                //Mouse.setGrabbed(false);
+                //Mouse.setCursorPosition(WindowManager.getHalfWidth(), WindowManager.getHalfHeight());
             }
             else
             {
-                Mouse.setGrabbed(true);
+                //Mouse.setGrabbed(true);
             }
         }
 
 
         float moveAt = speed;
 
-        if(KeyboardInput.getKey(Keyboard.KEY_LSHIFT))
+        if(KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT))
         {
             moveAt *= 5f;
         }
 
-        if(isOrthogonal)
+        /*if(isOrthogonal)
         {
             if(rotation.y == 45)
             {
-                if (KeyboardInput.getKey(Keyboard.KEY_W))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
                 {
                     position.z -= moveAt;
                     position.x += moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_S))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
                 {
                     position.z += moveAt;
                     position.x -= moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_A))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
                 {
                     position.x -= moveAt;
                     position.z -= moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_D))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
                 {
                     position.x += moveAt;
                     position.z += moveAt;
@@ -102,22 +100,22 @@ public class CameraController
             }
             else if(rotation.y == 135)
             {
-                if (KeyboardInput.getKey(Keyboard.KEY_W))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
                 {
                     position.x += moveAt;
                     position.z += moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_S))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
                 {
                     position.x -= moveAt;
                     position.z -= moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_A))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
                 {
                     position.z -= moveAt;
                     position.x += moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_D))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
                 {
                     position.z += moveAt;
                     position.x -= moveAt;
@@ -125,22 +123,22 @@ public class CameraController
             }
             else if(rotation.y == 225)
             {
-                if (KeyboardInput.getKey(Keyboard.KEY_W))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
                 {
                     position.z += moveAt;
                     position.x -= moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_S))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
                 {
                     position.z -= moveAt;
                     position.x += moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_A))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
                 {
                     position.x += moveAt;
                     position.z += moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_D))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
                 {
                     position.x -= moveAt;
                     position.z -= moveAt;
@@ -148,35 +146,35 @@ public class CameraController
             }
             else if(rotation.y == 315)
             {
-                if (KeyboardInput.getKey(Keyboard.KEY_W))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
                 {
                     position.x -= moveAt;
                     position.z -= moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_S))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
                 {
                     position.x += moveAt;
                     position.z += moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_A))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
                 {
                     position.z += moveAt;
                     position.x -= moveAt;
                 }
-                if (KeyboardInput.getKey(Keyboard.KEY_D))
+                if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
                 {
                     position.z -= moveAt;
                     position.x += moveAt;
                 }
             }
         }
-        else
+        else*/
         {
             //rotation start
-            if(Mouse.isGrabbed())
+            //if(Mouse.isGrabbed())
             {
-                roll(-Mouse.getDY() * turnSpeed);
-                pitch(Mouse.getDX() * turnSpeed);
+                roll(MousePositionHandler.getDY() * turnSpeed);
+                pitch(MousePositionHandler.getDX() * turnSpeed);
             }
             //rotation end
 
@@ -184,25 +182,25 @@ public class CameraController
             float dy=0;
             float dz=0;
 
-            if (KeyboardInput.getKey(Keyboard.KEY_W))
+            if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
             {
                 dx = (moveAt * (float) Math.sin(Math.toRadians(rotation.y)));
                 dy = -(moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
                 dz = -(moveAt * (float) Math.cos(Math.toRadians(rotation.y)));
             }
-            if (KeyboardInput.getKey(Keyboard.KEY_S))
+            if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
             {
                 dx = -(moveAt * (float) Math.sin(Math.toRadians(rotation.y)));
                 dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
                 dz = (moveAt * (float) Math.cos(Math.toRadians(rotation.y)));
             }
-            if (KeyboardInput.getKey(Keyboard.KEY_A))
+            if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
             {
                 dx = (moveAt * (float) Math.sin(Math.toRadians(rotation.y-90)));
                 //dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
                 dz = -(moveAt * (float) Math.cos(Math.toRadians(rotation.y-90)));
             }
-            if (KeyboardInput.getKey(Keyboard.KEY_D))
+            if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
             {
                 dx = -(moveAt * (float) Math.sin(Math.toRadians(rotation.y-90)));
                 //dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
@@ -213,11 +211,11 @@ public class CameraController
         }
 
 
-        if (KeyboardInput.getKey(Keyboard.KEY_E))
+        if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_E))
         {
             position.y += moveAt;
         }
-        else if (KeyboardInput.getKey(Keyboard.KEY_Q))
+        else if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_Q))
         {
             position.y -= moveAt;
         }

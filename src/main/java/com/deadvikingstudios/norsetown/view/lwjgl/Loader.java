@@ -1,21 +1,23 @@
 package com.deadvikingstudios.norsetown.view.lwjgl;
 
 import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
+import de.matthiasmann.twl.utils.PNGDecoder;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
 
-import java.io.File;
+import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.lwjgl.opengl.GL11.*;
 
 /**
  * Created by SiggiVG on 6/19/2017.
@@ -147,6 +149,44 @@ public class Loader
      */
     public int loadTexture(String filePath)
     {
+        int texture = 0;
+
+        BufferedInputStream in = null;
+        try
+        {
+            in = new BufferedInputStream(this.getClass().getResourceAsStream("/" +  filePath + ".png"));
+            PNGDecoder decoder = new PNGDecoder(in);
+            // assuming RGB here but should allow for RGB and RGBA (changing wall.png to RGBA will crash this!)
+            ByteBuffer buf = ByteBuffer.allocateDirect(4*decoder.getWidth()*decoder.getHeight());
+            decoder.decode(buf, decoder.getWidth()*4, PNGDecoder.Format.RGBA);
+            buf.flip();
+            System.out.println(buf);
+            texture=glGenTextures();
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, decoder.getWidth(), decoder.getHeight(), 0,
+                    GL_RGBA, GL_UNSIGNED_BYTE, buf);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            in.close();
+        } catch (FileNotFoundException e)
+        {
+            System.out.println("Texture not found: " + filePath);
+            e.printStackTrace();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        System.out.println("Texture: " + filePath + " loaded to " + texture);
+        textures.add(texture);
+        return texture;
+
+
+
+
+
+
+        /*
         Texture texture = null;
         try
         {
@@ -163,6 +203,7 @@ public class Loader
         int textureID = texture.getTextureID();
         textures.add(textureID);
         return textureID;
+        */
     }
 
     /**

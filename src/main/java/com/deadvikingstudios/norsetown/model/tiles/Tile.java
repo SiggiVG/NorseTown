@@ -9,8 +9,8 @@ import com.deadvikingstudios.norsetown.model.world.World;
  */
 public abstract class Tile
 {
-    public static final float TILE_SIZE = 1.0f;
-    public static final float TILE_HEIGHT = 1f;
+    public static final float TILE_SIZE = 1f; //setting to values other than 1 currently break rendering
+    public static final float TILE_HEIGHT = 0.5f;
 
     /**
      * unlocalized name, used for localization and texturing
@@ -150,10 +150,7 @@ public abstract class Tile
         public static Tile tileAir;
         public static Tile tileGrass;
         public static Tile tileSoil;
-        public static Tile tileLogThin;
-        public static Tile tileLogMed;
-        public static Tile tileLogThick;
-        public static Tile tileLogFull;
+        public static Tile tileTrunkFir;
         public static Tile tilePlank;
         public static Tile tileStoneCliff;
         public static Tile tileStoneCobble;
@@ -172,10 +169,7 @@ public abstract class Tile
             register(tileAir = new TileAir(i++,"tile_air").setOpaque(false));
             register(tileGrass = new TileSod(i++,"tile_sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,3, 18));
             register(tileSoil = new TileSoil(i++, "tile_soil", EnumMaterial.EARTH).setTextureOffset(3));
-            register(tileLogThin = new TileTree(i++,"tile_log_thin").setTextureOffset(6,5));
-            register(tileLogMed = new TileTree(i++,"tile_log_med").setTextureOffset(6,5));
-            register(tileLogThick = new TileTree(i++,"tile_log_thick").setTextureOffset(6,5));
-            register(tileLogFull = new TileTree(i++,"tile_log_fill").setTextureOffset(6,5));
+            register(tileTrunkFir = new TileTree(i++,"tile_log").setTextureOffset(6,5));
             register(tilePlank = new TileWood(i++,"tile_plank", EnumMaterial.WOOD).setTextureOffset(4));
             register(tileStoneCliff = new TileStone(i++,"tile_stone_cliff", EnumMaterial.STONE).setTextureOffset(7));
             register(tileStoneCobble = new TileStone(i++,"tile_stone_cobble", EnumMaterial.STONE).setTextureOffset(8));
