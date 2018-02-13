@@ -5,6 +5,7 @@ import com.deadvikingstudios.norsetown.view.lwjgl.WindowManager;
 import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkMesh;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
+import com.deadvikingstudios.norsetown.view.meshes.StructureMesh;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -124,6 +125,28 @@ public class Renderer
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, chunkMesh.getTexture().getTextureID());
         GL11.glDrawElements(GL11.GL_TRIANGLES, chunkMesh.getMesh().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+        GL20.glDisableVertexAttribArray(0);
+        GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(2);
+        GL30.glBindVertexArray(0);
+    }
+
+    public static void render(StructureMesh structureChunkMesh, StaticShader shader)
+    {
+        GL30.glBindVertexArray(structureChunkMesh.getMesh().getVaoID());
+        GL20.glEnableVertexAttribArray(0);
+        GL20.glEnableVertexAttribArray(1);
+        GL20.glEnableVertexAttribArray(2);
+
+        Matrix4f transform = RenderMath.createTransformationMatrix(structureChunkMesh.getPosition(),
+                structureChunkMesh.getRotationX(),structureChunkMesh.getRotationY(),structureChunkMesh.getRotationZ(), structureChunkMesh.getScale());
+        shader.loadTransformationMatrix(transform);
+
+        shader.loadShineVariables(structureChunkMesh.getShineDamper(), structureChunkMesh.getReflectivity());
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, structureChunkMesh.getTexture().getTextureID());
+        GL11.glDrawElements(GL11.GL_TRIANGLES, structureChunkMesh.getMesh().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
         GL20.glDisableVertexAttribArray(2);

@@ -1,23 +1,48 @@
-package com.deadvikingstudios.norsetown.model.world.structures;
+package com.deadvikingstudios.norsetown.model.entities;
 
-import com.deadvikingstudios.norsetown.model.entities.Entity;
+import com.deadvikingstudios.norsetown.model.world.structures.Structure;
+import com.deadvikingstudios.norsetown.utils.Position3i;
 
 public class EntityStructure extends Entity
 {
     private final boolean canChangePosition;
     private final boolean canRotate;
 
+    private Position3i structureOffset = new Position3i(0,0,0);
+
     private Structure structure;
 
-    public EntityStructure(double x, double y, double z)
+    public <STRUCTURE extends Structure> EntityStructure(STRUCTURE structure)
     {
-        this(x, y, z, false, false);
-
+        this(structure, 0, 0, 0);
     }
 
-    public EntityStructure(double x, double y, double z, boolean canChangePosition, boolean canRotate)
+    public <STRUCTURE extends Structure> EntityStructure(STRUCTURE structure, double x, double y, double z)
+    {
+        this(structure, x, y, z, false, false);
+    }
+
+    @Override
+    public void update()
+    {
+        this.structure.update();
+        //this.position.y += 0.1;
+    }
+
+    public Position3i getStructureOffset()
+    {
+        return structureOffset;
+    }
+
+    public void setStructureOffset(Position3i structureOffset)
+    {
+        this.structureOffset = structureOffset;
+    }
+
+    public <STRUCTURE extends Structure> EntityStructure(STRUCTURE structure, double x, double y, double z, boolean canChangePosition, boolean canRotate)
     {
         super((float) x, (float)y, (float)z, 0, 0, 0, 1);
+        this.structure = structure;
         this.canChangePosition = canChangePosition;
         this.canRotate = canRotate;
     }

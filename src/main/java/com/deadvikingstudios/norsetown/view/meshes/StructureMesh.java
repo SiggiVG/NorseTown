@@ -10,10 +10,12 @@ import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.utils.ArrayUtils;
 import com.deadvikingstudios.norsetown.utils.Logger;
+import com.deadvikingstudios.norsetown.utils.Position3i;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.deadvikingstudios.norsetown.controller.GameContainer.loader;
 
@@ -22,21 +24,13 @@ import static com.deadvikingstudios.norsetown.controller.GameContainer.loader;
  *
  * This is how Chunks Render, and gets updated whenever a chunk does
  */
-public class StructureChunkMesh extends EntityMesh
+public class StructureMesh extends EntityMesh
 {
-    public StructureChunkMesh(EntityStructure structure, MeshTexture texture)
+    public StructureMesh(EntityStructure structure, MeshTexture texture)
     {
         super(structure, texture);
 
-        List<Float> vertices = new ArrayList<Float>();
-        List<Integer> indices = new ArrayList<Integer>();
-        List<Float> uvs = new ArrayList<Float>();
-        List<Float> norms = new ArrayList<Float>();
-
-        createMesh(vertices, indices, uvs, norms);
-
-        rawMesh = loader.loadToVAO(ArrayUtils.floatFromFloat(vertices),
-                ArrayUtils.intFromInteger(indices), ArrayUtils.floatFromFloat(uvs), ArrayUtils.floatFromFloat(norms));
+        reloadMesh();
     }
 
     public Vector3f getPosition()
@@ -56,12 +50,13 @@ public class StructureChunkMesh extends EntityMesh
 
     protected void createMesh(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms)
     {
-        Logger.debug("Generating mesh for Structure: ");
-        for (Structure.StructureChunk chunk : this.getStructure().getChunks())
+        for (Map.Entry<Position3i, Structure.StructureChunk> entry : this.getStructure().getChunks().entrySet())
         {
-            int x = chunk.position.x - this.getEntityStructure().getStructureOffset().x;
-            int y = chunk.position.y - this.getEntityStructure().getStructureOffset().y;
-            int z = chunk.position.z - this.getEntityStructure().getStructureOffset().z;
+            Structure.StructureChunk chunk = entry.getValue();
+            int x = chunk.position.x * Structure.StructureChunk.SIZE;// - this.getEntityStructure().getStructureOffset().x;
+            int y = chunk.position.y * Structure.StructureChunk.SIZE;// - this.getEntityStructure().getStructureOffset().y;
+            int z = chunk.position.z * Structure.StructureChunk.SIZE;// - this.getEntityStructure().getStructureOffset().z;
+            //Logger.debug("Mesh created for " + x + "," + y + "," + z);
 
             for (byte i = 0; i < Structure.StructureChunk.SIZE; ++i)
             {
@@ -69,7 +64,7 @@ public class StructureChunkMesh extends EntityMesh
                 {
                     for (byte k = 0; k < Structure.StructureChunk.SIZE; ++k)
                     {
-                        Tile tile = chunk.getTile(i,j,k);
+                        Tile tile = this.getStructure().getTile(x+i,y+j,z+k);
                         //EnumTileShape tileShape = tile.getTileShape(0);
                         if(!tile.isAir())
                         {
@@ -139,7 +134,7 @@ public class StructureChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE, y * Tile.TILE_HEIGHT, z * Tile.TILE_SIZE);
         //System.out.println(vec);
 
         EnumTileShape thisTileShape = thisTile.getTileShape(thisMetadata);
@@ -175,12 +170,14 @@ public class StructureChunkMesh extends EntityMesh
         }
 
         //NORTH
+        tileCheck = this.getStructure().getTile(x,y,z+1);
+        tileShapeCheck = tileCheck.getTileShape(0);
 //        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int)getChunk().getPosX()+x,(int)getChunk().getPosY()+y,(int)getChunk().getPosZ()+z+1));
 //        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z+1));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.NORTH, tileShapeCheck))
-               // && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.NORTH, EnumTileFace.SOUTH) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.NORTH, tileShapeCheck))
+                //&& ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.NORTH, EnumTileFace.SOUTH) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
         {
             verts = getFaceVerticesCuboid(EnumTileFace.NORTH, vec, ts, th);
             int count = vertices.size() / 3;
@@ -207,11 +204,13 @@ public class StructureChunkMesh extends EntityMesh
         }//END NORTH
 
         //EAST
+        tileCheck = this.getStructure().getTile(x+1,y,z);
+        tileShapeCheck = tileCheck.getTileShape(0);
 //        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) getChunk().getPosX() + x+1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
 //        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x+1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.EAST, tileShapeCheck))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.EAST, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.EAST, EnumTileFace.WEST) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -238,11 +237,13 @@ public class StructureChunkMesh extends EntityMesh
         }//END EAST
 
         //SOUTH
+        tileCheck = this.getStructure().getTile(x,y,z-1);
+        tileShapeCheck = tileCheck.getTileShape(0);
 //        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z-1));
 //        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z-1));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.SOUTH, tileShapeCheck))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.SOUTH, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.SOUTH, EnumTileFace.NORTH) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -269,11 +270,13 @@ public class StructureChunkMesh extends EntityMesh
         }//END SOUTH
 
         //WEST
+        tileCheck = this.getStructure().getTile(x-1,y,z);
+        tileShapeCheck = tileCheck.getTileShape(0);
 //        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) getChunk().getPosX() + x-1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
 //        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x-1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.WEST, tileShapeCheck))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.WEST, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.WEST, EnumTileFace.EAST) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -300,11 +303,13 @@ public class StructureChunkMesh extends EntityMesh
         }//END WEST*/
 
         //TOP
+        tileCheck = this.getStructure().getTile(x,y+1,z);
+        tileShapeCheck = tileCheck.getTileShape(0);
 //        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int)getChunk().getPosX() + x, (int)getChunk().getPosY() + y + 1, (int)getChunk().getPosZ() + z));
 //        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y + 1, (int) getChunk().getPosZ() + z));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.TOP, EnumTileFace.BOTTOM) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -331,12 +336,14 @@ public class StructureChunkMesh extends EntityMesh
         }//END TOP
 
         //BOTTOM
+        tileCheck = this.getStructure().getTile(x,y-1,z);
+        tileShapeCheck = tileCheck.getTileShape(0);
 //        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y - 1, (int) getChunk().getPosZ() + z));
 //        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y - 1, (int) getChunk().getPosZ() + z));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
 //        if(vec.y > Tile.TILE_HEIGHT)
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.BOTTOM, tileShapeCheck)  )
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.BOTTOM, tileShapeCheck)  )
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.BOTTOM, EnumTileFace.TOP) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -947,8 +954,6 @@ public class StructureChunkMesh extends EntityMesh
 
     public void reloadMesh()
     {
-        //System.out.println("Chunk " + (int)this.getChunkAtIndex().getPosX() / Chunk.CHUNK_SIZE + "," + (int)this.getChunkAtIndex().getPosY()/ Chunk.CHUNK_HEIGHT + "," + (int)this.getChunkAtIndex().getPosZ()/ Chunk.CHUNK_SIZE + " has had its mesh reloaded.");
-
         List<Float> vertices = new ArrayList<Float>();
         List<Integer> indices = new ArrayList<Integer>();
         List<Float> uvs = new ArrayList<Float>();

@@ -1,6 +1,7 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
 import com.deadvikingstudios.norsetown.model.world.World;
+import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 
 public class TileLeaves extends Tile
 {
@@ -10,7 +11,7 @@ public class TileLeaves extends Tile
     }
 
     @Override
-    public void update(World world, int x, int y, int z)
+    public void update(Structure structure, int x, int y, int z)
     {
 
     }

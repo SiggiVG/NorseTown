@@ -15,7 +15,7 @@ public class EmptyChunk extends Chunk
      */
     public EmptyChunk(float x, float y, float z)
     {
-        super(x, y, z);
+        super(x, y, z, 0);
     }
 
     @Override

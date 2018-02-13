@@ -49,7 +49,7 @@ public class ChunkMesh extends EntityMesh
     {
         for (int i = 0; i < Chunk.CHUNK_SIZE; i++)
         {
-            for (int j = 0; j < Chunk.CHUNK_HEIGHT; j++)
+            for (int j = 0; j < this.getChunk().getHeight(); j++)
             {
                 for (int k = 0; k < Chunk.CHUNK_SIZE; k++)
                 {

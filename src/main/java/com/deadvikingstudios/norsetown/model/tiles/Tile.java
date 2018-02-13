@@ -1,6 +1,7 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
 import com.deadvikingstudios.norsetown.model.world.World;
+import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 
 /**
  * Created by SiggiVG on 6/19/2017.
@@ -10,7 +11,7 @@ import com.deadvikingstudios.norsetown.model.world.World;
 public abstract class Tile
 {
     public static final float TILE_SIZE = 1f; //setting to values other than 1 currently break rendering
-    public static final float TILE_HEIGHT = 0.5f;
+    public static final float TILE_HEIGHT = 1f;
 
     /**
      * unlocalized name, used for localization and texturing
@@ -134,7 +135,7 @@ public abstract class Tile
         return this == Tiles.tileAir || (!isSolid && !isOpaque);
     }
 
-    public abstract void update(World world, int x, int y, int z);
+    public abstract void update(Structure structure, int x, int y, int z);
 
     public abstract EnumTileShape getTileShape(int metadata);
 
@@ -179,7 +180,7 @@ public abstract class Tile
             register(tileGrassTall = new Tile(i++, "tile_grass_tall", EnumMaterial.PLANT)
             {
                 @Override
-                public void update(World world, int x, int y, int z)
+                public void update(Structure structure, int x, int y, int z)
                 {
 
                 }

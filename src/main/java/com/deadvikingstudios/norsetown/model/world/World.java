@@ -11,14 +11,15 @@ import java.util.Random;
 /**
  * Created by SiggiVG on 6/19/2017.
  */
+@Deprecated
 public class World
 {
 
 
     public static int chunkTickSpeed = 4;
-    private Chunk[][][] chunkList;//List<Chunk> chunkList = new ArrayList<Chunk>();
+    private Chunk[][] chunkList;//List<Chunk> chunkList = new ArrayList<Chunk>();
     public static final int CHUNK_NUM_XZ = 8;
-    public static final int CHUNK_NUM_Y = 1; //setting to values other than 1 currently breaks rendering
+    //public static final int CHUNK_NUM_Y = 1; //setting to values other than 1 currently breaks rendering
     public static final float CHUNK_OFFSET_Y = 0;//Tile.TILE_HEIGHT;
     public static final float CHUNK_OFFSET_XZ = 0;//Tile.TILE_SIZE;
     public static final float SEA_LEVEL = 7.6f;
@@ -58,10 +59,10 @@ public class World
         {
             for (int k = 0; k < CHUNK_NUM_XZ; k++)
             {
-                for (int j = 0; j < CHUNK_NUM_Y; j++)
+                //for (int j = 0; j < CHUNK_NUM_Y; j++)
                 {
-                    if(chunkList[i][j][k] != null)
-                    if(!chunkList[i][j][k].isEmpty())
+                    if(chunkList[i][k] != null)
+                    if(!chunkList[i][k].isEmpty())
                     {
                         ++chunkNum;
                     }
@@ -76,7 +77,7 @@ public class World
      */
     public int getMaxPossibleNumberOfChunks()
     {
-        return CHUNK_NUM_XZ*CHUNK_NUM_XZ*CHUNK_NUM_Y;
+        return CHUNK_NUM_XZ*CHUNK_NUM_XZ;//*CHUNK_NUM_Y;
     }
 
     public World(int seed)
@@ -85,17 +86,17 @@ public class World
         random = new Random(seed);
         instance = this;
 
-        chunkList = new Chunk[CHUNK_NUM_XZ][CHUNK_NUM_Y][CHUNK_NUM_XZ];
+        chunkList = new Chunk[CHUNK_NUM_XZ][CHUNK_NUM_XZ];
 
         for (int i = 0; i < CHUNK_NUM_XZ; i++)
         {
-            for (int j = 0; j < CHUNK_NUM_Y; j++)
+            //for (int j = 0; j < CHUNK_NUM_Y; j++)
             {
                 for (int k = 0; k < CHUNK_NUM_XZ; k++)
                 {
                     Chunk chunk = new Chunk(i*Chunk.CHUNK_SIZE*Tile.TILE_SIZE,
-                            j*Chunk.CHUNK_HEIGHT*Tile.TILE_HEIGHT,k*Chunk.CHUNK_SIZE*Tile.TILE_SIZE);
-                    if(!chunk.isEmpty()) chunkList[i][j][k] = chunk;
+                            0,k*Chunk.CHUNK_SIZE*Tile.TILE_SIZE, 8);
+                    if(!chunk.isEmpty()) chunkList[i][k] = chunk;
                     //System.out.println(chunk.getPosY());
                 }
             }
@@ -103,7 +104,7 @@ public class World
     }
 
 
-    public Chunk[][][] getChunkList()
+    public Chunk[][] getChunkList()
     {
         return this.chunkList;
     }
@@ -117,12 +118,12 @@ public class World
      */
     public Chunk getChunkAtIndex(int x, int y, int z)
     {
-        if(x < 0 || x >= CHUNK_NUM_XZ || y < 0 || y >= CHUNK_NUM_Y || z < 0 || z >= CHUNK_NUM_XZ)
+        if(x < 0 || x >= CHUNK_NUM_XZ /*|| y < 0 || y >= CHUNK_NUM_Y*/ || z < 0 || z >= CHUNK_NUM_XZ)
         {
             return null;
         }
 
-        return this.chunkList[x][y][z];
+        return this.chunkList[x][z];
     }
 
     /**
@@ -134,7 +135,7 @@ public class World
      */
     public Chunk getChunk(int x, int y, int z)
     {
-        return this.getChunkAtIndex(x/Chunk.CHUNK_SIZE,y/Chunk.CHUNK_HEIGHT,z/Chunk.CHUNK_SIZE);
+        return this.getChunkAtIndex(x/Chunk.CHUNK_SIZE,0,z/Chunk.CHUNK_SIZE);
     }
 
     /**
@@ -217,7 +218,7 @@ public class World
         {
             Vector3f tileCoords = worldSpaceToTileCoords(position);
             return chunk.getTile(((int)tileCoords.x) % Chunk.CHUNK_SIZE,
-                    ((int)tileCoords.y) % Chunk.CHUNK_HEIGHT, ((int)tileCoords.z) % Chunk.CHUNK_SIZE);
+                    ((int)tileCoords.y), ((int)tileCoords.z) % Chunk.CHUNK_SIZE);
         }
         return 0;
     }
@@ -245,8 +246,7 @@ public class World
         if(chunk != null)
         {
             //Vector3f tileCoords = worldSpaceToTileCoords(position);
-            return chunk.getTile((x) % Chunk.CHUNK_SIZE,
-                    (y) % Chunk.CHUNK_HEIGHT, (z) % Chunk.CHUNK_SIZE);
+            return chunk.getTile((x) % Chunk.CHUNK_SIZE, (y), (z) % Chunk.CHUNK_SIZE);
         }
         return 0;
     }
@@ -269,13 +269,13 @@ public class World
                 if (Tile.Tiles.get(getTile(x, y, z)).isReplacable())
                 {
                     chunk.setTile(tile, ((int) x) % Chunk.CHUNK_SIZE,
-                            ((int) y) % Chunk.CHUNK_HEIGHT, ((int) z) % Chunk.CHUNK_SIZE);
+                            ((int) y), ((int) z) % Chunk.CHUNK_SIZE);
                 }
             }
             else
             {
                 chunk.setTile(tile, ((int) x) % Chunk.CHUNK_SIZE,
-                        ((int) y) % Chunk.CHUNK_HEIGHT, ((int) z) % Chunk.CHUNK_SIZE);
+                        ((int) y), ((int) z) % Chunk.CHUNK_SIZE);
             }
         }
     }
@@ -311,13 +311,13 @@ public class World
                 if (Tile.Tiles.get(getTile(tileCoords)).isReplacable())
                 {
                     chunk.setTile(tile, ((int) tileCoords.x) % Chunk.CHUNK_SIZE,
-                            ((int) tileCoords.y) % Chunk.CHUNK_HEIGHT, ((int) tileCoords.z) % Chunk.CHUNK_SIZE);
+                            ((int) tileCoords.y), ((int) tileCoords.z) % Chunk.CHUNK_SIZE);
                 }
             }
             else
             {
                 chunk.setTile(tile, ((int) tileCoords.x) % Chunk.CHUNK_SIZE,
-                        ((int) tileCoords.y) % Chunk.CHUNK_HEIGHT, ((int) tileCoords.z) % Chunk.CHUNK_SIZE);
+                        ((int) tileCoords.y), ((int) tileCoords.z) % Chunk.CHUNK_SIZE);
             }
         }
     }
@@ -372,10 +372,10 @@ public class World
         {
             for (int k = 0; k < CHUNK_NUM_XZ; ++k)
             {
-                for (int j = 0; j < CHUNK_NUM_Y; ++j)
+                //for (int j = 0; j < CHUNK_NUM_Y; ++j)
                 {
-                    if(chunkList[i][j][k] != null)
-                    chunkList[i][j][k].update(getWorld());
+                    if(chunkList[i][k] != null)
+                    chunkList[i][k].update(getWorld());
                 }
             }
         }
@@ -427,7 +427,7 @@ public class World
         Chunk chunk = getChunk(x,y,z);
         if(chunk != null)
         {
-            return chunk.getMetadata(x%Chunk.CHUNK_SIZE,y%Chunk.CHUNK_HEIGHT,z%Chunk.CHUNK_SIZE);
+            return chunk.getMetadata(x%Chunk.CHUNK_SIZE,y,z%Chunk.CHUNK_SIZE);
         }
         return 0;
     }
@@ -444,7 +444,7 @@ public class World
         Chunk chunk = getChunk(x,y,z);
         if(chunk != null)
         {
-            chunk.setMetadata(x%Chunk.CHUNK_SIZE,y%Chunk.CHUNK_HEIGHT,z%Chunk.CHUNK_SIZE, metadataIn);
+            chunk.setMetadata(x%Chunk.CHUNK_SIZE,y,z%Chunk.CHUNK_SIZE, metadataIn);
         }
     }
 

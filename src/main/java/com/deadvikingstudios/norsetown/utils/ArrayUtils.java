@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.utils;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,37 @@ public class ArrayUtils
             nums.add(ints[i]);
         }
         return nums;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[] deepCopyOf(T[] array)
+    {
+        if (0 >= array.length) return array;
+
+        return (T[]) deepCopyOf( array, Array.newInstance(array[0].getClass(), array.length),0);
+    }
+
+    private static Object deepCopyOf(Object array, Object copiedArray, int index) {
+
+        if (index >= Array.getLength(array)) return copiedArray;
+
+        Object element = Array.get(array, index);
+
+        if (element.getClass().isArray())
+        {
+            Array.set(copiedArray, index, deepCopyOf(
+                    element,
+                    Array.newInstance(
+                            element.getClass().getComponentType(),
+                            Array.getLength(element)),
+                    0));
+        }
+        else
+        {
+            Array.set(copiedArray, index, element);
+        }
+
+        return deepCopyOf(array, copiedArray, ++index);
     }
 
 }
