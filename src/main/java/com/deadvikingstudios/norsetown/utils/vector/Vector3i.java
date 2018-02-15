@@ -1,4 +1,4 @@
-package com.deadvikingstudios.norsetown.utils;
+package com.deadvikingstudios.norsetown.utils.vector;
 
 public class Vector3i
 {

@@ -9,13 +9,12 @@ import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.CalendarNorse;
 import com.deadvikingstudios.norsetown.model.world.WorldOld;
 import com.deadvikingstudios.norsetown.model.world.structures.ChunkColumn;
-import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.model.world.structures.StructureIsland;
+import com.deadvikingstudios.norsetown.model.world.structures.StructureTree;
 import com.deadvikingstudios.norsetown.utils.Logger;
-import com.deadvikingstudios.norsetown.utils.Vector3i;
+import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 import com.deadvikingstudios.norsetown.view.lwjgl.Loader;
 import com.deadvikingstudios.norsetown.view.lwjgl.WindowManager;
-import com.deadvikingstudios.norsetown.view.lwjgl.renderers.MasterRenderer;
 import com.deadvikingstudios.norsetown.view.lwjgl.renderers.Renderer;
 import com.deadvikingstudios.norsetown.view.lwjgl.shaders.LightlessStaticShader;
 import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
@@ -28,11 +27,12 @@ import org.lwjgl.util.vector.Vector3f;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
  * Created by SiggiVG on 6/19/2017.
+ *
+ *
  */
 public class GameContainer implements Runnable, IGameContainer
 {
@@ -62,7 +62,7 @@ public class GameContainer implements Runnable, IGameContainer
 
     //private static List<ChunkMesh> chunks = new ArrayList<ChunkMesh>();
     private static List<EntityStructure> structures = new ArrayList<EntityStructure>();
-    public static List<StructureMesh> structuresMeshes = new ArrayList<StructureMesh>();
+    private static List<StructureMesh> structuresMeshes = new ArrayList<StructureMesh>();
     //private static List<EntityMesh> entityMeshes = new ArrayList<EntityMesh>();
 
     private static RawMesh defaultMesh;
@@ -122,17 +122,17 @@ public class GameContainer implements Runnable, IGameContainer
 
 
 //    //TODO: make better and move to treeGen
-//    private static void makeTree(int x, int height, int z, int leafstart)
+//    private static void makeTree(int x, int height, int y, int leafstart)
 //    {
 //        for (int j = 16*8- 1; j >= 0; --j)
 //        {
-//            if(WorldOld.getWorld().getTile(x,j,z) == 2)
+//            if(WorldOld.getWorld().getTile(x,j,y) == 2)
 //            {
 //                if(j > WorldOld.SEA_LEVEL + WorldOld.BEACH_HEIGHT)
 //                {
 //                    for (int i = 2; i < height + 2; i++)
 //                    {
-//                        WorldOld.getWorld().setTile(Tile.Tiles.tileTrunkFir, x, j + i, z, false);
+//                        WorldOld.getWorld().setTile(Tile.Tiles.tileTrunkFir, x, j + i, y, false);
 //                    }
 //                    return;
 //                }
@@ -228,7 +228,8 @@ public class GameContainer implements Runnable, IGameContainer
         Random rand = new Random();
         //for (int i = 0; i < 16; i++)
         {
-            structures.add(new EntityStructure(new StructureIsland(), 0, 0, 0));
+            structures.add(new EntityStructure(new StructureIsland(0, 0, 0)));
+            structures.add(new EntityStructure(new StructureTree(new Vector3i(-10,-20, -8))));
         }
 
         Logger.info("Initialization finished in " + (System.currentTimeMillis() - initStartTime) + " miliseconds");
@@ -275,7 +276,7 @@ public class GameContainer implements Runnable, IGameContainer
         spotLight.setPosition(new Vector3f(camera.getPosition().x,camera.getPosition().y, camera.getPosition().z));
 
         //picker.update();
-        //onion.setPosition(camera.getPosition().x, camera.getPosition().y-1, camera.getPosition().z);
+        //onion.setPosition(camera.getPosition().x, camera.getPosition().y-1, camera.getPosition().y);
         //System.out.println(picker.getCurrentRay());
         //System.out.println(picker.getCurrentWorldPoint());
 
@@ -366,12 +367,12 @@ public class GameContainer implements Runnable, IGameContainer
         }*/
     }
 
-    public void addStructureMesh(ChunkColumn col)
+    public static void addStructureMesh(ChunkColumn col)
     {
         structuresMeshes.add(new StructureMesh(col, terrainTexture));
     }
 
-    public void removeStructureMesh(ChunkColumn col)
+    public static void removeStructureMesh(ChunkColumn col)
     {
         for (StructureMesh mesh : structuresMeshes)
         {
@@ -394,6 +395,7 @@ public class GameContainer implements Runnable, IGameContainer
         //ent.translate(0.001f, 0.001f, 0);
         //ent.scale(-0.001f);
         //ent.rotate(0f, 0f,0.1f);
+
         shaderNoLight.start();
 
         shaderNoLight.loadViewMatrix(camera);
@@ -405,12 +407,13 @@ public class GameContainer implements Runnable, IGameContainer
         //rendererNoLight.render(seaDeepEntMesh, shaderNoLight);
 
         shaderNoLight.stop();
+
         shader.start();
         shader.loadViewMatrix(camera);
 
         shader.loadAmbientLight(ambientLight);
         shader.loadDirectionalLight(sunLight);
-        //shader.loadSpotLight(spotLight);
+//        shader.loadSpotLight(spotLight);
 
 
 
@@ -451,6 +454,12 @@ public class GameContainer implements Runnable, IGameContainer
         WindowManager.dispose();
     }
 
+    /**
+     * The main method for the NorseTown game,
+     * Loads the operating system dependent external libraries and launches the game
+     *
+     * @param args Not used
+     */
     public static void main(String[] args)
     {
         String fileNatives = OperatingSystem.getOSforLWJGLNatives();

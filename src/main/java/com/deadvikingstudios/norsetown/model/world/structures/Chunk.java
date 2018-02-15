@@ -1,13 +1,16 @@
 package com.deadvikingstudios.norsetown.model.world.structures;
 
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
-import com.deadvikingstudios.norsetown.utils.Vector3i;
+import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
 public class Chunk implements Serializable
 {
+    /**
+     * @ The position of the chunk
+     */
     public final Vector3i position;
 
     public final static byte SIZE = 16;
@@ -25,7 +28,7 @@ public class Chunk implements Serializable
     {
         this.position = new Vector3i(position);
         this.tiles = new int[SIZE_CUBED];
-        //Logger.debug("Structure Chunk created at " + position.x + "," + position.y + "," + position.z);
+        //Logger.debug("Structure Chunk created at " + position.x + "," + position.y + "," + position.y);
     }
 
     public Vector3i getRenderPosition()
@@ -47,7 +50,7 @@ public class Chunk implements Serializable
      *
      * @param x x coord, 0:15
      * @param y y coord, 0:15
-     * @param z z coord, 0:15
+     * @param z y coord, 0:15
      * @return the tile at the location
      */
     Tile getTile(int x, int y, int z)
@@ -64,7 +67,7 @@ public class Chunk implements Serializable
      * @param tile The tile being set
      * @param x    x coord, 0:15
      * @param y    y coord, 0:15
-     * @param z    z coord, 0:15
+     * @param z    y coord, 0:15
      */
     boolean setTile(Tile tile, int x, int y, int z)
     {

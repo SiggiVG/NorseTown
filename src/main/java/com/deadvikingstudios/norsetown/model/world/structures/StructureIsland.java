@@ -1,10 +1,8 @@
 package com.deadvikingstudios.norsetown.model.world.structures;
 
-import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.gen.IslandGenerator;
-import com.deadvikingstudios.norsetown.utils.Vector3i;
+import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 
-import java.util.Map;
 import java.util.Random;
 
 public class StructureIsland extends Structure
@@ -13,9 +11,9 @@ public class StructureIsland extends Structure
 
     IslandGenerator generator;
 
-    public StructureIsland()
+    public StructureIsland(int i, int j, int k)
     {
-        super(true);
+        super(new Vector3i(i,j,k),true);
     }
 
     @Override
@@ -25,7 +23,7 @@ public class StructureIsland extends Structure
         generator = new IslandGenerator(this);
     }
 
-    int i = 0;
+//    int i = 0;
 
     @Override
     public void update()
@@ -34,15 +32,15 @@ public class StructureIsland extends Structure
 //        {
 //            int x = rand.nextInt(StructureChunk.SIZE) + entry.getValue().position.x * StructureChunk.SIZE;
 //            int y = rand.nextInt(StructureChunk.SIZE) + entry.getValue().position.y * StructureChunk.SIZE;
-//            int z = rand.nextInt(StructureChunk.SIZE) + entry.getValue().position.z * StructureChunk.SIZE;
-//            this.getTile(x,y,z).update(this,x,y,z);
+//            int y = rand.nextInt(StructureChunk.SIZE) + entry.getValue().position.y * StructureChunk.SIZE;
+//            this.getTile(x,y,y).update(this,x,y,y);
 //        }
 //        super.update();
 
-    /**
-     * Test Code, used to test the proper placement and checking of tiles within the
-     * [Structure -> ChunkColumn -> Chunk] system.
-     */
+        /**
+         * Test Code, used to test the proper placement and checking of tiles within the
+         * [Structure -> ChunkColumn -> Chunk] system.
+         */
 //        if(i % 60 == 0)
 //        {
 //            int j = i / 60;

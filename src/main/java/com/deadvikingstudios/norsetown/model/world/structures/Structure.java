@@ -1,9 +1,10 @@
 package com.deadvikingstudios.norsetown.model.world.structures;
 
+import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.utils.Logger;
-import com.deadvikingstudios.norsetown.utils.Vector2i;
-import com.deadvikingstudios.norsetown.utils.Vector3i;
+import com.deadvikingstudios.norsetown.utils.vector.Vector2i;
+import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -17,6 +18,8 @@ import static com.deadvikingstudios.norsetown.model.world.structures.Chunk.SIZE;
  */
 public class Structure implements Serializable
 {
+    protected Vector3i position = new Vector3i(0,0,0);
+
     protected HashMap<Vector2i, ChunkColumn> chunks;
 
     /**
@@ -37,11 +40,15 @@ public class Structure implements Serializable
 
     public Structure()
     {
-        this(true);
+        this(null, true);
     }
 
-    public Structure(boolean doInit)
+    public Structure(Vector3i pos, boolean doInit)
     {
+        if(pos != null)
+        {
+            this.position = pos;
+        }
         chunks = new HashMap<Vector2i, ChunkColumn>();
         dockedStructures = new HashMap<Vector3i, Structure>();
         if(doInit)
@@ -61,7 +68,7 @@ public class Structure implements Serializable
         Structure copy = null;
         try
         {
-            copy = structureIn.getClass().getConstructor(boolean.class).newInstance(false);
+            copy = structureIn.getClass().getConstructor(Vector3i.class, boolean.class).newInstance(new Vector3i(structureIn.position),false);
             copy.chunks = copyChunks(structureIn.chunks, copy);
 
             if(copyDocked)
@@ -125,8 +132,8 @@ public class Structure implements Serializable
 
         if(col == null)
         {
-            Logger.debug(pos);
-            Logger.debug(pos.hashCode());
+//            Logger.debug(pos);
+//            Logger.debug(pos.hashCode());
             col = new ChunkColumn(pos);
             col.setStructure(this);
             this.chunks.put(pos, col);
@@ -134,14 +141,15 @@ public class Structure implements Serializable
 
         col.setTile(tile, i, y, k);
 
-//        if(tile.isAir())
-//        {
-//            if(chunk.isEmpty())
-//            {
-//                //remove the mesh for it too
-//                chunks.remove(chunk.position);
-//            }
-//        }
+        //if the column is now empty, remove it.
+        if(tile.isAir())
+        {
+            if(col.isEmpty())
+            {
+                chunks.remove(col.position);
+                GameContainer.removeStructureMesh(col);
+            }
+        }
     }
 
     public Tile getTile(int x, int y, int z)
@@ -171,16 +179,16 @@ public class Structure implements Serializable
 //        return false;
 //    }
 
-//    private Chunk getChunkAt(int x, int y, int z, boolean createIfDoesntExist)
+//    private Chunk getChunkAt(int x, int y, int y, boolean createIfDoesntExist)
 //    {
-//        Vector3i pos = new Vector3i(x / SIZE,y / SIZE, z / SIZE);
+//        Vector3i pos = new Vector3i(x / SIZE,y / SIZE, y / SIZE);
 //        if(!chunks.containsKey(pos.toVector2i()))
 //        {
 //            if(createIfDoesntExist)
 //            {
 //                ChunkColumn col = new ChunkColumn(pos.toVector2i());
 //                this.chunks.put(pos.toVector2i(), col);
-//                return col.getChunk(x, y, z, createIfDoesntExist);
+//                return col.getChunk(x, y, y, createIfDoesntExist);
 //            }
 //        }
 //        else
@@ -188,7 +196,7 @@ public class Structure implements Serializable
 //            ChunkColumn col = chunks.get(pos.toVector2i());
 //            if(!col.chunkExists(pos.y))
 //            {
-//                return col.getChunk(x,y,z,createIfDoesntExist);
+//                return col.getChunk(x,y,y,createIfDoesntExist);
 //            }
 //        }
 //
@@ -202,5 +210,20 @@ public class Structure implements Serializable
         {
             entry.getValue().update();
         }
+    }
+
+    public <STRUCTURE extends Structure> void addDockedStructure(STRUCTURE structureTree)
+    {
+        this.dockedStructures.put(structureTree.position, structureTree);
+    }
+
+    public Vector3i getPosition()
+    {
+        return position;
+    }
+
+    public void setPosition(Vector3i position)
+    {
+        this.position = position;
     }
 }

@@ -17,7 +17,7 @@ public class CameraController
     /**
      * x = roll
      * y = pitch
-     * z = yaw
+     * y = yaw
      */
     private Vector3f rotation;
 
@@ -79,23 +79,23 @@ public class CameraController
             {
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
                 {
-                    position.z -= moveAt;
+                    position.y -= moveAt;
                     position.x += moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
                 {
-                    position.z += moveAt;
+                    position.y += moveAt;
                     position.x -= moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
                 {
                     position.x -= moveAt;
-                    position.z -= moveAt;
+                    position.y -= moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
                 {
                     position.x += moveAt;
-                    position.z += moveAt;
+                    position.y += moveAt;
                 }
             }
             else if(rotation.y == 135)
@@ -103,21 +103,21 @@ public class CameraController
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
                 {
                     position.x += moveAt;
-                    position.z += moveAt;
+                    position.y += moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
                 {
                     position.x -= moveAt;
-                    position.z -= moveAt;
+                    position.y -= moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
                 {
-                    position.z -= moveAt;
+                    position.y -= moveAt;
                     position.x += moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
                 {
-                    position.z += moveAt;
+                    position.y += moveAt;
                     position.x -= moveAt;
                 }
             }
@@ -125,23 +125,23 @@ public class CameraController
             {
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
                 {
-                    position.z += moveAt;
+                    position.y += moveAt;
                     position.x -= moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
                 {
-                    position.z -= moveAt;
+                    position.y -= moveAt;
                     position.x += moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
                 {
                     position.x += moveAt;
-                    position.z += moveAt;
+                    position.y += moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
                 {
                     position.x -= moveAt;
-                    position.z -= moveAt;
+                    position.y -= moveAt;
                 }
             }
             else if(rotation.y == 315)
@@ -149,21 +149,21 @@ public class CameraController
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
                 {
                     position.x -= moveAt;
-                    position.z -= moveAt;
+                    position.y -= moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
                 {
                     position.x += moveAt;
-                    position.z += moveAt;
+                    position.y += moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
                 {
-                    position.z += moveAt;
+                    position.y += moveAt;
                     position.x -= moveAt;
                 }
                 if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
                 {
-                    position.z -= moveAt;
+                    position.y -= moveAt;
                     position.x += moveAt;
                 }
             }

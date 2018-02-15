@@ -11,7 +11,7 @@ public class EmptyChunk extends Chunk
      *
      * @param x x position of the west face
      * @param y y position of the bottom face
-     * @param z z position of the south face
+     * @param z y position of the south face
      */
     public EmptyChunk(float x, float y, float z)
     {

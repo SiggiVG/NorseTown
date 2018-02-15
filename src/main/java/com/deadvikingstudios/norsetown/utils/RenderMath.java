@@ -20,7 +20,7 @@ public class RenderMath
         matrix.setIdentity();
         //x,0,0
         //0,y,0
-        //0,0,z
+        //0,0,y
         Matrix4f.translate(translation, matrix, matrix);
         //x,0,0
         //0,ycos(rx),-ysin(rx)

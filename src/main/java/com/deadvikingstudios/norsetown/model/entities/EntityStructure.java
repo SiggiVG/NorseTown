@@ -1,9 +1,7 @@
 package com.deadvikingstudios.norsetown.model.entities;
 
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
-import com.deadvikingstudios.norsetown.utils.Vector3i;
-
-import java.util.Map;
+import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 
 public class EntityStructure extends Entity
 {
@@ -16,10 +14,10 @@ public class EntityStructure extends Entity
 
     public <STRUCTURE extends Structure> EntityStructure(STRUCTURE structure)
     {
-        this(structure, 0, 0, 0);
+        this(structure, structure.getPosition().x, structure.getPosition().y, structure.getPosition().z);
     }
 
-    public <STRUCTURE extends Structure> EntityStructure(STRUCTURE structure, double x, double y, double z)
+    private <STRUCTURE extends Structure> EntityStructure(STRUCTURE structure, double x, double y, double z)
     {
         this(structure, x, y, z, false, false);
     }

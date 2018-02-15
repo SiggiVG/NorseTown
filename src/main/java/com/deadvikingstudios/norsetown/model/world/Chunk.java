@@ -58,7 +58,7 @@ public class Chunk extends Entity
      * Default Constructor
      * @param x x position of the west face
      * @param y y position of the bottom face
-     * @param z z position of the south face
+     * @param z y position of the south face
      */
     public Chunk(float x, float y, float z, int height)
     {
@@ -97,16 +97,16 @@ public class Chunk extends Entity
 //                int terrainHeight = (int)(PerlinNoise.perlin(
 //                        (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.025f,
 //                        (seedVal + this.position.y / Tile.TILE_HEIGHT)*Tile.TILE_HEIGHT*0.025f,
-//                        (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.025f) //* CHUNK_HEIGHT/4f
+//                        (seedVal + this.position.y / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.025f) //* CHUNK_HEIGHT/4f
 //                        /*+
 //                        (PerlinNoise.perlin(
 //                        (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.05f,
 //                        (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.05f,
-//                        (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.05f) * CHUNK_HEIGHT/16f) +
+//                        (seedVal + this.position.y / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.05f) * CHUNK_HEIGHT/16f) +
 //                        (PerlinNoise.perlin(
 //                        (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.1f,
 //                        (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.1f,
-//                        (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.1f) * CHUNK_HEIGHT/32f)*/
+//                        (seedVal + this.position.y / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.1f) * CHUNK_HEIGHT/32f)*/
 //                        + h -128);
 
 //                for (int j = (int)this.getPosY(); j < terrainHeight+this.getPosY();// + CHUNK_HEIGHT*0.5f;
@@ -237,12 +237,12 @@ public class Chunk extends Entity
         return 0;
 
         /*
-        if(!isCoordWithinChunk(x,y,z))
+        if(!isCoordWithinChunk(x,y,y))
         {
             //T/ODO replace with a call back to world(?)
             return 0;
         }
-        return tiles[x][y][z];*/
+        return tiles[x][y][y];*/
     }
 
     public int getTile(Vector3f pos)
@@ -262,8 +262,8 @@ public class Chunk extends Entity
             ChunkSection section = getSection(y / ChunkSection.SIZE, true);
             section.setTile(x % ChunkSection.SIZE, y % ChunkSection.SIZE, z % ChunkSection.SIZE, tile.getIndex(), (byte) metadataIn);
             /*
-            tiles[x][y][z] = (byte)(tile.getIndex()%Byte.MAX_VALUE);
-            metadata[x][y][z] = (byte)metadataIn;*/
+            tiles[x][y][y] = (byte)(tile.getIndex()%Byte.MAX_VALUE);
+            metadata[x][y][y] = (byte)metadataIn;*/
             this.flagForReMesh = true;
         }
     }
@@ -284,7 +284,7 @@ public class Chunk extends Entity
         {
             ChunkSection section = getSection(y / ChunkSection.SIZE, false);
             return section != null ? section.getMeta(x % ChunkSection.SIZE, y % ChunkSection.SIZE, z % ChunkSection.SIZE) : 0;
-            /*return metadata[x][y][z];*/
+            /*return metadata[x][y][y];*/
         }
         return 0;
     }
@@ -296,7 +296,7 @@ public class Chunk extends Entity
 
     public void setMetadata(int x, int y, int z, int metadataIn)
     {
-        //System.out.println(x+","+y+","+z);
+        //System.out.println(x+","+y+","+y);
         if(isCoordWithinChunk(x,z))
         {
             ChunkSection section = getSection(y / ChunkSection.SIZE, false);
@@ -311,14 +311,14 @@ public class Chunk extends Entity
             }
             /*
             //System.out.println();
-            //System.out.println(metadata[x][y][z]);
-            EnumTileShape rType = Tile.Tiles.get(tiles[x][y][z]).getTileShape(metadata[x][y][z]);
-            metadata[x][y][z] = (byte)(metadataIn);
-            if(rType != Tile.Tiles.get(tiles[x][y][z]).getTileShape(metadataIn))
+            //System.out.println(metadata[x][y][y]);
+            EnumTileShape rType = Tile.Tiles.get(tiles[x][y][y]).getTileShape(metadata[x][y][y]);
+            metadata[x][y][y] = (byte)(metadataIn);
+            if(rType != Tile.Tiles.get(tiles[x][y][y]).getTileShape(metadataIn))
             {
                 this.flagForReMesh = true;
             }*/
-            //System.out.println(metadata[x][y][z]);
+            //System.out.println(metadata[x][y][y]);
         }
     }
 

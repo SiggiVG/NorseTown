@@ -78,7 +78,7 @@ public class StaticShader extends ShaderProgram
 
     /**
      * A Transform contains:
-     * Translation (x,y,z)
+     * Translation (x,y,y)
      * Rotation (rx,ry,rz) //Euler Angles
      * Scale (s,s,s)
      *

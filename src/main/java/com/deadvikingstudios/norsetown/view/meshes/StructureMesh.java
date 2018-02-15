@@ -19,12 +19,12 @@ import static com.deadvikingstudios.norsetown.controller.GameContainer.loader;
 /**
  * Created by SiggiVG on 6/20/2017.
  *
- * This is how Chunks Render, and gets updated whenever a chunk does
+ * This is how ChunksColumns Render, and gets updated whenever a chunk does
+ *
+ * TODO: move some code around so it's easier to follow.
  */
 public class StructureMesh extends EntityMesh
 {
-    //TODO: per chunk mesh, not per structure
-
     public StructureMesh(ChunkColumn col, MeshTexture texture)
     {
         super(col, texture);
@@ -50,49 +50,53 @@ public class StructureMesh extends EntityMesh
         return ((ChunkColumn)entity);
     }
 
-    private boolean checkNeighborIsAir(Chunk chunkIn, int xIn, int yIn, int zIn, int xOff, int yOff, int zOff)
-    {
-        if(xOff != 0)
-        {
-            //X is within chunk
-            if(xIn+xOff >= 0 && xIn+xOff < Chunk.SIZE)
-            {
-                return this.getChunkColumn().getTile(xIn+xOff, yIn, zIn).isAir();
-            }
-            else //X is outside chunk
-            {
-                return this.getChunkColumn().getStructure().getTile(xIn+xOff, yIn, zIn).isAir();
-            }
-        }
-        else if(yOff != 0)
-        {
-            return this.getChunkColumn().getTile(xIn, yIn+yOff, zIn).isAir();
-        }
-        else if(zOff != 0)
-        {
-            //Z is within chunk
-            if(zIn+zOff >= 0 && zIn+zOff < Chunk.SIZE)
-            {
-                return this.getChunkColumn().getTile(xIn, yIn, zIn+zOff).isAir();
-            }
-            else //Z is outside chunk
-            {
-                return this.getChunkColumn().getStructure().getTile(xIn, yIn, zIn+xOff).isAir();
-            }
-        }
-        else return true;
-    }
+//    private boolean checkNeighborIsAir(int xIn, int yIn, int zIn, int xOff, int yOff, int zOff)
+//    {
+//        if(xOff != 0)
+//        {
+//            //X is within chunk
+//            if(xIn+xOff >= 0 && xIn+xOff < Chunk.SIZE)
+//            {
+//                return this.getChunkColumn().getTile(xIn+xOff, yIn, zIn).isAir();
+//            }
+//            else //X is outside chunk
+//            {
+//                return this.getChunkColumn().getStructure().getTile(xIn+xOff, yIn, zIn).isAir();
+//            }
+//        }
+//        else if(yOff != 0)
+//        {
+//            return this.getChunkColumn().getTile(xIn, yIn+yOff, zIn).isAir();
+//        }
+//        else if(zOff != 0)
+//        {
+//            //Z is within chunk
+//            if(zIn+zOff >= 0 && zIn+zOff < Chunk.SIZE)
+//            {
+//                return this.getChunkColumn().getTile(xIn, yIn, zIn+zOff).isAir();
+//            }
+//            else //Z is outside chunk
+//            {
+//                return this.getChunkColumn().getStructure().getTile(xIn, yIn, zIn+xOff).isAir();
+//            }
+//        }
+//        else return true;
+//    }
 
     protected void createMesh(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms)
     {
-        Logger.debug("Generating new Mesh for " + this.getChunkColumn().position.x + "," + this.getChunkColumn().position.z);
+        Logger.debug("Generating new Mesh for " + this.getChunkColumn().position.x + "," + this.getChunkColumn().position.y);
         for (Map.Entry<Integer, Chunk> entry : getChunkColumn().getChunks().entrySet())
         {
             Chunk chunk = entry.getValue();
             int x = chunk.getRenderPosition().x + (this.getChunkColumn().position.x * Chunk.SIZE);// - this.getEntityStructure().getStructureOffset().x;
             int y = chunk.getRenderPosition().y;// - this.getEntityStructure().getStructureOffset().y;
-            int z = chunk.getRenderPosition().z + (this.getChunkColumn().position.z * Chunk.SIZE);// - this.getEntityStructure().getStructureOffset().z;
-            //Logger.debug("Mesh created for " + x + "," + y + "," + z);
+            int z = chunk.getRenderPosition().z + (this.getChunkColumn().position.y * Chunk.SIZE);// - this.getEntityStructure().getStructureOffset().y;
+            //Logger.debug("Mesh created for " + x + "," + y + "," + y);
+
+            int m = this.getChunkColumn().getStructure().getPosition().x;
+            int n = this.getChunkColumn().getStructure().getPosition().y;
+            int o = this.getChunkColumn().getStructure().getPosition().z;
 
             for (byte i = 0; i < Chunk.SIZE; ++i)
             {
@@ -100,72 +104,55 @@ public class StructureMesh extends EntityMesh
                 {
                     for (byte k = 0; k < Chunk.SIZE; ++k)
                     {
-                        Tile tile = this.getChunkColumn().getTile(i,y+j,k);
-                        //EnumTileShape tileShape = tile.getTileShape(0);
-                        if(!tile.isAir())
+                        Tile tile = this.getChunkColumn().getTile(i, y + j, k);
+                        EnumTileShape tileShape = tile.getTileShape(0);
+
+//                        EnumTileShape tileShape = tile.getTileShape(this.get().getMetadata(i,j,k));
+//                        int thisMetadata = getChunk().getTile(i,j,k);
+                        /*if(tile == Tile.Tiles.tileGrass && Tile.Tiles.get(chunk.getTile(i, j+1, k)).isAir())
                         {
-                            createCuboid(vertices, indices, uvs, norms, tile, x+i,y+j,z+k);
+                            createFullCross(vertices, indices, uvs, i, j+1, k, true);
+                        }*/
+                        if (tileShape == EnumTileShape.NULL)
+                        {
+                            continue;
+                        }
+                        if (tileShape.isCuboid())
+                        {
+                            createCuboid(vertices, indices, uvs, norms, tile, x+i+m, y+j+n, z+k+o);
+                        }
+                        if (tileShape.isCross())
+                        {
+
+                            if (tileShape == EnumTileShape.CUBE_CROSS_EXTENDED)
+                            {
+                                //createExtendedCrossForCube(vertices, indices, uvs, norms, tile, i,j,k);
+                                createExtendedCross(vertices, indices, uvs, norms, tile, x+i+m, y+j+n, z+k+o, 0);
+                            } else if (tileShape == EnumTileShape.CROSS_EXTENDED)
+                            {
+                                createExtendedCross(vertices, indices, uvs, norms, tile, x+i+m, y+j+n, z+k+o, 0);
+                            } else if (tileShape == EnumTileShape.CROSS_FULL)
+                            {
+                                createFullCross(vertices, indices, uvs, norms, tile, x+i+m, y+j+n, z+k+o, 0);
+                            } else if (tileShape == EnumTileShape.CROSS_TALL)
+                            {
+                                createTallCross(vertices, indices, uvs, norms, tile, x+i+m, y+j+n, z+k+o, 0);
+                            } else if (tileShape == EnumTileShape.CROSS_TALL_FULL)
+                            {
+                                createTallFullCross(vertices, indices, uvs, norms, tile, x+i+m, y+j+n, z+k+o, 0);
+                            } else
+                            {
+                                createCross(vertices, indices, uvs, norms, tile, x+i+m, y+j+n, z+k+o, 0);
+                            }
+                        }
+                        if (tile == Tile.Tiles.tileGrass && this.getChunkColumn().getTile(i, y + j + 1, k).isAir())
+                        {
+                            createFullCross(vertices, indices, uvs, norms, tile, x+i+m, y+j+n+1, z+k+o, 0);
                         }
                     }
                 }
-
             }
         }
-//        Logger.debug("Generated new Mesh for " + this.getChunkColumn().position.x + "," + this.getChunkColumn().position.z);
-//                    Tile tile = Tile.Tiles.get(getChunk().getTile(i, j, k));
-//                    EnumTileShape tileShape = tile.getTileShape(getChunk().getMetadata(i,j,k));
-//                    int thisMetadata = getChunk().getTile(i,j,k);
-//                    /*if(tile == Tile.Tiles.tileGrass && Tile.Tiles.get(chunk.getTile(i, j+1, k)).isAir())
-//                    {
-//                        createFullCross(vertices, indices, uvs, i, j+1, k, true);
-//                    }*/
-//                    if(tileShape == EnumTileShape.NULL)
-//                    {
-//                        continue;
-//                    }
-//                    if(tileShape.isCuboid())
-//                    {
-//                        createCuboid(vertices, indices, uvs, norms, tile, i,j,k, thisMetadata);
-//                    }
-//                    if(tileShape.isCross())
-//                    {
-//
-//                        if(tileShape == EnumTileShape.CUBE_CROSS_EXTENDED)
-//                        {
-//                            //createExtendedCrossForCube(vertices, indices, uvs, norms, tile, i,j,k);
-//                            createExtendedCross(vertices, indices, uvs, norms, tile, i,j,k, thisMetadata);
-//                        }
-//                        else if(tileShape == EnumTileShape.CROSS_EXTENDED)
-//                        {
-//                            createExtendedCross(vertices, indices, uvs, norms, tile, i,j,k, thisMetadata);
-//                        }
-//                        else if(tileShape == EnumTileShape.CROSS_FULL)
-//                        {
-//                            createFullCross(vertices, indices, uvs, norms, tile, i, j, k, thisMetadata);
-//                        }
-//                        else if(tileShape == EnumTileShape.CROSS_TALL)
-//                        {
-//                            createTallCross(vertices, indices, uvs, norms, tile, i, j, k, thisMetadata);
-//                        }
-//                        else if(tileShape == EnumTileShape.CROSS_TALL_FULL)
-//                        {
-//                            createTallFullCross(vertices, indices, uvs, norms, tile, i, j, k, thisMetadata);
-//                        }
-//                        else
-//                        {
-//                            createCross(vertices, indices, uvs, norms, tile, i, j, k, thisMetadata);
-//                        }
-//                    }
-//                    if(tile == Tile.Tiles.tileGrass && getChunk().getTile(i,j+1,k) == 0)//(WorldOld.getWorld().getTile(i,j+1,k) == Tile.Tiles.tileAir.getIndex()))
-//                    {
-//                        createFullCross(vertices, indices, uvs, norms, tile, i, j+1, k, thisMetadata);
-//                    }
-//
-//
-//                }
-//            }
-//
-//        }
     }
 
     private void createCuboid(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms, Tile thisTile, int x, int y, int z)
@@ -210,13 +197,13 @@ public class StructureMesh extends EntityMesh
 //        }
 
         //NORTH
-        tileCheck = this.getChunkColumn().getStructure().getTile(x+(this.getChunkColumn().position.x*Chunk.SIZE),y,z+(this.getChunkColumn().position.z*Chunk.SIZE)+1);
+        tileCheck = this.getChunkColumn().getStructure().getTile(x,y,z+1);
         tileShapeCheck = tileCheck.getTileShape(0);
-//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int)getChunk().getPosX()+x,(int)getChunk().getPosY()+y,(int)getChunk().getPosZ()+z+1));
-//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z+1));
+//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int)getChunk().getPosX()+x,(int)getChunk().getPosY()+y,(int)getChunk().getPosZ()+y+1));
+//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + y+1));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.NORTH, tileShapeCheck))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.NORTH, tileShapeCheck))
                 //&& ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.NORTH, EnumTileFace.SOUTH) || tileShapeCheck == EnumTileShape.FULL_CUBE)))
         {
             verts = getFaceVerticesCuboid(EnumTileFace.NORTH, origin, ts, th);
@@ -244,13 +231,13 @@ public class StructureMesh extends EntityMesh
         }//END NORTH
 
         //EAST
-        tileCheck = this.getChunkColumn().getStructure().getTile(x+(this.getChunkColumn().position.x*Chunk.SIZE)+1,y,z+(this.getChunkColumn().position.z*Chunk.SIZE));
+        tileCheck = this.getChunkColumn().getStructure().getTile(x+1,y,z);
         tileShapeCheck = tileCheck.getTileShape(0);
-//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x+1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
-//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x+1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
+//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x+1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + y));
+//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x+1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + y));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.EAST, tileShapeCheck))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.EAST, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.EAST, EnumTileFace.WEST) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -277,13 +264,13 @@ public class StructureMesh extends EntityMesh
         }//END EAST
 
         //SOUTH
-        tileCheck = this.getChunkColumn().getStructure().getTile(x+(this.getChunkColumn().position.x*Chunk.SIZE),y,z+(this.getChunkColumn().position.z*Chunk.SIZE)-1);
+        tileCheck = this.getChunkColumn().getStructure().getTile(x,y,z-1);
         tileShapeCheck = tileCheck.getTileShape(0);
-//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z-1));
-//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z-1));
+//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + y-1));
+//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + y-1));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.SOUTH, tileShapeCheck))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.SOUTH, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.SOUTH, EnumTileFace.NORTH) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -310,13 +297,13 @@ public class StructureMesh extends EntityMesh
         }//END SOUTH
 
         //WEST
-        tileCheck = this.getChunkColumn().getStructure().getTile(x+(this.getChunkColumn().position.x*Chunk.SIZE)-1,y,z+(this.getChunkColumn().position.z*Chunk.SIZE));
+        tileCheck = this.getChunkColumn().getStructure().getTile(x-1,y,z);
         tileShapeCheck = tileCheck.getTileShape(0);
-//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x-1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
-//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x-1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
+//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x-1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + y));
+//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x-1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + y));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.WEST, tileShapeCheck))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.WEST, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.WEST, EnumTileFace.EAST) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -345,11 +332,11 @@ public class StructureMesh extends EntityMesh
         //TOP
         tileCheck = this.getChunkColumn().getStructure().getTile(x,y+1,z);
         tileShapeCheck = tileCheck.getTileShape(0);
-//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int)getChunk().getPosX() + x, (int)getChunk().getPosY() + y + 1, (int)getChunk().getPosZ() + z));
-//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y + 1, (int) getChunk().getPosZ() + z));
+//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int)getChunk().getPosX() + x, (int)getChunk().getPosY() + y + 1, (int)getChunk().getPosZ() + y));
+//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y + 1, (int) getChunk().getPosZ() + y));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.TOP, EnumTileFace.BOTTOM) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -378,12 +365,12 @@ public class StructureMesh extends EntityMesh
         //BOTTOM
         tileCheck = this.getChunkColumn().getStructure().getTile(x,y-1,z);
         tileShapeCheck = tileCheck.getTileShape(0);
-//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y - 1, (int) getChunk().getPosZ() + z));
-//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y - 1, (int) getChunk().getPosZ() + z));
+//        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y - 1, (int) getChunk().getPosZ() + y));
+//        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y - 1, (int) getChunk().getPosZ() + y));
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
 //        if(vec.y > Tile.TILE_HEIGHT)
-//        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.BOTTOM, tileShapeCheck)  )
+        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.BOTTOM, tileShapeCheck)  )
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.BOTTOM, EnumTileFace.TOP) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {
@@ -687,11 +674,11 @@ public class StructureMesh extends EntityMesh
 
     }
 
-    /*private void createExtendedCrossForCube(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms, Tile thisTile, int x, int y, int z)
+    /*private void createExtendedCrossForCube(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms, Tile thisTile, int x, int y, int y)
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, y * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
 
         float[] uvFace;
         float[] normFace;

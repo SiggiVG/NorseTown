@@ -3,11 +3,8 @@ package com.deadvikingstudios.norsetown.model.world.structures;
 import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
-import com.deadvikingstudios.norsetown.utils.Logger;
-import com.deadvikingstudios.norsetown.utils.Vector2i;
-import com.deadvikingstudios.norsetown.utils.Vector3i;
-import com.deadvikingstudios.norsetown.view.meshes.StructureMesh;
-import org.newdawn.slick.util.Log;
+import com.deadvikingstudios.norsetown.utils.vector.Vector2i;
+import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -46,7 +43,7 @@ public class ChunkColumn extends Entity implements Serializable
     {
         chunks = new HashMap<Integer, Chunk>();
         position = new Vector2i(pos);
-        GameContainer.structuresMeshes.add(new StructureMesh(this, GameContainer.terrainTexture));
+        GameContainer.addStructureMesh(this);
     }
 
     public ChunkColumn(ChunkColumn col)
@@ -57,7 +54,7 @@ public class ChunkColumn extends Entity implements Serializable
         {
             chunks.put(entry.getKey(), new Chunk(entry.getValue()));
         }
-        GameContainer.structuresMeshes.add(new StructureMesh(this, GameContainer.terrainTexture));
+        GameContainer.addStructureMesh(this);
     }
 
     public Chunk getChunk(int x, int y, int z)
@@ -102,9 +99,22 @@ public class ChunkColumn extends Entity implements Serializable
     {
         Chunk chunk = getChunk(x,y,z,true);
 
+        //Checks if the two tiles are the same
         if(chunk.getTile(x,y,z) == tile) return;
 
+        //calls the Chunk's setTile function upon an adjusted coordinate.
         chunk.setTile(tile, Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE));
+
+        //If the chunk is now empty, remove it.
+        if(tile == Tile.Tiles.tileAir)
+        {
+            if(chunk.isEmpty())
+            {
+                this.chunks.remove(y);
+            }
+        }
+
+        //Alerts the engine that a new mesh needs to be generated.
         this.flagForReMesh = true;
     }
 
@@ -122,5 +132,15 @@ public class ChunkColumn extends Entity implements Serializable
     public void wasReMeshed()
     {
         this.flagForReMesh = false;
+    }
+
+    public boolean isEmpty()
+    {
+        if(chunks.isEmpty()) return true;
+        for (Map.Entry<Integer, Chunk> entry : this.chunks.entrySet())
+        {
+            if(!entry.getValue().isEmpty()) return false;
+        }
+        return true;
     }
 }

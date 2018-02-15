@@ -10,7 +10,7 @@ import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 public abstract class Tile
 {
     public static final float TILE_SIZE = 1f; //setting to values other than 1 currently break rendering
-    public static final float TILE_HEIGHT = 0.5f;
+    public static final float TILE_HEIGHT = 1f;
 
     /**
      * unlocalized name, used for localization and texturing

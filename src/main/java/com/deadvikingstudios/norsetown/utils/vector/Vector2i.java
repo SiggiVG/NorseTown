@@ -1,26 +1,26 @@
-package com.deadvikingstudios.norsetown.utils;
+package com.deadvikingstudios.norsetown.utils.vector;
 
 public class Vector2i
 {
-    public final int x, z;
+    public final int x, y;
 
-    public Vector2i(int x, int z)
+    public Vector2i(int x, int y)
     {
         this.x = x;
-        this.z = z;
+        this.y = y;
     }
 
     public Vector2i(Vector2i position)
     {
         this.x = position.x;
-        this.z = position.z;
+        this.y = position.y;
     }
 
     @Override
     public String toString()
     {
         return "{"  + x +
-                "," + z +
+                "," + y +
                 '}';
     }
 
@@ -33,14 +33,14 @@ public class Vector2i
         Vector2i that = (Vector2i) o;
 
         if (x != that.x) return false;
-        return z == that.z;
+        return y == that.y;
     }
 
     @Override
     public int hashCode()
     {
         int result = x;
-        result = 31 * result + z;
+        result = 31 * result + y;
         return result;
     }
 }

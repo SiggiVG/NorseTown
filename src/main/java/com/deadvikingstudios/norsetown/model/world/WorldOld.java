@@ -110,11 +110,11 @@ public class WorldOld
     }
 
     /**
-     * use to get the chunk at the x,y,z index within the chunk array
+     * use to get the chunk at the x,y,y index within the chunk array
      * @param x
      * @param y
      * @param z
-     * @return The chunk at x,y,z in the chunk array
+     * @return The chunk at x,y,y in the chunk array
      */
     public Chunk getChunkAtIndex(int x, int y, int z)
     {
@@ -127,7 +127,7 @@ public class WorldOld
     }
 
     /**
-     * use to get the chunk that contains tilespace coords x,y,z
+     * use to get the chunk that contains tilespace coords x,y,y
      * @param x
      * @param y
      * @param z
@@ -139,7 +139,7 @@ public class WorldOld
     }
 
     /**
-     * use to get the chunk that contains tilespace coords x,y,z
+     * use to get the chunk that contains tilespace coords x,y,y
      * @param x
      * @param y
      * @param z
@@ -151,7 +151,7 @@ public class WorldOld
     }
 
     /**
-     * use to get the chunk that contains tilespace coords pos.x,pos.y,pos.z
+     * use to get the chunk that contains tilespace coords pos.x,pos.y,pos.y
      * @param pos
      * @return
      */
@@ -161,7 +161,7 @@ public class WorldOld
     }
 
     /**
-     * use to get the chunk that contains worldspace coords x,y,z
+     * use to get the chunk that contains worldspace coords x,y,y
      * @param x
      * @param y
      * @param z
@@ -173,7 +173,7 @@ public class WorldOld
     }
 
     /**
-     * use to get the chunk that contains worldspace coords x,y,z
+     * use to get the chunk that contains worldspace coords x,y,y
      * @param x
      * @param y
      * @param z
@@ -185,7 +185,7 @@ public class WorldOld
     }
 
     /**
-     * use to get the chunk that contains worldspace coords pos.x,pos.y,pos.z
+     * use to get the chunk that contains worldspace coords pos.x,pos.y,pos.y
      * @param pos
      * @return
      */
@@ -212,7 +212,7 @@ public class WorldOld
      */
     public int getTileAt(Vector3f position)
     {
-        //System.out.println(x / Chunk.CHUNK_SIZE + ", " + y / Chunk.CHUNK_HEIGHT + ", " + z / Chunk.CHUNK_SIZE);
+        //System.out.println(x / Chunk.CHUNK_SIZE + ", " + y / Chunk.CHUNK_HEIGHT + ", " + y / Chunk.CHUNK_SIZE);
         Chunk chunk = getChunkAt(worldSpaceToTileCoords(position));
         if(chunk != null)
         {
@@ -241,7 +241,7 @@ public class WorldOld
      */
     public int getTile(int x, int y, int z)
     {
-        //System.out.println(x / Chunk.CHUNK_SIZE + ", " + y / Chunk.CHUNK_HEIGHT + ", " + z / Chunk.CHUNK_SIZE);
+        //System.out.println(x / Chunk.CHUNK_SIZE + ", " + y / Chunk.CHUNK_HEIGHT + ", " + y / Chunk.CHUNK_SIZE);
         Chunk chunk = getChunk(x, y, z);
         if(chunk != null)
         {
@@ -448,24 +448,24 @@ public class WorldOld
         }
     }
 
-    /*public void incrementMetadataAt(int x, int y, int z)
+    /*public void incrementMetadataAt(int x, int y, int y)
     {
-        Chunk chunk = getChunkAt(worldSpaceToTileCoords(x, y, z));
+        Chunk chunk = getChunkAt(worldSpaceToTileCoords(x, y, y));
         if(chunk != null)
         {
-            chunk.setMetadata(worldSpaceToTileCoords(x,y,z),getMetadataAt(x,y,z)+1);
+            chunk.setMetadata(worldSpaceToTileCoords(x,y,y),getMetadataAt(x,y,y)+1);
         }
     }
 
-    public void decrementMetadataAt(int x, int y, int z)
+    public void decrementMetadataAt(int x, int y, int y)
     {
-        Chunk chunk = getChunkAt(worldSpaceToTileCoords(x, y, z));
+        Chunk chunk = getChunkAt(worldSpaceToTileCoords(x, y, y));
         if(chunk != null)
         {
-            int val = getMetadataAt(x,y,z);
+            int val = getMetadataAt(x,y,y);
             if(val > 0)
             {
-                chunk.setMetadata(worldSpaceToTileCoords(x, y, z), val-1);
+                chunk.setMetadata(worldSpaceToTileCoords(x, y, y), val-1);
             }
         }
     }*/

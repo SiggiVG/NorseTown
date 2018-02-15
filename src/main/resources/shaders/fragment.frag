@@ -59,7 +59,7 @@ void main(void)
     if(texel.a == 0.0) //Only works for point filtering, change to 0.5 if Linear Filtering
         discard;
 
-    /*vec3 unitNormal = normalize(surfaceNormal);
+    vec3 unitNormal = normalize(surfaceNormal);
     vec3 unitLightVector = normalize(toLightVector);
 
     vec3 diffuse = calcDiffuse(unitNormal, unitLightVector, spotLight.color) + calcDiffuse(unitNormal, -normalize(directionalLight.direction), directionalLight.color);
@@ -68,8 +68,8 @@ void main(void)
     if(meshSpecularProps.reflectivity > 0.0)
     {
         specular = calcSpecular(-unitLightVector, unitNormal, spotLight.color) + calcSpecular(unitNormal, -normalize(directionalLight.direction), directionalLight.color);
-    }*/
+    }
 
-    out_Color = /*vec4(diffuse+specular+ambientLight,1.0) * */texel;
+    out_Color = vec4(diffuse+specular+ambientLight,1.0) * texel;
 }
 
