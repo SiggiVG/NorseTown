@@ -1,13 +1,15 @@
 package com.deadvikingstudios.norsetown.model.world.structures;
 
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
-import com.deadvikingstudios.norsetown.utils.ArrayUtils;
 import com.deadvikingstudios.norsetown.utils.Logger;
-import com.deadvikingstudios.norsetown.utils.Position3i;
+import com.deadvikingstudios.norsetown.utils.Vector2i;
+import com.deadvikingstudios.norsetown.utils.Vector3i;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+
+import static com.deadvikingstudios.norsetown.model.world.structures.Chunk.SIZE;
 
 /**
  * A structure is both a blueprint and an object in the world.
@@ -15,20 +17,23 @@ import java.util.*;
  */
 public class Structure implements Serializable
 {
-    protected HashMap<Position3i, StructureChunk> chunks;
+    protected HashMap<Vector2i, ChunkColumn> chunks;
 
-    protected HashMap<Position3i, Structure> dockedStructures;
+    /**
+     * Might change this to be a List? accessing structures by location is useful, but not super so.
+     */
+    protected HashMap<Vector3i, Structure> dockedStructures;
 
     /*
-    TODO: construct a way to hasten collision detection by having a preliminary check for where there are any blocks
+    TODO:
+    construct a way to hasten collision detection by having a preliminary check for where there are any blocks
+    center of mass calculator/setter for use with entities.
      */
 
-    public HashMap<Position3i, StructureChunk> getChunks()
+    public HashMap<Vector2i, ChunkColumn> getChunks()
     {
         return this.chunks;
     }
-
-    protected boolean flagForReMesh = false;
 
     public Structure()
     {
@@ -37,8 +42,8 @@ public class Structure implements Serializable
 
     public Structure(boolean doInit)
     {
-        chunks = new HashMap<Position3i, StructureChunk>();
-        dockedStructures = new HashMap<Position3i, Structure>();
+        chunks = new HashMap<Vector2i, ChunkColumn>();
+        dockedStructures = new HashMap<Vector3i, Structure>();
         if(doInit)
         {
             init();
@@ -47,20 +52,21 @@ public class Structure implements Serializable
 
     public <STRUCTURE extends Structure> Structure(STRUCTURE structure)
     {
-
+        this.chunks = copyChunks(structure.chunks, this);
+        this.dockedStructures = copyDocked(structure);
     }
 
-    public static <STRUCTURE extends Structure> STRUCTURE copy(STRUCTURE structure, boolean copyDocked)
+    public static <STRUCTURE extends Structure> STRUCTURE copy(STRUCTURE structureIn, boolean copyDocked)
     {
         Structure copy = null;
         try
         {
-            copy = structure.getClass().getConstructor(boolean.class).newInstance(false);
-            copy.chunks = copyChunks(structure);
+            copy = structureIn.getClass().getConstructor(boolean.class).newInstance(false);
+            copy.chunks = copyChunks(structureIn.chunks, copy);
 
             if(copyDocked)
             {
-                copy.dockedStructures = copyDocked(structure);
+                copy.dockedStructures = copyDocked(structureIn);
             }
 
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e)
@@ -72,25 +78,27 @@ public class Structure implements Serializable
         return (STRUCTURE) copy;
     }
 
-    public static <STRUCTURE extends Structure> HashMap<Position3i, StructureChunk> copyChunks(STRUCTURE structure)
+    public static <STRUCTURE extends Structure> HashMap<Vector2i, ChunkColumn> copyChunks(HashMap<Vector2i, ChunkColumn> chunksIn, Structure structureOut)
     {
-        HashMap<Position3i, StructureChunk> copyChunks = new HashMap<Position3i, StructureChunk>();
+        HashMap<Vector2i, ChunkColumn> copyChunks = new HashMap<Vector2i, ChunkColumn>();
 
-        for (Map.Entry<Position3i, StructureChunk> entry : structure.chunks.entrySet() )
+        for (Map.Entry<Vector2i, ChunkColumn> entry : chunksIn.entrySet() )
         {
-            copyChunks.put(new Position3i(entry.getKey()), new StructureChunk(entry.getValue()));
+            ChunkColumn chunkCol = new ChunkColumn(entry.getValue());
+            chunkCol.setStructure(structureOut);
+            copyChunks.put(new Vector2i(entry.getKey()), chunkCol);
         }
 
         return copyChunks;
     }
 
-    public static <STRUCTURE extends Structure> HashMap<Position3i, Structure> copyDocked(STRUCTURE structure)
+    public static <STRUCTURE extends Structure> HashMap<Vector3i, Structure> copyDocked(STRUCTURE structureIn)
     {
-        HashMap<Position3i, Structure> copyDocked = new HashMap<Position3i, Structure>();
+        HashMap<Vector3i, Structure> copyDocked = new HashMap<Vector3i, Structure>();
 
-        for (Map.Entry<Position3i, Structure> entry : structure.dockedStructures.entrySet() )
+        for (Map.Entry<Vector3i, Structure> entry : structureIn.dockedStructures.entrySet() )
         {
-            copyDocked.put(new Position3i(entry.getKey()), copy(structure, true));
+            copyDocked.put(new Vector3i(entry.getKey()), copy(structureIn, true));
         }
 
         return copyDocked;
@@ -98,167 +106,101 @@ public class Structure implements Serializable
 
     public void init(){}
 
-    public boolean isFlagForReMesh()
-    {
-        return flagForReMesh;
-    }
-
-    public void setTile(Tile tile, int x, int y, int z, int meta)
+    public void setTile(Tile tile, int x, int y, int z)
     {
         if(tile == this.getTile(x,y,z)) return;
         if(tile.isAir() && this.getTile(x,y,z).isAir()) return;
 
-        int i = x % StructureChunk.SIZE;
-        int j = y % StructureChunk.SIZE;
-        int k = z % StructureChunk.SIZE;
-        //        i = 16                  -  0:15
-        if(x < 0)
+        int i = Math.floorMod(x, SIZE);
+        int k = Math.floorMod(z, SIZE);
+
+        int n = 0;
+        if(x < 0) n = -1;
+        int m = 0;
+        if(z < 0) m = -1;
+
+        Vector2i pos = new Vector2i(Math.floorDiv(x, SIZE), Math.floorDiv(z, SIZE));
+
+        ChunkColumn col = this.chunks.get(pos);
+
+        if(col == null)
         {
-            i = StructureChunk.SIZE + i - 1;
-            x -=StructureChunk.SIZE;
-        }
-        if(y < 0)
-        {
-            j = StructureChunk.SIZE + j - 1;
-            y-=StructureChunk.SIZE;
-        }
-        if(z < 0)
-        {
-            k = StructureChunk.SIZE + k - 1;
-            z-=StructureChunk.SIZE;
+            Logger.debug(pos);
+            Logger.debug(pos.hashCode());
+            col = new ChunkColumn(pos);
+            col.setStructure(this);
+            this.chunks.put(pos, col);
         }
 
-        StructureChunk chunk = getChunkAt(x,y,z);
+        col.setTile(tile, i, y, k);
 
-        chunk.setTile(tile, i,j,k, (byte) meta);
-
-        if(tile.isAir())
-        {
-            if(chunk.isEmpty())
-            {
-                chunks.remove(chunk.position);
-            }
-        }
-        this.flagForReMesh = true;
+//        if(tile.isAir())
+//        {
+//            if(chunk.isEmpty())
+//            {
+//                //remove the mesh for it too
+//                chunks.remove(chunk.position);
+//            }
+//        }
     }
 
     public Tile getTile(int x, int y, int z)
     {
-        int i = x % StructureChunk.SIZE;
-        int j = y % StructureChunk.SIZE;
-        int k = z % StructureChunk.SIZE;
-        if(x < 0)
-        {
-            i = StructureChunk.SIZE + i - 1;
-            x-=StructureChunk.SIZE;
-        }
-        if(y < 0)
-        {
-            j = StructureChunk.SIZE + j - 1;
-            y-=StructureChunk.SIZE;
-        }
-        if(z < 0)
-        {
-            k = StructureChunk.SIZE + k - 1;
-            z-=StructureChunk.SIZE;
-        }
+        int i = Math.floorMod(x, SIZE);
+        int k = Math.floorMod(z, SIZE);
 
-        Position3i chunkPos = new Position3i(x / StructureChunk.SIZE, y / StructureChunk.SIZE, z / StructureChunk.SIZE);
-        if(chunkExists(chunkPos))
+        int n = 0;
+        if(x < 0) n = -1;
+        int m = 0;
+        if(z < 0) m = -1;
+
+        ChunkColumn col = chunks.get( new Vector2i(Math.floorDiv(x, SIZE), Math.floorDiv(z, SIZE)));
+        if(col != null)
         {
-            return getChunkAt(x,y,z).getTile(i,j,k);
+            return col.getTile(i, y, k);
         }
-        else return Tile.Tiles.tileAir;
+        return Tile.Tiles.tileAir;
     }
 
-    private boolean chunkExists(Position3i pos)
-    {
-        return chunks.containsKey(pos);
-    }
+//    private boolean chunkExists(Vector3i pos)
+//    {
+//        if(chunks.containsKey(pos.toVector2i()))
+//        {
+//            return chunks.get(pos.toVector2i()).chunkExists(pos.y);
+//        }
+//        return false;
+//    }
 
-    private StructureChunk getChunkAt(int x, int y, int z)
-    {
-        Position3i pos = new Position3i(x / StructureChunk.SIZE,y / StructureChunk.SIZE, z / StructureChunk.SIZE);
-        if(!chunkExists(pos))
-        {
-            StructureChunk chunk = new StructureChunk(pos);
-            chunks.put(chunk.position, chunk);
-        }
-        return chunks.get(pos);
-
-    }
-
-    public void setFlagForReMesh(boolean flagForReMesh)
-    {
-        this.flagForReMesh = flagForReMesh;
-    }
+//    private Chunk getChunkAt(int x, int y, int z, boolean createIfDoesntExist)
+//    {
+//        Vector3i pos = new Vector3i(x / SIZE,y / SIZE, z / SIZE);
+//        if(!chunks.containsKey(pos.toVector2i()))
+//        {
+//            if(createIfDoesntExist)
+//            {
+//                ChunkColumn col = new ChunkColumn(pos.toVector2i());
+//                this.chunks.put(pos.toVector2i(), col);
+//                return col.getChunk(x, y, z, createIfDoesntExist);
+//            }
+//        }
+//        else
+//        {
+//            ChunkColumn col = chunks.get(pos.toVector2i());
+//            if(!col.chunkExists(pos.y))
+//            {
+//                return col.getChunk(x,y,z,createIfDoesntExist);
+//            }
+//        }
+//
+//        return null;
+//
+//    }
 
     public void update()
     {
-        for (Map.Entry<Position3i, Structure> entry : this.dockedStructures.entrySet() )
+        for (Map.Entry<Vector3i, Structure> entry : this.dockedStructures.entrySet() )
         {
             entry.getValue().update();
-        }
-    }
-
-    public static class StructureChunk
-    {
-        public final Position3i position;
-
-        public final static byte SIZE = 16;
-        public final static int SIZE_CUBED = SIZE*SIZE*SIZE;
-
-        private int[][][] tiles;
-
-        StructureChunk(StructureChunk chunk)
-        {
-            this.position = new Position3i(chunk.position);
-            this.tiles = ArrayUtils.deepCopyOf(chunk.tiles);
-        }
-
-        StructureChunk(Position3i position)
-        {
-            this.position = new Position3i(position);
-            this.tiles = new int[SIZE][SIZE][SIZE];
-            Logger.debug("Structure Chunk created at " + position.x + "," + position.y + "," + position.z);
-        }
-
-        private boolean withinBounds(byte x, byte y, byte z)
-        {
-            return (x >= 0 && x < SIZE && y >= 0 && y < SIZE && z >= 0 && z < SIZE);
-        }
-
-        Tile getTile(int x, int y, int z)
-        {
-            if(withinBounds((byte)x,(byte)y,(byte)z))return Tile.Tiles.get(tiles[x][y][z]);
-            return Tile.Tiles.tileAir;
-        }
-
-        void setTile(Tile tile, int x, int y, int z, int meta)
-        {
-            if(withinBounds((byte)x,(byte)y,(byte)z))
-            {
-                this.tiles[x][y][z] = tile.getIndex();
-            }
-
-        }
-
-        boolean isEmpty()
-        {
-            for (byte i = 0; i < tiles.length; i++)
-            {
-                for (byte j = 0; j < tiles[i].length; j++)
-                {
-                    for (byte k = 0; k < tiles[i][j].length; k++)
-                    {
-                        if(!getTile(i,j,k).isAir())
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
         }
     }
 }

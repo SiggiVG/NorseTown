@@ -1,14 +1,16 @@
 package com.deadvikingstudios.norsetown.model.entities;
 
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
-import com.deadvikingstudios.norsetown.utils.Position3i;
+import com.deadvikingstudios.norsetown.utils.Vector3i;
+
+import java.util.Map;
 
 public class EntityStructure extends Entity
 {
     private final boolean canChangePosition;
     private final boolean canRotate;
 
-    private Position3i structureOffset = new Position3i(0,0,0);
+    private Vector3i structureOffset = new Vector3i(0,0,0);
 
     private Structure structure;
 
@@ -29,12 +31,12 @@ public class EntityStructure extends Entity
         //this.position.y += 0.1;
     }
 
-    public Position3i getStructureOffset()
+    public Vector3i getStructureOffset()
     {
         return structureOffset;
     }
 
-    public void setStructureOffset(Position3i structureOffset)
+    public void setStructureOffset(Vector3i structureOffset)
     {
         this.structureOffset = structureOffset;
     }

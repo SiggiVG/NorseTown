@@ -1,16 +1,11 @@
 package com.deadvikingstudios.norsetown.model.world;
 
-import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.model.tiles.EnumTileShape;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.tileenitites.TileEntity;
-import com.deadvikingstudios.norsetown.model.tiles.TileSoil;
-import com.deadvikingstudios.norsetown.model.world.gen.PerlinNoise;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.utils.Logger;
-import com.sun.glass.ui.Size;
 import org.lwjgl.util.vector.Vector3f;
-import sun.swing.SwingUtilities2;
 
 import java.util.*;
 
@@ -80,25 +75,25 @@ public class Chunk extends Entity
 
     protected void init()
     {
-        float seedVal = 0;//(float)World.getWorld().SEED / 256f;
+        float seedVal = 0;//(float)WorldOld.getWorld().SEED / 256f;
         //fill with terrain
         for (int i = 0; i < CHUNK_SIZE; ++i)
         {
             for (int k = 0; k < CHUNK_SIZE; ++k)
             {
-                setTile(Tile.Tiles.tileStoneCliff, i, 0, k);
-                setTile(Tile.Tiles.tileGrass, i, 1, k);
-                setTile(Tile.Tiles.tileGrass, i, 2, k);
-                setTile(Tile.Tiles.tileGrass, i, 3, k);
+//                setTile(Tile.Tiles.tileStoneCliff, i, 0, k);
+//                setTile(Tile.Tiles.tileGrass, i, 1, k);
+//                setTile(Tile.Tiles.tileGrass, i, 2, k);
+//                setTile(Tile.Tiles.tileGrass, i, 3, k);
                 //System.out.println((this.getPosX()+i) + "_" + (this.getPosZ()+k));
 
-//                float h = CHUNK_SIZE*World.CHUNK_NUM_XZ - (float)Math.sqrt(
-//                        (((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosX()+i))*((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosX()+i)))
-//                        +(((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosZ()+k))*((CHUNK_SIZE*World.CHUNK_NUM_XZ*0.5f)-(this.getPosZ()+k)))
-//                );
-//
-//                //TODO move this to a terrain generator
-//
+                float h = CHUNK_SIZE* WorldOld.CHUNK_NUM_XZ - (float)Math.sqrt(
+                        (((CHUNK_SIZE* WorldOld.CHUNK_NUM_XZ*0.5f)-(this.getPosX()+i))*((CHUNK_SIZE* WorldOld.CHUNK_NUM_XZ*0.5f)-(this.getPosX()+i)))
+                        +(((CHUNK_SIZE* WorldOld.CHUNK_NUM_XZ*0.5f)-(this.getPosZ()+k))*((CHUNK_SIZE* WorldOld.CHUNK_NUM_XZ*0.5f)-(this.getPosZ()+k)))
+                );
+
+                //TODO move this to a terrain generator
+
 //                int terrainHeight = (int)(PerlinNoise.perlin(
 //                        (seedVal + this.position.x / Tile.TILE_SIZE + i)*Tile.TILE_SIZE*0.025f,
 //                        (seedVal + this.position.y / Tile.TILE_HEIGHT)*Tile.TILE_HEIGHT*0.025f,
@@ -113,60 +108,60 @@ public class Chunk extends Entity
 //                        (seedVal + this.position.y / Tile.TILE_HEIGHT + j)*Tile.TILE_HEIGHT*0.1f,
 //                        (seedVal + this.position.z / Tile.TILE_SIZE + k)*Tile.TILE_SIZE*0.1f) * CHUNK_HEIGHT/32f)*/
 //                        + h -128);
-//
+
 //                for (int j = (int)this.getPosY(); j < terrainHeight+this.getPosY();// + CHUNK_HEIGHT*0.5f;
 //                     ++j)
 //                {
 //                    //System.out.println("j");
-//                    if(j+this.getPosY() < this.getPosY())// || j >= CHUNK_HEIGHT*World.CHUNK_NUM_Y)
+//                    if(j+this.getPosY() < this.getPosY())// || j >= CHUNK_HEIGHT*WorldOld.CHUNK_NUM_Y)
 //                    {
 //                        continue;
 //                    }
 //                    setTile(Tile.Tiles.tileStoneCliff, i, j, k);
 //                }
-//                //local coords TODO: move to terrain decorator
-//                for (int j = sections.length*ChunkSection.SIZE - 1; j >= 0; --j)
-//                {
-//                    if(getTile(i,j,k) != 0)
-//                    {
-//                        if(j >= World.SEA_LEVEL+World.BEACH_HEIGHT)
-//                        {
-//                            setTile(Tile.Tiles.tileGrass, i, j, k);
-//                            if (World.getWorld().getRandom().nextBoolean())
-//                            {
-//                                setTile(Tile.Tiles.tileGrassTall, i, j + 1, k);
-//
-//                            }
-//                            setTile(Tile.Tiles.tileSoil, i, j-1, k);
-//                            setTile(Tile.Tiles.tileSoil, i, j-2, k);
-//                            setTile(Tile.Tiles.tileSoil, i, j-3, k);
-//                            setTile(Tile.Tiles.tileSoil, i, j-4, k);
-//                            setTile(Tile.Tiles.tileSoil, i, j-5, k);
-//                        }
-//                        else
-//                        {
-//                            setTile(Tile.Tiles.tileClay, i, j, k);
-//                            setTile(Tile.Tiles.tileClay, i, j-1, k);
-//                            setTile(Tile.Tiles.tileClay, i, j-2, k);
-//                            setTile(Tile.Tiles.tileClay, i, j-3, k);
-//                            setTile(Tile.Tiles.tileClay, i, j-4, k);
-//                            setTile(Tile.Tiles.tileClay, i, j-5, k);
-//                        }
-//
-//                        setTile(Tile.Tiles.tileClay, i, j-6, k);
-//                        setTile(Tile.Tiles.tileClay, i, j-7, k);
-//                        setTile(Tile.Tiles.tileClay, i, j-8, k);
-//                        break;
-//                    }
-//                }
+                //local coords TODO: move to terrain decorator
+                for (int j = sections.length*ChunkSection.SIZE - 1; j >= 0; --j)
+                {
+                    if(getTile(i,j,k) != 0)
+                    {
+                        if(j >= WorldOld.SEA_LEVEL+ WorldOld.BEACH_HEIGHT)
+                        {
+                            setTile(Tile.Tiles.tileGrass, i, j, k);
+                            if (WorldOld.getWorld().getRandom().nextBoolean())
+                            {
+                                setTile(Tile.Tiles.tileGrassTall, i, j + 1, k);
+
+                            }
+                            setTile(Tile.Tiles.tileSoil, i, j-1, k);
+                            setTile(Tile.Tiles.tileSoil, i, j-2, k);
+                            setTile(Tile.Tiles.tileSoil, i, j-3, k);
+                            setTile(Tile.Tiles.tileSoil, i, j-4, k);
+                            setTile(Tile.Tiles.tileSoil, i, j-5, k);
+                        }
+                        else
+                        {
+                            setTile(Tile.Tiles.tileClay, i, j, k);
+                            setTile(Tile.Tiles.tileClay, i, j-1, k);
+                            setTile(Tile.Tiles.tileClay, i, j-2, k);
+                            setTile(Tile.Tiles.tileClay, i, j-3, k);
+                            setTile(Tile.Tiles.tileClay, i, j-4, k);
+                            setTile(Tile.Tiles.tileClay, i, j-5, k);
+                        }
+
+                        setTile(Tile.Tiles.tileClay, i, j-6, k);
+                        setTile(Tile.Tiles.tileClay, i, j-7, k);
+                        setTile(Tile.Tiles.tileClay, i, j-8, k);
+                        break;
+                    }
+                }
             }
         }
     }
 
-    public void update(World world)
+    public void update(WorldOld world)
     {
         Random random = new Random();
-        for (int n = 0; n < World.chunkTickSpeed; n++)
+        for (int n = 0; n < WorldOld.chunkTickSpeed; n++)
         {
             int i = random.nextInt(CHUNK_SIZE);
             int k = random.nextInt(CHUNK_SIZE);

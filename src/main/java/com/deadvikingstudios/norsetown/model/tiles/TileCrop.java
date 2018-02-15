@@ -1,6 +1,5 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
-import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 
 public class TileCrop extends Tile

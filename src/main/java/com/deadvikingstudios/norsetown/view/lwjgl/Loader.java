@@ -59,7 +59,7 @@ public class Loader
         return new RawMesh(vaoID, vertVboID, indVboID, uvVboID, normVboID, indices.length);
     }
 
-    public RawMesh reloadToVAO(RawMesh rawMesh, float[] vertices, int[] indices, float[] uvs)
+    public RawMesh reloadToVAO(RawMesh rawMesh, float[] vertices, int[] indices, float[] uvs, float[] norms)
     {
         //TODO: change the data within the buffer, rather than deleting them
         //System.out.println(vaos.size() + "," + vbos.size());
@@ -73,12 +73,14 @@ public class Loader
         int indVboID = bindIndicesBuffer(indices);
         GL15.glDeleteBuffers(rawMesh.getVboUvID());
         vbos.remove(new Integer(rawMesh.getVboUvID()));
+        int uvVboID = storeDataInAttributeList(uvs, 1, 2);
         GL15.glDeleteBuffers(rawMesh.getVboNormID());
         vbos.remove(new Integer(rawMesh.getVboNormID()));
-        int uvVboID = storeDataInAttributeList(uvs, 1, 2);
+        int normVboID = storeDataInAttributeList(norms, 2, 3);
+
         GL30.glBindVertexArray(0);
 
-        return new RawMesh(vaoID, vertVboID, indVboID, uvVboID, indices.length);
+        return new RawMesh(vaoID, vertVboID, indVboID, uvVboID, normVboID, indices.length);
     }
 
     private int createVAO()
@@ -204,6 +206,21 @@ public class Loader
         textures.add(textureID);
         return textureID;
         */
+    }
+
+    public void unloadMesh(RawMesh mesh)
+    {
+        GL15.glDeleteBuffers(mesh.getVboVertID());
+        vbos.remove(mesh.getVboVertID());
+        GL15.glDeleteBuffers(mesh.getVboIndID());
+        vbos.remove(mesh.getVboIndID());
+        GL15.glDeleteBuffers(mesh.getVboUvID());
+        vbos.remove(mesh.getVboUvID());
+        GL15.glDeleteBuffers(mesh.getVboNormID());
+        vbos.remove(mesh.getVboNormID());
+
+        GL30.glDeleteVertexArrays(mesh.getVaoID());
+        vaos.remove(mesh.getVaoID());
     }
 
     /**

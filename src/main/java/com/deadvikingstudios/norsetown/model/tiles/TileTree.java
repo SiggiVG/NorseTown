@@ -1,6 +1,5 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
-import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 
 public class TileTree extends Tile
@@ -58,17 +57,17 @@ public class TileTree extends Tile
 //            world.setTile(Tiles.tileLeaves, x, y+3, z, true);
 //
 //
-//            World.getWorld().setTile(Tile.Tiles.tileLeaves, x + 1, y + 1, z, true);
-//            World.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z, true);
-//            World.getWorld().setTile(Tile.Tiles.tileLeaves, x, y + 1, z + 1, true);
-//            World.getWorld().setTile(Tile.Tiles.tileLeaves, x, y + 1, z - 1, true);
+//            WorldOld.getWorld().setTile(Tile.Tiles.tileLeaves, x + 1, y + 1, z, true);
+//            WorldOld.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z, true);
+//            WorldOld.getWorld().setTile(Tile.Tiles.tileLeaves, x, y + 1, z + 1, true);
+//            WorldOld.getWorld().setTile(Tile.Tiles.tileLeaves, x, y + 1, z - 1, true);
 //
 //            if (y % 2 == 0)
 //            {
-//                World.getWorld().setTile(Tile.Tiles.tileLeaves, x + 1, y + 1, z - 1, true);
-//                World.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z + 1, true);
-//                World.getWorld().setTile(Tile.Tiles.tileLeaves, x + 1, y + 1, z + 1, true);
-//                World.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z - 1, true);
+//                WorldOld.getWorld().setTile(Tile.Tiles.tileLeaves, x + 1, y + 1, z - 1, true);
+//                WorldOld.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z + 1, true);
+//                WorldOld.getWorld().setTile(Tile.Tiles.tileLeaves, x + 1, y + 1, z + 1, true);
+//                WorldOld.getWorld().setTile(Tile.Tiles.tileLeaves, x - 1, y + 1, z - 1, true);
 //            }
 //        }
         //System.out.println(metaData);

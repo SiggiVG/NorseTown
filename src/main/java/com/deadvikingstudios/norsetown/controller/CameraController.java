@@ -220,14 +220,14 @@ public class CameraController
             position.y -= moveAt;
         }
 
-        if(position.y < LOWER_LIMIT)
-        {
-            position.y = LOWER_LIMIT;
-        }
-        else if(position.y > UPPER_LIMIT)
-        {
-            position.y = UPPER_LIMIT;
-        }
+//        if(position.y < LOWER_LIMIT)
+//        {
+//            position.y = LOWER_LIMIT;
+//        }
+//        else if(position.y > UPPER_LIMIT)
+//        {
+//            position.y = UPPER_LIMIT;
+//        }
     }
 
     public Vector3f getPosition()

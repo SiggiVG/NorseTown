@@ -1,5 +1,7 @@
 package com.deadvikingstudios.norsetown.view.meshes;
 
+import com.deadvikingstudios.norsetown.controller.GameContainer;
+
 import java.util.ArrayList;
 
 /**
@@ -69,5 +71,10 @@ public class RawMesh
     public int getVertexCount()
     {
         return vertexCount;
+    }
+
+    public void dispose()
+    {
+        GameContainer.loader.unloadMesh(this);
     }
 }

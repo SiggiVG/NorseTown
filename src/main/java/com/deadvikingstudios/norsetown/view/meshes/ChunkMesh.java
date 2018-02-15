@@ -1,11 +1,11 @@
 package com.deadvikingstudios.norsetown.view.meshes;
 
+import com.deadvikingstudios.norsetown.model.world.WorldOld;
 import com.deadvikingstudios.norsetown.utils.ArrayUtils;
 import com.deadvikingstudios.norsetown.model.tiles.EnumTileShape;
 import com.deadvikingstudios.norsetown.model.tiles.EnumTileFace;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.Chunk;
-import com.deadvikingstudios.norsetown.model.world.World;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ public class ChunkMesh extends EntityMesh
                             createCross(vertices, indices, uvs, norms, tile, i, j, k, thisMetadata);
                         }
                     }
-                    if(tile == Tile.Tiles.tileGrass && getChunk().getTile(i,j+1,k) == 0)//(World.getWorld().getTile(i,j+1,k) == Tile.Tiles.tileAir.getIndex()))
+                    if(tile == Tile.Tiles.tileGrass && getChunk().getTile(i,j+1,k) == 0)//(WorldOld.getWorld().getTile(i,j+1,k) == Tile.Tiles.tileAir.getIndex()))
                     {
                         createFullCross(vertices, indices, uvs, norms, tile, i, j+1, k, thisMetadata);
                     }
@@ -113,7 +113,7 @@ public class ChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
         //System.out.println(vec);
 
         EnumTileShape thisTileShape = thisTile.getTileShape(thisMetadata);
@@ -149,8 +149,8 @@ public class ChunkMesh extends EntityMesh
         }
 
         //NORTH
-        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int)getChunk().getPosX()+x,(int)getChunk().getPosY()+y,(int)getChunk().getPosZ()+z+1));
-        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z+1));
+        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int)getChunk().getPosX()+x,(int)getChunk().getPosY()+y,(int)getChunk().getPosZ()+z+1));
+        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z+1));
         tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.NORTH, tileShapeCheck))
@@ -181,8 +181,8 @@ public class ChunkMesh extends EntityMesh
         }//END NORTH
 
         //EAST
-        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) getChunk().getPosX() + x+1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
-        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x+1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
+        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x+1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
+        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x+1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
         tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.EAST, tileShapeCheck))
@@ -212,8 +212,8 @@ public class ChunkMesh extends EntityMesh
         }//END EAST
 
         //SOUTH
-        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z-1));
-        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z-1));
+        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z-1));
+        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z-1));
         tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.SOUTH, tileShapeCheck))
@@ -243,8 +243,8 @@ public class ChunkMesh extends EntityMesh
         }//END SOUTH
 
         //WEST
-        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) getChunk().getPosX() + x-1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
-        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x-1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
+        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x-1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
+        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x-1, (int) getChunk().getPosY() + y, (int) getChunk().getPosZ() + z));
         tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.WEST, tileShapeCheck))
@@ -274,8 +274,8 @@ public class ChunkMesh extends EntityMesh
         }//END WEST*/
 
         //TOP
-        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int)getChunk().getPosX() + x, (int)getChunk().getPosY() + y + 1, (int)getChunk().getPosZ() + z));
-        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y + 1, (int) getChunk().getPosZ() + z));
+        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int)getChunk().getPosX() + x, (int)getChunk().getPosY() + y + 1, (int)getChunk().getPosZ() + z));
+        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y + 1, (int) getChunk().getPosZ() + z));
         tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.TOP, tileShapeCheck))
@@ -305,8 +305,8 @@ public class ChunkMesh extends EntityMesh
         }//END TOP
 
         //BOTTOM
-        tileCheck = Tile.Tiles.get(World.getWorld().getTile((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y - 1, (int) getChunk().getPosZ() + z));
-        tileCheckMeta = (World.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y - 1, (int) getChunk().getPosZ() + z));
+        tileCheck = Tile.Tiles.get(WorldOld.getWorld().getTile((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y - 1, (int) getChunk().getPosZ() + z));
+        tileCheckMeta = (WorldOld.getWorld().getMetadata((int) getChunk().getPosX() + x, (int) getChunk().getPosY() + y - 1, (int) getChunk().getPosZ() + z));
         tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 
         if(vec.y > Tile.TILE_HEIGHT)
@@ -554,7 +554,7 @@ public class ChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
 
         float[] uvFace;
         float[] normFace;
@@ -586,7 +586,7 @@ public class ChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
 
         float[] uvFace;
         float[] normFace;
@@ -618,7 +618,7 @@ public class ChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
 
         float[] uvFace;
         float[] normFace;
@@ -650,7 +650,7 @@ public class ChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
 
         float[] uvFace;
         float[] normFace;
@@ -683,7 +683,7 @@ public class ChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
 
         float[] uvFace;
         float[] normFace;
@@ -716,7 +716,7 @@ public class ChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
 
         float[] uvFace;
         float[] normFace;
@@ -940,7 +940,7 @@ public class ChunkMesh extends EntityMesh
 
         /*
         //NORTH
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
         {
             verts = getFaceVerticesFullCube(EnumTileFace.NORTH, vec);
             int count = vertices.size() / 3;
@@ -963,7 +963,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //east
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
         {
             verts = getFaceVerticesFullCube(EnumTileFace.EAST, vec);
             int count = vertices.size() / 3;
@@ -980,7 +980,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //south
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
         {
             verts = getFaceVerticesFullCube(EnumTileFace.SOUTH, vec);
             int count = vertices.size() / 3;
@@ -997,7 +997,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //west
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
         {
             verts = getFaceVerticesFullCube(EnumTileFace.WEST, vec);
             int count = vertices.size() / 3;
@@ -1014,7 +1014,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //top
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x,y+1,z) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x,y+1,z) == 0)
         {
             verts = getFaceVerticesFullCube(EnumTileFace.TOP, vec);
             int count = vertices.size() / 3;
@@ -1031,7 +1031,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //bottom
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x,y-1,z) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x,y-1,z) == 0)
         {
             verts = getFaceVerticesFullCube(EnumTileFace.BOTTOM, vec);
             int count = vertices.size() / 3;
@@ -1054,13 +1054,13 @@ public class ChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
 
         int tile = chunk.getTile(x,y,z);
         float[] uvFace;
 
         //NORTH
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
         {
             verts = getFaceVerticesColumnThick(EnumTileFace.NORTH, vec);
             int count = vertices.size() / 3;
@@ -1078,7 +1078,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //east
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
         {
             verts = getFaceVerticesColumnThick(EnumTileFace.EAST, vec);
             int count = vertices.size() / 3;
@@ -1095,7 +1095,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //south
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
         {
             verts = getFaceVerticesColumnThick(EnumTileFace.SOUTH, vec);
             int count = vertices.size() / 3;
@@ -1112,7 +1112,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //west
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
         {
             verts = getFaceVerticesColumnThick(EnumTileFace.WEST, vec);
             int count = vertices.size() / 3;
@@ -1128,8 +1128,8 @@ public class ChunkMesh extends EntityMesh
                 uvs.add(uvFace[i]);
             }
         }
-        int tileUp = (World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
-        int tileUpMeta = (World.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
+        int tileUp = (WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
+        int tileUpMeta = (WorldOld.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
         EnumTileShape renderTypeUp = Tile.Tiles.get(tileUp).getRenderType(tileUpMeta);
         //top
         if(!Tile.Tiles.get(tileUp).isOpaque() && (renderTypeUp > 1 || renderTypeUp == -1))
@@ -1148,8 +1148,8 @@ public class ChunkMesh extends EntityMesh
                 uvs.add(uvFace[i]);
             }
         }
-        int tileDown = (World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
-        int tileDownMeta = (World.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
+        int tileDown = (WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
+        int tileDownMeta = (WorldOld.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
         EnumTileShape renderTypeDown = Tile.Tiles.get(tileDown).getRenderType(tileDownMeta);
         //bottom
         if(!Tile.Tiles.get(tileDown).isOpaque() && (renderTypeDown > 1 || renderTypeDown == -1))
@@ -1175,13 +1175,13 @@ public class ChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
 
         int tile = chunk.getTile(x,y,z);
         float[] uvFace;
 
         //NORTH
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
         {
             verts = getFaceVerticesColumnMedium(EnumTileFace.NORTH, vec);
             int count = vertices.size() / 3;
@@ -1199,7 +1199,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //east
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
         {
             verts = getFaceVerticesColumnMedium(EnumTileFace.EAST, vec);
             int count = vertices.size() / 3;
@@ -1216,7 +1216,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //south
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
         {
             verts = getFaceVerticesColumnMedium(EnumTileFace.SOUTH, vec);
             int count = vertices.size() / 3;
@@ -1233,7 +1233,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //west
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
         {
             verts = getFaceVerticesColumnMedium(EnumTileFace.WEST, vec);
             int count = vertices.size() / 3;
@@ -1249,8 +1249,8 @@ public class ChunkMesh extends EntityMesh
                 uvs.add(uvFace[i]);
             }
         }
-        int tileUp = (World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
-        int tileUpMeta = (World.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
+        int tileUp = (WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
+        int tileUpMeta = (WorldOld.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
         int renderTypeUp = Tile.Tiles.get(tileUp).getRenderType(tileUpMeta);
         //top
         if(!Tile.Tiles.get(tileUp).isOpaque() && (renderTypeUp > 2 || renderTypeUp == -1))
@@ -1269,8 +1269,8 @@ public class ChunkMesh extends EntityMesh
                 uvs.add(uvFace[i]);
             }
         }
-        int tileDown = (World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
-        int tileDownMeta = (World.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
+        int tileDown = (WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
+        int tileDownMeta = (WorldOld.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
         int renderTypeDown = Tile.Tiles.get(tileDown).getRenderType(tileDownMeta);
         //bottom
         if(!Tile.Tiles.get(tileDown).isOpaque() && (renderTypeDown > 2 || renderTypeDown == -1))
@@ -1296,13 +1296,13 @@ public class ChunkMesh extends EntityMesh
     {
         float[] verts;
 
-        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + World.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + World.CHUNK_OFFSET_XZ);
+        Vector3f vec = new Vector3f(x * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ, y * Tile.TILE_HEIGHT + WorldOld.CHUNK_OFFSET_Y, z * Tile.TILE_SIZE + WorldOld.CHUNK_OFFSET_XZ);
 
         int tile = chunk.getTile(x,y,z);
         float[] uvFace;
 
         //NORTH
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z+1)).isOpaque())
         {
             verts = getFaceVerticesColumnThin(EnumTileFace.NORTH, vec);
             int count = vertices.size() / 3;
@@ -1320,7 +1320,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //east
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x+1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x+1,y,z) == 0)
         {
             verts = getFaceVerticesColumnThin(EnumTileFace.EAST, vec);
             int count = vertices.size() / 3;
@@ -1337,7 +1337,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //south
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z-1)).isOpaque())//chunk.getTileAt(x,y,z-1) == 0)
         {
             verts = getFaceVerticesColumnThin(EnumTileFace.SOUTH, vec);
             int count = vertices.size() / 3;
@@ -1354,7 +1354,7 @@ public class ChunkMesh extends EntityMesh
             }
         }
         //west
-        if(!Tile.Tiles.get(World.getWorld().getTile((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
+        if(!Tile.Tiles.get(WorldOld.getWorld().getTile((int)chunk.getPosX() + x-1, (int)chunk.getPosY() + y,(int)chunk.getPosZ() + z)).isOpaque())//chunk.getTileAt(x-1,y,z) == 0)
         {
             verts = getFaceVerticesColumnThin(EnumTileFace.WEST, vec);
             int count = vertices.size() / 3;
@@ -1370,8 +1370,8 @@ public class ChunkMesh extends EntityMesh
                 uvs.add(uvFace[i]);
             }
         }
-        int tileUp = (World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
-        int tileUpMeta = (World.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
+        int tileUp = (WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
+        int tileUpMeta = (WorldOld.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y+1,(int)chunk.getPosZ() + z));
         int renderTypeUp = Tile.Tiles.get(tileUp).getRenderType(tileUpMeta);
         //top
         if(!Tile.Tiles.get(tileUp).isOpaque() && (renderTypeUp > 3 || renderTypeUp == -1))
@@ -1390,8 +1390,8 @@ public class ChunkMesh extends EntityMesh
                 uvs.add(uvFace[i]);
             }
         }
-        int tileDown = (World.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
-        int tileDownMeta = (World.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
+        int tileDown = (WorldOld.getWorld().getTile((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
+        int tileDownMeta = (WorldOld.getWorld().getMetadata((int)chunk.getPosX() + x, (int)chunk.getPosY() + y-1,(int)chunk.getPosZ() + z));
         int renderTypeDown = Tile.Tiles.get(tileDown).getRenderType(tileDownMeta);
         //bottom
         if(!Tile.Tiles.get(tileDown).isOpaque() && (renderTypeDown > 3 || renderTypeDown == -1))

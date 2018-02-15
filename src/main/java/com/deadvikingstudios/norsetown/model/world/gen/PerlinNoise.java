@@ -1,7 +1,5 @@
 package com.deadvikingstudios.norsetown.model.world.gen;
 
-import com.deadvikingstudios.norsetown.model.world.World;
-
 import java.util.Random;
 
 /**
@@ -11,6 +9,30 @@ import java.util.Random;
  */
 public class PerlinNoise
 {
+    public PerlinNoise(long seed)
+    {
+        Random rand = new Random(seed);
+
+        p = new int[512];
+        for(int x=0;x<512;x++) {
+            p[x] = permutation[x%256];
+        }
+
+        //Scrambles the permutations
+        for (int l = 0; l < 256; ++l)
+        {
+            int j = rand.nextInt(256 - l) + l;
+            int k = p[l];
+            p[l] = p[j];
+            p[j] = k;
+            p[l + 256] = p[l];
+        }
+
+        for(int x=0;x<256;x++) {
+            p[x+256] = permutation[x];
+        }
+    }
+
     public double OctavePerlin(double x, double y, double z, int octaves, double persistence) {
         double total = 0;
         double frequency = 1;
@@ -41,30 +63,9 @@ public class PerlinNoise
             138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180
     };
 
-    private static final int[] p;// Doubled permutation to avoid overflow
+    private final int[] p;// Doubled permutation to avoid overflow
 
-    static {
-        p = new int[512];
-        for(int x=0;x<512;x++) {
-            p[x] = permutation[x%256];
-        }
-
-        //Scrambles the permutations
-        for (int l = 0; l < 256; ++l)
-        {
-            int j = World.getWorld().getRandom().nextInt(256 - l) + l;
-            int k = p[l];
-            p[l] = p[j];
-            p[j] = k;
-            p[l + 256] = p[l];
-        }
-
-        for(int x=0;x<256;x++) {
-            p[x+256] = permutation[x];
-        }
-    }
-
-    public static double perlin(double x, double y, double z)
+    public double perlin(double x, double y, double z)
     {
         /*if(repeat > 0) { // If we have any repeat on, change the coordinates to their "local" repetitions
             x = x%repeat;

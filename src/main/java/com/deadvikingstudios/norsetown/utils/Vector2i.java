@@ -1,33 +1,38 @@
 package com.deadvikingstudios.norsetown.utils;
 
-public class Position3i
+public class Vector2i
 {
-    public final int x, y, z;
+    public final int x, z;
 
-    public Position3i(int x, int y, int z)
+    public Vector2i(int x, int z)
     {
         this.x = x;
-        this.y = y;
         this.z = z;
     }
 
-    public Position3i(Position3i position)
+    public Vector2i(Vector2i position)
     {
         this.x = position.x;
-        this.y = position.y;
         this.z = position.z;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "{"  + x +
+                "," + z +
+                '}';
     }
 
     @Override
     public boolean equals(Object o)
     {
         if (this == o) return true;
-        if (!(o instanceof Position3i)) return false;
+        if (!(o instanceof Vector2i)) return false;
 
-        Position3i that = (Position3i) o;
+        Vector2i that = (Vector2i) o;
 
         if (x != that.x) return false;
-        if (y != that.y) return false;
         return z == that.z;
     }
 
@@ -35,7 +40,6 @@ public class Position3i
     public int hashCode()
     {
         int result = x;
-        result = 31 * result + y;
         result = 31 * result + z;
         return result;
     }

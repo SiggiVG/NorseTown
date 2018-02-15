@@ -4,11 +4,11 @@ import com.deadvikingstudios.norsetown.controller.GameContainer;
 
 public class Logger
 {
-    public static void debug(String message)
+    public static void debug(Object obj)
     {
         if(GameContainer.MODE == GameContainer.DEBUG)
         {
-            System.out.println(message);
+            System.out.println(obj.toString());
         }
     }
 
