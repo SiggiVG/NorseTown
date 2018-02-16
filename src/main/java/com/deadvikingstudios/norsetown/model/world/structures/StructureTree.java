@@ -13,7 +13,8 @@ public class StructureTree extends Structure
     @Override
     public void init()
     {
-        for (int i = 0; i < 12; i++)
+        this.setTile(Tile.Tiles.tileGrass, 0,0,0);
+        for (int i = 1; i < 12; i++)
         {
             this.setTile(Tile.Tiles.tileTrunkFir, 0,i,0);
 

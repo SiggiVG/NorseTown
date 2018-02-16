@@ -11,20 +11,46 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class CameraController
 {
-    public boolean isOrthogonal = false;
-
+    private boolean isOrthogonal = false;
+    /**
+     * The 3D position of the camera
+     */
     private Vector3f position;
     /**
-     * x = roll
-     * y = pitch
-     * y = yaw
+     * The rotation of the camera
+     * @x = pitch
+     * @y = yaw
+     * @y = roll
      */
     private Vector3f rotation;
-
+    /**
+     * How fast the camera can move
+     */
     private float speed = 0.2f;
+    /**
+     * How fast the camera can turn
+     */
     private float turnSpeed = 0.1f;
+    /**
+     * Upper and Lower limits of the Y coords
+     */
     public static final float UPPER_LIMIT = 1000f, LOWER_LIMIT = 0f;
 
+    /**
+     * Initializes position and rotation to 0,0,0
+     */
+    public CameraController()
+    {
+        position = new Vector3f(0,0,0);
+        rotation = new Vector3f(0,0,0);
+    }
+
+    /**
+     * @param x position
+     * @param y position
+     * @param z position
+     * Initializes rotation to 0,0,0
+     */
     public CameraController(float x, float y, float z)
     {
         position = new Vector3f(x,y,z);
@@ -59,10 +85,10 @@ public class CameraController
                 //Mouse.setGrabbed(false);
                 //Mouse.setCursorPosition(WindowManager.getHalfWidth(), WindowManager.getHalfHeight());
             }
-            else
-            {
-                //Mouse.setGrabbed(true);
-            }
+//            else
+//            {
+//                //Mouse.setGrabbed(true);
+//            }
         }
 
 
@@ -173,8 +199,8 @@ public class CameraController
             //rotation start
             //if(Mouse.isGrabbed())
             {
-                roll(MousePositionHandler.getDY() * turnSpeed);
-                pitch(MousePositionHandler.getDX() * turnSpeed);
+                pitch(MousePositionHandler.getDY() * turnSpeed);
+                yaw(MousePositionHandler.getDX() * turnSpeed);
             }
             //rotation end
 
@@ -254,22 +280,22 @@ public class CameraController
         return rotation;
     }
 
-    public float getRoll()
+    public float getPitch()
     {
         return rotation.x;
     }
 
-    public float getPitch()
+    public float getYaw()
     {
         return rotation.y;
     }
 
-    public float getYaw()
+    public float getRoll()
     {
         return rotation.z;
     }
 
-    public void roll(float degree)
+    public void pitch(float degree)
     {
         rotation.x += degree;
 
@@ -283,7 +309,7 @@ public class CameraController
         }
     }
 
-    public void pitch(float degree)
+    public void yaw(float degree)
     {
         rotation.y += degree;
 
@@ -296,7 +322,7 @@ public class CameraController
         }
     }
 
-    public void yaw(float degree)
+    public void roll(float degree)
     {
         rotation.z += degree;
 
@@ -322,8 +348,8 @@ public class CameraController
 
     public void addRotation(float x, float y, float z)
     {
-        roll(x);
-        pitch(y);
-        yaw(z);
+        pitch(x);
+        yaw(y);
+        roll(z);
     }
 }

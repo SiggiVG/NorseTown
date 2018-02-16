@@ -23,7 +23,6 @@ public class IslandGenerator extends Generator
     public IslandGenerator(Structure islandStructure)
     {
         super(islandStructure, System.currentTimeMillis());
-        rand = new Random(this.seed);
         perlin = new PerlinNoise(this.seed);
         gen();
     }
@@ -31,6 +30,7 @@ public class IslandGenerator extends Generator
     @Override
     protected void gen()
     {
+        rand = new Random(this.seed);
         this.genDimensions();
 
         Vector2i pos = new Vector2i(0,0);

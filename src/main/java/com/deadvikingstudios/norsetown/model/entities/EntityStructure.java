@@ -17,6 +17,11 @@ public class EntityStructure extends Entity
         this(structure, structure.getPosition().x, structure.getPosition().y, structure.getPosition().z);
     }
 
+    public <STRUCTURE extends Structure> EntityStructure(STRUCTURE structure, int x, int y, int z)
+    {
+        this(structure,(double)x,(double)y,(double)z);
+    }
+
     private <STRUCTURE extends Structure> EntityStructure(STRUCTURE structure, double x, double y, double z)
     {
         this(structure, x, y, z, false, false);
@@ -43,6 +48,7 @@ public class EntityStructure extends Entity
     {
         super((float) x, (float)y, (float)z, 0, 0, 0, 1);
         this.structure = structure;
+        this.structure.setPosition(new Vector3i((int)x,(int)y,(int)z));
         this.canChangePosition = canChangePosition;
         this.canRotate = canRotate;
     }

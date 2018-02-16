@@ -85,7 +85,7 @@ public class StructureMesh extends EntityMesh
 
     protected void createMesh(List<Float> vertices, List<Integer> indices, List<Float> uvs, List<Float> norms)
     {
-        Logger.debug("Generating new Mesh for " + this.getChunkColumn().position.x + "," + this.getChunkColumn().position.y);
+//        Logger.debug("Generating new Mesh for " + this.getChunkColumn().position.x + "," + this.getChunkColumn().position.y);
         for (Map.Entry<Integer, Chunk> entry : getChunkColumn().getChunks().entrySet())
         {
             Chunk chunk = entry.getValue();

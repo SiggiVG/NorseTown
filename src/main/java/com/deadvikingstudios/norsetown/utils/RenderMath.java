@@ -46,9 +46,9 @@ public class RenderMath
         Matrix4f matrix = new Matrix4f();
         matrix.setIdentity();
 
-        Matrix4f.rotate((float)Math.toRadians(camera.getRoll()), new Vector3f(1,0,0), matrix, matrix);
-        Matrix4f.rotate((float)Math.toRadians(camera.getPitch()), new Vector3f(0,1,0), matrix, matrix);
-        Matrix4f.rotate((float)Math.toRadians(camera.getYaw()), new Vector3f(0,0,1), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(camera.getPitch()), new Vector3f(1,0,0), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(camera.getYaw()), new Vector3f(0,1,0), matrix, matrix);
+        Matrix4f.rotate((float)Math.toRadians(camera.getRoll()), new Vector3f(0,0,1), matrix, matrix);
         Matrix4f.translate(new Vector3f(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z), matrix, matrix);
 
         return matrix;

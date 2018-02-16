@@ -4,9 +4,11 @@ import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.controller.KeyboardInputHandler;
 import com.deadvikingstudios.norsetown.controller.MouseInputHandler;
 import com.deadvikingstudios.norsetown.controller.MousePositionHandler;
+import com.deadvikingstudios.norsetown.view.lwjgl.renderers.Renderer;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;

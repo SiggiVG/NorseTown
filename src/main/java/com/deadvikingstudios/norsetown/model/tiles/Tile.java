@@ -167,15 +167,15 @@ public abstract class Tile
             int i =0;
 
             register(tileAir = new TileAir(i++,"tile_air").setOpaque(false));
-            register(tileGrass = new TileSod(i++,"tile_sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,3, 18));
+            register(tileGrass = new TileSod(i++,"tile_sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,4, 18));
             register(tileSoil = new TileSoil(i++, "tile_soil", EnumMaterial.EARTH).setTextureOffset(3));
-            register(tileTrunkFir = new TileTree(i++,"tile_log").setTextureOffset(6,5));
-            register(tilePlank = new TileWood(i++,"tile_plank", EnumMaterial.WOOD).setTextureOffset(4));
-            register(tileStoneCliff = new TileStone(i++,"tile_stone_cliff", EnumMaterial.STONE).setTextureOffset(7));
-            register(tileStoneCobble = new TileStone(i++,"tile_stone_cobble", EnumMaterial.STONE).setTextureOffset(8));
-            register(tileClay = new TileSoil(i++,"tile_clay", EnumMaterial.EARTH).setTextureOffset(9));
-            register(tileWattleDaub = new TileWood(i++,"tile_wattledaub", EnumMaterial.EARTH).setTextureOffset(9,10));
-            register(tileLeaves = new TileLeaves(i++,"tile_leaves", EnumMaterial.PLANT).setOpaque(false).setTextureOffset(16).setTextureOffsetParticle(17));
+            register(tileTrunkFir = new TileTree(i++,"tile_log").setTextureOffset(7,6));
+            register(tilePlank = new TileWood(i++,"tile_plank", EnumMaterial.WOOD).setTextureOffset(5));
+            register(tileStoneCliff = new TileStone(i++,"tile_stone_cliff", EnumMaterial.STONE).setTextureOffset(8));
+            register(tileStoneCobble = new TileStone(i++,"tile_stone_cobble", EnumMaterial.STONE).setTextureOffset(9));
+            register(tileClay = new TileSoil(i++,"tile_clay", EnumMaterial.EARTH).setTextureOffset(10));
+            register(tileWattleDaub = new TileWood(i++,"tile_wattledaub", EnumMaterial.EARTH).setTextureOffset(10,11));
+            register(tileLeaves = new TileLeaves(i++,"tile_leaves", EnumMaterial.PLANT).setOpaque(false).setTextureOffset(32).setTextureOffsetParticle(33));
             register(tileGrassTall = new Tile(i++, "tile_grass_tall", EnumMaterial.PLANT)
             {
                 @Override
