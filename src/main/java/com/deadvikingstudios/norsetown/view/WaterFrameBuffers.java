@@ -1,4 +1,4 @@
-package com.deadvikingstudios.norsetown.view.lwjgl;
+package com.deadvikingstudios.norsetown.view;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
@@ -77,18 +77,15 @@ public class WaterFrameBuffers {
     }
 
     private void bindFrameBuffer(int frameBuffer, int width, int height){
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);//To make sure the texture isn't bound
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);////To make sure the texture isn't bound
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, frameBuffer);
         GL11.glViewport(0, 0, width, height);
     }
 
     private int createFrameBuffer() {
         int frameBuffer = GL30.glGenFramebuffers();
-        //generate name for frame buffer
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, frameBuffer);
-        //create the framebuffer
         GL11.glDrawBuffer(GL30.GL_COLOR_ATTACHMENT0);
-        //indicate that we will always render to color attachment 0
         return frameBuffer;
     }
 

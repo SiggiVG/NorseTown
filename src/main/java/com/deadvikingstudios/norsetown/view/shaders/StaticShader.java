@@ -1,4 +1,4 @@
-package com.deadvikingstudios.norsetown.view.lwjgl.shaders;
+package com.deadvikingstudios.norsetown.view.shaders;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
 import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
@@ -6,6 +6,7 @@ import com.deadvikingstudios.norsetown.model.lighting.SpotLight;
 import com.deadvikingstudios.norsetown.utils.RenderMath;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 /**
  * Created by SiggiVG on 6/20/2017.
@@ -36,6 +37,9 @@ public class StaticShader extends ShaderProgram
     //for specular lighting
     private int location_shineDamper;
     private int location_reflectivity;
+
+    //Clipping Planes
+    private int location_plane;
 
 
     public StaticShader()
@@ -74,6 +78,8 @@ public class StaticShader extends ShaderProgram
         location_directionalLightColor = super.getUniformLocation("directionalLight.color");
         location_directionalLightDirection = super.getUniformLocation("directionalLight.direction");
         location_directionalLightIntensity = super.getUniformLocation("directionalLight.intensity");
+
+        location_plane = super.getUniformLocation("plane");
     }
 
     /**
@@ -130,5 +136,10 @@ public class StaticShader extends ShaderProgram
     {
         super.loadFloat(location_shineDamper, damper);
         super.loadFloat(location_reflectivity, reflectivity);
+    }
+
+    public void loadClipPlane(Vector4f vec)
+    {
+        super.loadVector4D(location_plane, vec);
     }
 }

@@ -2,39 +2,37 @@ package com.deadvikingstudios.norsetown.controller;
 
 
 import com.deadvikingstudios.norsetown.model.entities.Entity;
-import com.deadvikingstudios.norsetown.model.entities.EntityStructure;
 import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
 import com.deadvikingstudios.norsetown.model.lighting.SpotLight;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.CalendarNorse;
+import com.deadvikingstudios.norsetown.model.world.WaterTile;
 import com.deadvikingstudios.norsetown.model.world.World;
-import com.deadvikingstudios.norsetown.model.world.WorldOld;
 import com.deadvikingstudios.norsetown.model.world.structures.ChunkColumn;
-import com.deadvikingstudios.norsetown.model.world.structures.StructureIsland;
-import com.deadvikingstudios.norsetown.model.world.structures.StructureTree;
 import com.deadvikingstudios.norsetown.utils.Logger;
-import com.deadvikingstudios.norsetown.utils.vector.Vector2i;
-import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
-import com.deadvikingstudios.norsetown.view.TextureAtlas;
-import com.deadvikingstudios.norsetown.view.lwjgl.Loader;
-import com.deadvikingstudios.norsetown.view.lwjgl.WaterFrameBuffers;
-import com.deadvikingstudios.norsetown.view.lwjgl.WindowManager;
-import com.deadvikingstudios.norsetown.view.lwjgl.renderers.Renderer;
-import com.deadvikingstudios.norsetown.view.lwjgl.renderers.RendererNoLight;
-import com.deadvikingstudios.norsetown.view.lwjgl.shaders.LightlessStaticShader;
-import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
+import com.deadvikingstudios.norsetown.view.Loader;
+import com.deadvikingstudios.norsetown.view.WaterFrameBuffers;
+import com.deadvikingstudios.norsetown.view.WindowManager;
+import com.deadvikingstudios.norsetown.view.guis.GuiRenderer;
+import com.deadvikingstudios.norsetown.view.guis.GuiTexture;
 import com.deadvikingstudios.norsetown.view.meshes.*;
+import com.deadvikingstudios.norsetown.view.renderers.Renderer;
+import com.deadvikingstudios.norsetown.view.renderers.LightlessRenderer;
+import com.deadvikingstudios.norsetown.view.renderers.RendererWater;
+import com.deadvikingstudios.norsetown.view.shaders.LightlessStaticShader;
+import com.deadvikingstudios.norsetown.view.shaders.StaticShader;
+import com.deadvikingstudios.norsetown.view.shaders.WaterShader;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 /**
  * Created by SiggiVG on 6/19/2017.
@@ -44,7 +42,7 @@ import java.util.Random;
 public class GameContainer implements Runnable, IGameContainer
 {
     public static final String GAME_NAME = "NorseTown";
-    public static final String VERSION = "Indev-0.02b";
+    public static final String VERSION = "Indev-0.03";
 
     public static final String DEBUG = "debug";
     public static String MODE = DEBUG;
@@ -54,37 +52,46 @@ public class GameContainer implements Runnable, IGameContainer
 //    private static boolean outputFPS = false;
 
     private Thread thread;
-    private GameContainer game;
+    /**
+     * this, the current instance.
+     */
+    public static GameContainer game;
 
     private boolean isRunning = false;
     private static final int TARGET_FPS = 60;
-    private final double UPDATE_CAP = 1.0/(double)TARGET_FPS;
 
     public static Loader loader = null;
     //TODO: setup HashMap<String, Shader>
-    public static StaticShader shader = null;
-    public static StaticShader shaderNoLight = null;
+
+
+
+    public static RendererWater waterRenderer = null;
 
 //    public static WaterShader waterShader = null;
 //    public static WaterRenderer waterRenderer = null;
 
     //TODO: setup HashMap<String, Renderer>
     public static Renderer renderer = null;
-    private static RendererNoLight rendererNoLight = null;
+    private static LightlessRenderer lightlessRenderer = null;
+    private static GuiRenderer guiRenderer = null;
 
     private static List<StructureMesh> structuresMeshes = new ArrayList<StructureMesh>();
     private static List<EntityMesh> entityMeshes = new ArrayList<EntityMesh>();
 
     private static RawMesh defaultMesh;
 
+    /**
+     * The Camera
+     */
     private static CameraController camera;
-    //private static MousePicker picker;
 
     private static boolean renderWireFrame = false;
 
-    //**** SKYBOX ****
+    //**** GUI ****//
+    List<GuiTexture> guiTextures = new ArrayList<GuiTexture>();
+
+    //**** SKYBOX ****//
     private static Entity skybox;
-    private static RawMesh skyMesh;
     public static EntityMesh skyEntMesh;
     private static MeshTexture skyboxTexture;
 
@@ -95,8 +102,8 @@ public class GameContainer implements Runnable, IGameContainer
     //private static SunLight curSunLight;
 
     //***** SEA ****//
-//    List<WaterTile> waters  = new ArrayList<WaterTile>();
-    private static WaterFrameBuffers fbos;
+    List<WaterTile> waters  = new ArrayList<WaterTile>();
+    private static WaterFrameBuffers waterFBOs;
 
     //**** TERRAIN TEXTURE ****//
     private static MeshTexture terrainTexture;
@@ -108,24 +115,32 @@ public class GameContainer implements Runnable, IGameContainer
 
     public GameContainer() {this.game = this;}
 
-    public void start()
+
+    private void start()
     {
         WindowManager.create();
 
+        Logger.debug("Loading Shaders");
+        double startTime = System.currentTimeMillis();
+
         loader = new Loader();
 
+        //**** GUI ****//
+        guiRenderer = new GuiRenderer(loader);
+
         //**** Default(Lit) Shader Set-Up ****//
-        shader = new StaticShader();
-        renderer = new Renderer(shader);
+        renderer = new Renderer(new StaticShader());
 
         //**** Lightless Shader Set-Up ****//
-        shaderNoLight = new LightlessStaticShader();
-        rendererNoLight = new RendererNoLight(shaderNoLight);
+        lightlessRenderer = new LightlessRenderer(new LightlessStaticShader());
 
         //**** Water Renderer Set-Up ****//
-//        waterShader = new WaterShader();
-//        waterRenderer  = new WaterRenderer(loader, waterShader, renderer.getProjectionMatrix());
-        fbos = new WaterFrameBuffers();
+        waterRenderer  = new RendererWater(loader, new WaterShader(), renderer.getProjectionMatrix());
+        waterFBOs = new WaterFrameBuffers();
+        guiTextures.add(new GuiTexture(waterFBOs.getRefractionTexture(), new Vector2f(0.75f,0.75f), new Vector2f(0.25f,0.25f)));
+        guiTextures.add(new GuiTexture(waterFBOs.getReflectionTexture(), new Vector2f(0.25f,0.75f), new Vector2f(0.25f,0.25f)));
+
+        Logger.debug("Shader Loading finished in " + (System.currentTimeMillis() - startTime) + " miliseconds");
 
         thread = new Thread(this);
         thread.run();
@@ -148,7 +163,7 @@ public class GameContainer implements Runnable, IGameContainer
     private void initCamera()
     {
         camera = new CameraController(0, 0, 0);
-        //camera.setRotation(35, 135, 0);//135
+        camera.setRotation(35, 135, 0);//135
     }
 
     public void stop()
@@ -156,13 +171,11 @@ public class GameContainer implements Runnable, IGameContainer
         this.isRunning = false;
     }
 
-    private double initStartTime;
-
     @Override
     public void init()
     {
         Logger.info("Initialization started");
-        initStartTime = System.currentTimeMillis();
+        double initStartTime = System.currentTimeMillis();
 
         initTextures();
         initGlobalLights();
@@ -172,14 +185,15 @@ public class GameContainer implements Runnable, IGameContainer
 
 //        TextureAtlas.instance.CreateAtlas();
 
-        defaultMesh = loader.loadToVAO(vertices, indices, uv, cubeNormals);
+        defaultMesh = loader.loadToVAO(CubeMesh.vertices, CubeMesh.indices, CubeMesh.uv, CubeMesh.cubeNormals);
 
-        skybox = new Entity(0,0,0,0,0,180);
-        skyMesh = loader.loadToVAO(skyVertices, indices, skyboxUV, skyBoxNormals);
-        skyEntMesh = new EntityMesh(skybox, skyMesh, skyboxTexture);
+        //x=-65 is about the latitude of iceland, z=-90 is darbreak at the equator
+        skybox = new Entity(0,0,0,-65,0,-90);
+        RawMesh skyMesh = loader.loadToVAO(SkyboxMesh.skyVertices, CubeMesh.indices, SkyboxMesh.skyboxUV, SkyboxMesh.skyBoxNormals);
+        skyEntMesh = new SkyboxMesh(skybox, skyMesh, skyboxTexture);
 
         //SEA
-//        waters.add(new WaterTile(0,0,0));
+        waters.add(new WaterTile(0,0,12));
 
         //TERRAIN TEXTURE MUST BE INITIALIZED BEFORE A WORLD IS CREATED
         currentWorld = new World(System.currentTimeMillis());
@@ -195,14 +209,11 @@ public class GameContainer implements Runnable, IGameContainer
         MousePositionHandler.update();
     }
 
-    private boolean moveSeaUp = false;
-
     @Override
     public void update(float dt)
     {
         camera.move();
 
-        skybox.setPosition(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
         skybox.rotate(0,0,15f*24f/(float)CalendarNorse.DAY_LENGTH);
 
         //sunLight.update();
@@ -219,7 +230,7 @@ public class GameContainer implements Runnable, IGameContainer
             }
         }
 
-        if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_F1))
+        if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_F1))
         {
             if(renderWireFrame)
             {
@@ -258,21 +269,42 @@ public class GameContainer implements Runnable, IGameContainer
     {
         //Display is cleared before drawing
         renderer.clear();
-        rendererNoLight.clear();
 
         //**** START RENDERING ****//
 
-        shader.loadSpotLight(spotLight);
+        //shader.loadSpotLight(spotLight);
+
+        //GL11.glEnable(GL11.GL_CLIP_PLANE0);
+        GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 
         //**** START FBO RENDERING ****//
-        fbos.bindReflectionFrameBuffer();
-        renderer.renderScene(null, structuresMeshes, camera);
-        fbos.unbindCurrentFrameBuffer();
-
+        //Reflection
+        waterFBOs.bindReflectionFrameBuffer();
+        renderer.clear();
+        float distance = 2 * (camera.getPosition().y - waters.get(0).getHeight());
+        camera.getPosition().y -= distance;
+        //if using roll (z rotation) I need to invert that too
+        camera.invertPitch();
+        lightlessRenderer.renderScene(null,structuresMeshes,camera);
+        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()));
+        camera.invertPitch();
+        camera.getPosition().y += distance;
+//        waterFBOs.unbindCurrentFrameBuffer();
+        //Refraction
+        waterFBOs.bindRefractionFrameBuffer();
+        renderer.clear();
+        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,-1,0,waters.get(0).getHeight()));
+        waterFBOs.unbindCurrentFrameBuffer();
         //**** STOP FBO RENDERING ****//
 
-        rendererNoLight.renderScene(null,structuresMeshes,camera);
-        renderer.renderScene(null, structuresMeshes, camera);
+        //Some drivers have issues with this command not actually disabling it. Mine works fine, however.
+        GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
+        lightlessRenderer.renderScene(null,structuresMeshes,camera);
+        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()));
+        waterRenderer.render(waters, camera);
+
+        //GUI
+        guiRenderer.render(guiTextures);
 
         //**** STOP RENDERING ****//
 
@@ -280,12 +312,14 @@ public class GameContainer implements Runnable, IGameContainer
         WindowManager.updateDisplay();
     }
 
-    public void dispose()
+    private void dispose()
     {
-        fbos.cleanUp();
-        shader.cleanUp();
-        shaderNoLight.cleanUp();
-//        waterShader.cleanUp();
+        waterFBOs.cleanUp();
+
+        guiRenderer.cleanUp();
+        renderer.cleanUp();
+        lightlessRenderer.cleanUp();
+        waterRenderer.cleanUp();
 
         loader.cleanUp();
 
@@ -302,7 +336,6 @@ public class GameContainer implements Runnable, IGameContainer
     {
         String fileNatives = OperatingSystem.getOSforLWJGLNatives();
         System.setProperty("org.lwjgl.librarypath", (new File("libs" + File.separator + "native" + File.separator + fileNatives)).getAbsolutePath());
-        //Logger.debug(System.getProperty("java.library.path"));
         new GameContainer().start();
     }
 
@@ -310,251 +343,6 @@ public class GameContainer implements Runnable, IGameContainer
     {
         return defaultMesh;
     }
-
-    private static float[] vertices = {
-            0,1,1,
-            0,0,1,
-            1,0,1,
-            1,1,1,
-
-            1,1,1,
-            1,0,1,
-            1,0,0,
-            1,1,0,
-
-            1,1,0,
-            1,0,0,
-            0,0,0,
-            0,1,0,
-
-            0,1,0,
-            0,0,0,
-            0,0,1,
-            0,1,1,
-
-            1,1,1,
-            1,1,0,
-            0,1,0,
-            0,1,1,
-
-            0,0,1,
-            0,0,0,
-            1,0,0,
-            1,0,1
-    };
-
-    private static float[] cubeNormals =
-    {
-            0,0,1,
-            0,0,1,
-            0,0,1,
-            0,0,1,
-
-            1,0,0,
-            1,0,0,
-            1,0,0,
-            1,0,0,
-
-            0,0,-1,
-            0,0,-1,
-            0,0,-1,
-            0,0,-1,
-
-            -1,0,0,
-            -1,0,0,
-            -1,0,0,
-            -1,0,0,
-
-            0,1,0,
-            0,1,0,
-            0,1,0,
-            0,1,0,
-
-            0,-1,0,
-            0,-1,0,
-            0,-1,0,
-            0,-1,0,
-    };
-
-    private static float[] skyBoxNormals =
-            {
-                    0,0,-1,
-                    0,0,-1,
-                    0,0,-1,
-                    0,0,-1,
-
-                    -1,0,0,
-                    -1,0,0,
-                    -1,0,0,
-                    -1,0,0,
-
-                    0,0,1,
-                    0,0,1,
-                    0,0,1,
-                    0,0,1,
-
-                    1,0,0,
-                    1,0,0,
-                    1,0,0,
-                    1,0,0,
-
-                    0,-1,0,
-                    0,-1,0,
-                    0,-1,0,
-                    0,-1,0,
-
-                    0,1,0,
-                    0,1,0,
-                    0,1,0,
-                    0,1,0,
-
-                };
-
-    private static float[] quadNormals =
-    {
-            0,1,0,
-            0,1,0,
-            0,1,0,
-            0,1,0,
-    };
-
-
-    private static float skyboxSize = 10;//(float)((Renderer.P_FAR_PLANE-10f)/(Math.sqrt(3)));
-    private static float[] skyVertices = {
-            skyboxSize,skyboxSize,skyboxSize,
-            skyboxSize,-skyboxSize,skyboxSize,
-            -skyboxSize,-skyboxSize,skyboxSize,
-            -skyboxSize,skyboxSize,skyboxSize,
-
-            skyboxSize,skyboxSize,-skyboxSize,
-            skyboxSize,-skyboxSize,-skyboxSize,
-            skyboxSize,-skyboxSize,skyboxSize,
-            skyboxSize,skyboxSize,skyboxSize,
-
-            -skyboxSize,skyboxSize,-skyboxSize,
-            -skyboxSize,-skyboxSize,-skyboxSize,
-            skyboxSize,-skyboxSize,-skyboxSize,
-            skyboxSize,skyboxSize,-skyboxSize,
-
-            -skyboxSize,skyboxSize,skyboxSize,
-            -skyboxSize,-skyboxSize,skyboxSize,
-            -skyboxSize,-skyboxSize,-skyboxSize,
-            -skyboxSize,skyboxSize,-skyboxSize,
-
-            -skyboxSize,skyboxSize,skyboxSize,
-            -skyboxSize,skyboxSize,-skyboxSize,
-            skyboxSize,skyboxSize,-skyboxSize,
-            skyboxSize,skyboxSize,skyboxSize,
-
-            skyboxSize,-skyboxSize,skyboxSize,
-            skyboxSize,-skyboxSize,-skyboxSize,
-            -skyboxSize,-skyboxSize,-skyboxSize,
-            -skyboxSize,-skyboxSize,skyboxSize
-    };
-
-    private static float[] skyboxUV = {
-            0.5f,0,
-            0.5f,0.5f,
-            1f,0.5f,
-            1f,0,
-
-            1f,0,
-            1f,0.5f,
-            0.5f,0.5f,
-            0.5f,0,
-
-            0.5f,0,
-            0.5f,0.5f,
-            1f,0.5f,
-            1f,0,
-
-            1f,0,
-            1f,0.5f,
-            0.5f,0.5f,
-            0.5f,0,
-
-            0,0,
-            0,0.5f,
-            0.5f,0.5f,
-            0.5f,0,
-
-            0.5f,0.5f,
-            0.5f,1f,
-            1f,1f,
-            1f,0.5f,
-    };
-
-    private static float[] seaVertices =
-            {
-                    250,0,250,
-                    250,0,-250,
-                    -250,0,-250,
-                    -250,0,250
-            };
-
-    private static int[] seaIndices = {
-            0, 1, 3,
-            3, 1, 2
-    };
-
-    private static float[] seaUV = {
-            0, 0,
-            0, 1,
-            1, 1,
-            1, 0
-    };
-
-    private static int[] indices = {
-            0, 1, 3,
-            3, 1, 2,
-
-            4, 5, 7,
-            7, 5, 6,
-
-            8, 9, 11,
-            11, 9, 10,
-
-            12, 13, 15,
-            15, 13, 14,
-
-            16, 17, 19,
-            19, 17, 18,
-
-            20, 21, 23,
-            23, 21, 22
-    };
-
-    private static float[] uv = {
-            0,0,
-            0,1,
-            1,1,
-            1,0,
-
-            0,0,
-            0,1,
-            1,1,
-            1,0,
-
-            0,0,
-            0,1,
-            1,1,
-            1,0,
-
-            0,0,
-            0,1,
-            1,1,
-            1,0,
-
-            0,0,
-            0,1,
-            1,1,
-            1,0,
-
-            0,0,
-            0,1,
-            1,1,
-            1,0
-    };
 
     @Override
     public void run()
@@ -595,13 +383,15 @@ public class GameContainer implements Runnable, IGameContainer
                 unprocessedTime += passedTime;
                 frameTime += passedTime;
 
-                while (unprocessedTime >= UPDATE_CAP)
+                double updateCap = 1.0 / (double) TARGET_FPS;
+
+                while (unprocessedTime >= updateCap)
                 {
-                    unprocessedTime -= UPDATE_CAP;
+                    unprocessedTime -= updateCap;
                     render = true;
 
                     game.input();
-                    game.update((float) UPDATE_CAP);
+                    game.update((float) updateCap);
 
 
                     //FPS output
@@ -648,4 +438,3 @@ public class GameContainer implements Runnable, IGameContainer
         dispose();
     }
 }
-

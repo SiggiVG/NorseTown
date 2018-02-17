@@ -1,7 +1,6 @@
 package com.deadvikingstudios.norsetown.view.meshes;
 
 import com.deadvikingstudios.norsetown.model.entities.Entity;
-import com.deadvikingstudios.norsetown.view.lwjgl.Loader;
 import org.lwjgl.util.vector.Vector3f;
 
 /**

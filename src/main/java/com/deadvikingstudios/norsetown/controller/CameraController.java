@@ -285,14 +285,29 @@ public class CameraController
         return rotation.x;
     }
 
+    public void invertPitch()
+    {
+        this.rotation.x = -this.rotation.x;
+    }
+
     public float getYaw()
     {
         return rotation.y;
     }
 
+    public void invertYaw()
+    {
+        this.rotation.y = -this.rotation.y;
+    }
+
     public float getRoll()
     {
         return rotation.z;
+    }
+
+    public void invertRoll()
+    {
+        this.rotation.z = -this.rotation.z;
     }
 
     public void pitch(float degree)

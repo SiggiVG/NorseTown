@@ -1,9 +1,9 @@
-package com.deadvikingstudios.norsetown.view.lwjgl.renderers;
+package com.deadvikingstudios.norsetown.view.renderers;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
-import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
+import com.deadvikingstudios.norsetown.view.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.TexturedMesh;
 
 import java.util.HashMap;

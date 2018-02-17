@@ -18,9 +18,10 @@ public class RawMesh
     private int vboNormID;
     private int vertexCount;
 
-    public RawMesh(int vaoID, int vertexCount)
+    public RawMesh(int vaoID, int vboVertID, int vertexCount)
     {
         this.vaoID = vaoID;
+        this.vboVertID = vboVertID;
         this.vertexCount = vertexCount;
     }
 

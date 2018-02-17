@@ -4,6 +4,7 @@ import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.entities.EntityStructure;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.model.world.structures.StructureIsland;
+import com.deadvikingstudios.norsetown.model.world.structures.StructureTree;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class World
     public void init()
     {
         addStructure(new StructureIsland(0,0,0));
+        addStructure(new StructureTree(new Vector3i(0,0,30)));
     }
 
     private void addStructure(Structure structure)

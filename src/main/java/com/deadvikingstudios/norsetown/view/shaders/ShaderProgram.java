@@ -1,11 +1,13 @@
-package com.deadvikingstudios.norsetown.view.lwjgl.shaders;
+package com.deadvikingstudios.norsetown.view.shaders;
 
+import com.deadvikingstudios.norsetown.utils.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -85,6 +87,11 @@ public abstract class ShaderProgram
     protected void loadVector3D(int location, Vector3f vector)
     {
         GL20.glUniform3f(location, vector.x, vector.y, vector.z);
+    }
+
+    protected void loadVector4D(int location, Vector4f vector)
+    {
+        GL20.glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
     }
 
     protected void loadBoolean(int location, boolean value)

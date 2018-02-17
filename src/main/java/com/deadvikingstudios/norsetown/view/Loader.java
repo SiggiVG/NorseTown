@@ -1,4 +1,4 @@
-package com.deadvikingstudios.norsetown.view.lwjgl;
+package com.deadvikingstudios.norsetown.view;
 
 import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
 import de.matthiasmann.twl.utils.PNGDecoder;
@@ -43,6 +43,27 @@ public class Loader
 
         return new RawMesh(vaoID, vertVboID, indVboID, uvVboID, indices.length);
     }*/
+
+    public RawMesh loadToVAO(float[] vertices)
+    {
+        int vaoID = createVAO();
+        int vertVboID = storeDataInAttributeList(vertices, 0, 2);
+        GL30.glBindVertexArray(0);
+
+        return new RawMesh(vaoID, vertVboID, vertices.length / 2);
+    }
+
+//    public RawMesh loadToVAO(float[] vertices, int[] indices, float[] uvs)
+//    {
+//        int vaoID = createVAO();
+//        int vertVboID = storeDataInAttributeList(vertices, 0, 3);
+//        int indVboID = bindIndicesBuffer(indices);
+//        int uvVboID = storeDataInAttributeList(uvs, 1, 2);
+//        //int normVboID = storeDataInAttributeList(norms, 2, 3);
+//        GL30.glBindVertexArray(0);
+//
+//        return new RawMesh(vaoID, vertVboID, indVboID, uvVboID, indices.length);
+//    }
 
     public RawMesh loadToVAO(float[] vertices, int[] indices, float[] uvs, float[] norms)
     {
@@ -160,7 +181,6 @@ public class Loader
             ByteBuffer buf = ByteBuffer.allocateDirect(rgba*decoder.getWidth()*decoder.getHeight());
             decoder.decode(buf, decoder.getWidth()*rgba, PNGDecoder.Format.RGBA);
             buf.flip();
-            System.out.println(buf);
             texture=glGenTextures();
             glBindTexture(GL_TEXTURE_2D, texture);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, decoder.getWidth(), decoder.getHeight(), 0,

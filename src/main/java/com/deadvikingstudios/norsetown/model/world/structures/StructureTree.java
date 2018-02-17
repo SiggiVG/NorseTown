@@ -17,7 +17,6 @@ public class StructureTree extends Structure
         for (int i = 1; i < 12; i++)
         {
             this.setTile(Tile.Tiles.tileTrunkFir, 0,i,0);
-
             if(i > 3)
             {
                 this.setTile(Tile.Tiles.tileLeaves, 0, i, 1);
@@ -40,12 +39,15 @@ public class StructureTree extends Structure
                 this.setTile(Tile.Tiles.tileLeaves, 0,12,0);
             }
         }
-
         this.setTile(Tile.Tiles.tileLeaves, 0,9,1);
         this.setTile(Tile.Tiles.tileLeaves, 0,9,-1);
         this.setTile(Tile.Tiles.tileLeaves, 1,9,0);
         this.setTile(Tile.Tiles.tileLeaves, -1,9,0);
+    }
 
-
+    @Override
+    public void update()
+    {
+        super.update();
     }
 }

@@ -1,8 +1,8 @@
-package com.deadvikingstudios.norsetown.view.lwjgl.shaders;
+package com.deadvikingstudios.norsetown.view.shaders;
 
 public class LightlessStaticShader extends StaticShader
 {
-    private static final String VERTEX_FILE_LIGHTLESS = /*GameContainer.RES_PATH + */"/shaders/vertex.vert";
+    private static final String VERTEX_FILE_LIGHTLESS = /*GameContainer.RES_PATH + */"/shaders/vertex_lightless.vert";
     private static final String FRAGMENT_FILE_LIGHTLESS = /*GameContainer.RES_PATH + */"/shaders/fragment_no_light.frag";
 
     public LightlessStaticShader()

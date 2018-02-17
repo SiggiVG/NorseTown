@@ -1,7 +1,5 @@
 package com.deadvikingstudios.norsetown.view;
 
-import com.deadvikingstudios.norsetown.controller.GameContainer;
-import com.deadvikingstudios.norsetown.view.lwjgl.Loader;
 import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;

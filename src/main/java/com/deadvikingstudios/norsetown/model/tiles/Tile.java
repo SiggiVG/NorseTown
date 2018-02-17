@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
+import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 
 /**
@@ -11,6 +12,8 @@ public abstract class Tile
 {
     public static final float TILE_SIZE = 1f; //setting to values other than 1 currently break rendering
     public static final float TILE_HEIGHT = 1f;
+
+    private AxisAlignedBoundingBox aabb = new AxisAlignedBoundingBox(0,0,0,1,1,1);
 
     /**
      * unlocalized name, used for localization and texturing
@@ -31,8 +34,6 @@ public abstract class Tile
      * true if it has no transparent pixels
      */
     protected boolean isOpaque = true;
-
-
 
     public Tile(int index, String unlocalizedName, EnumMaterial material)
     {
@@ -216,6 +217,13 @@ public abstract class Tile
         }
     }
 
+    public AxisAlignedBoundingBox getAABB(int x, int y, int z)
+    {
+        return aabb;
+//        return new AxisAlignedBoundingBox(aabb.getMinX()+x, aabb.getMinY()+y, aabb.getMinZ()+z,
+//                aabb.getMaxX()+x, aabb.getMaxY()+y, aabb.getMaxZ()+z);
+    }
+
     /**
      * TODO have return a tooltype
      * @return
@@ -232,7 +240,7 @@ public abstract class Tile
         STONE, //Rocks, Stone, Mountains
         METAL, //Copper, Iron, Gold, Silver
         WOOD, //Logs, Planks, Firewood
-        PLANT, //Plants
+        PLANT, //Vegitation
         ICE, //Snow, Sleet, Ice
         WATER; //Salt Water, Brine, Fresh Water, Waves, Rapids
     }

@@ -2,7 +2,7 @@ package com.deadvikingstudios.norsetown.view.meshes;
 
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.utils.ArrayUtils;
-import com.deadvikingstudios.norsetown.view.lwjgl.renderers.Renderer;
+import com.deadvikingstudios.norsetown.view.renderers.Renderer;
 
 import java.util.ArrayList;
 import java.util.List;

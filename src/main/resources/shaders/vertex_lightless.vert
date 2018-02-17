@@ -17,7 +17,6 @@ uniform mat4 transformationMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix; // inverse of camera's position
 uniform SpotLight spotLight;
-uniform vec4 plane;
 
 //output
 out vec2 pass_uvs;
@@ -27,14 +26,12 @@ out vec3 unitCameraVector;
 
 void main(void)
 {
+    mat4 vMatrix = mat4(mat3(viewMatrix));
     vec4 worldPosition = transformationMatrix * vec4(position, 1.0);
-
-    gl_ClipDistance[0] = dot(worldPosition, plane);
-
-    gl_Position = projectionMatrix * viewMatrix * worldPosition;
+    gl_Position = projectionMatrix * vMatrix * worldPosition;
     pass_uvs = uvs;
 
     surfaceNormal = (transformationMatrix * vec4(normals,0.0)).xyz;
     toLightVector = spotLight.position - worldPosition.xyz;
-    unitCameraVector = normalize((inverse(viewMatrix) * vec4(0.0,0.0,0.0,1.0)).xyz - worldPosition.xyz);
+    unitCameraVector = normalize((inverse(vMatrix) * vec4(0.0,0.0,0.0,1.0)).xyz - worldPosition.xyz);
 }

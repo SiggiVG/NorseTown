@@ -1,14 +1,12 @@
-package com.deadvikingstudios.norsetown.view.lwjgl;
+package com.deadvikingstudios.norsetown.view;
 
 import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.controller.KeyboardInputHandler;
 import com.deadvikingstudios.norsetown.controller.MouseInputHandler;
 import com.deadvikingstudios.norsetown.controller.MousePositionHandler;
-import com.deadvikingstudios.norsetown.view.lwjgl.renderers.Renderer;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
@@ -27,14 +25,14 @@ public class WindowManager
     /**
      * the Width and Height of the Display
      */
-    public static final int WIDTH = 1280, HEIGHT = 720;
+    private static final int WIDTH = 1280, HEIGHT = 720;
 
     private static boolean fullScreen = false;
 
     public static long window;
-    public static GLFWKeyCallback keyCallback;
-    public static GLFWMouseButtonCallback mouseButtonCallback;
-    public static GLFWCursorPosCallback cursorPosCallback;
+    private static GLFWKeyCallback keyCallback;
+    private static GLFWMouseButtonCallback mouseButtonCallback;
+    private static GLFWCursorPosCallback cursorPosCallback;
 
 
     /**
@@ -128,45 +126,17 @@ public class WindowManager
     {
         if(KeyboardInputHandler.isKeyPressed(GLFW_KEY_ESCAPE))
         {
+            GameContainer.game.stop();
             dispose();
         }
 
         GLFW.glfwSwapBuffers(WindowManager.window);
-
-
-        /*Display.update();
-        Display.sync(GameContainer.TARGET_FPS);
-
-        //Keyboard input for dev
-        while(Keyboard.next())
-        {
-            if(Keyboard.getEventKeyState())
-            {
-                //ESC = quit
-                if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
-                {
-                    dispose();
-                }
-
-                //E = unbind/bind mouse from game
-                if(Keyboard.isKeyDown(Keyboard.KEY_R) && Mouse.isGrabbed())
-                {
-                    Mouse.setGrabbed(false);
-                    Mouse.setCursorPosition(Display.getWidth()/2, Display.getHeight()/2);
-                }
-                else if(Keyboard.isKeyDown(Keyboard.KEY_R) && !Mouse.isGrabbed())
-                {
-                    Mouse.setGrabbed(true);
-                    Mouse.setCursorPosition(Display.getWidth()/2, Display.getHeight()/2);
-                }
-            }
-        }*/
     }
 
     public static void resize()
     {
         GL11.glViewport(0,0, getCurrentWidth(), getCurrentHeight());
-        GameContainer.renderer.createProjectionMatrix(GameContainer.shader, false);
+        GameContainer.renderer.createProjectionMatrix(GameContainer.renderer.getShader(), false);
 
     }
 

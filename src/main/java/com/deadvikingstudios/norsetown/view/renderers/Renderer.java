@@ -1,10 +1,10 @@
-package com.deadvikingstudios.norsetown.view.lwjgl.renderers;
+package com.deadvikingstudios.norsetown.view.renderers;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
 import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.utils.RenderMath;
-import com.deadvikingstudios.norsetown.view.lwjgl.WindowManager;
-import com.deadvikingstudios.norsetown.view.lwjgl.shaders.StaticShader;
+import com.deadvikingstudios.norsetown.view.WindowManager;
+import com.deadvikingstudios.norsetown.view.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import com.deadvikingstudios.norsetown.view.meshes.StructureMesh;
 import org.lwjgl.glfw.GLFW;
@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector4f;
 
 import java.util.List;
 
@@ -40,9 +41,10 @@ public class Renderer
 
     }
 
-    public void renderScene(List<EntityMesh> entities, List<StructureMesh> structures, CameraController camera)
+    public void renderScene(List<EntityMesh> entities, List<StructureMesh> structures, CameraController camera, Vector4f clip)
     {
         shader.start();
+        shader.loadClipPlane(clip);
         shader.loadViewMatrix(camera);
 
         shader.loadAmbientLight(GameContainer.ambientLight);
@@ -167,6 +169,16 @@ public class Renderer
         GL20.glDisableVertexAttribArray(1);
         GL20.glDisableVertexAttribArray(2);
         GL30.glBindVertexArray(0);
+    }
+
+    public void cleanUp()
+    {
+        shader.cleanUp();
+    }
+
+    public StaticShader getShader()
+    {
+        return shader;
     }
 
     /*public static void render(TexturedMesh mesh, StaticShader shader )
