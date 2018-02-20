@@ -55,4 +55,10 @@ public enum EnumTileFace
 
         }
     }
+
+//    public Vector3f north(Vector3f in)
+//    {
+//        in.z++;
+//        return in;
+//    }
 }

@@ -1,12 +1,17 @@
 package com.deadvikingstudios.norsetown.view.renderers;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
+import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.model.world.WaterTile;
 import com.deadvikingstudios.norsetown.utils.RenderMath;
 import com.deadvikingstudios.norsetown.view.Loader;
+import com.deadvikingstudios.norsetown.view.WaterFrameBuffers;
+import com.deadvikingstudios.norsetown.view.WindowManager;
 import com.deadvikingstudios.norsetown.view.shaders.WaterShader;
 import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
@@ -16,12 +21,22 @@ import java.util.List;
 
 public class RendererWater {
 
+    private static final float WAVE_SPEED = 0.03f;
+    private static final String  DUDV_MAP = "textures/waterDUDV";
+
     private RawMesh quad;
     private WaterShader shader;
+    private WaterFrameBuffers fbos;
 
-    public RendererWater(Loader loader, WaterShader shader, Matrix4f projectionMatrix) {
+    private float moveFactor = 0;
+    private int dudvTexture;
+
+    public RendererWater(Loader loader, WaterShader shader, Matrix4f projectionMatrix, WaterFrameBuffers fbos) {
         this.shader = shader;
+        this.fbos = fbos;
+        dudvTexture = loader.loadTexture(DUDV_MAP);
         shader.start();
+        shader.connectTextureUnits();
         shader.loadProjectionMatrix(projectionMatrix);
         shader.stop();
         setUpVAO(loader);
@@ -42,8 +57,16 @@ public class RendererWater {
     private void prepareRender(CameraController camera){
         shader.start();
         shader.loadViewMatrix(camera);
+        moveFactor += WAVE_SPEED * 0.016;
+        shader.loadMoveFactor(moveFactor);
         GL30.glBindVertexArray(quad.getVaoID());
         GL20.glEnableVertexAttribArray(0);
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, fbos.getReflectionTexture());
+        GL13.glActiveTexture(GL13.GL_TEXTURE1);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, fbos.getRefractionTexture());
+        GL13.glActiveTexture(GL13.GL_TEXTURE2);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, dudvTexture);
     }
 
     private void unbind(){
@@ -55,7 +78,7 @@ public class RendererWater {
     private void setUpVAO(Loader loader) {
         // Just x and z vectex positions here, y is set to 0 in v.shader
         float[] vertices = { -1, -1, -1, 1, 1, -1, 1, -1, -1, 1, 1, 1 };
-        quad = loader.loadToVAO(vertices);
+        quad = loader.loadToVAO(vertices, 2);
     }
 
     public void cleanUp()

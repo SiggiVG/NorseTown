@@ -44,13 +44,13 @@ public class Loader
         return new RawMesh(vaoID, vertVboID, indVboID, uvVboID, indices.length);
     }*/
 
-    public RawMesh loadToVAO(float[] vertices)
+    public RawMesh loadToVAO(float[] vertices, int dimension)
     {
         int vaoID = createVAO();
-        int vertVboID = storeDataInAttributeList(vertices, 0, 2);
+        int vertVboID = storeDataInAttributeList(vertices, 0, dimension);
         GL30.glBindVertexArray(0);
 
-        return new RawMesh(vaoID, vertVboID, vertices.length / 2);
+        return new RawMesh(vaoID, vertVboID, vertices.length / dimension);
     }
 
 //    public RawMesh loadToVAO(float[] vertices, int[] indices, float[] uvs)

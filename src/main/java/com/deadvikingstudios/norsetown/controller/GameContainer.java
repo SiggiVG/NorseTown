@@ -2,6 +2,7 @@ package com.deadvikingstudios.norsetown.controller;
 
 
 import com.deadvikingstudios.norsetown.model.entities.Entity;
+import com.deadvikingstudios.norsetown.model.items.Item;
 import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
 import com.deadvikingstudios.norsetown.model.lighting.SpotLight;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
@@ -64,6 +65,7 @@ public class GameContainer implements Runnable, IGameContainer
     //TODO: setup HashMap<String, Shader>
 
 
+    public static final float SEA_LEVEL = 12f;
 
     public static RendererWater waterRenderer = null;
 
@@ -135,10 +137,10 @@ public class GameContainer implements Runnable, IGameContainer
         lightlessRenderer = new LightlessRenderer(new LightlessStaticShader());
 
         //**** Water Renderer Set-Up ****//
-        waterRenderer  = new RendererWater(loader, new WaterShader(), renderer.getProjectionMatrix());
         waterFBOs = new WaterFrameBuffers();
-        guiTextures.add(new GuiTexture(waterFBOs.getRefractionTexture(), new Vector2f(0.75f,0.75f), new Vector2f(0.25f,0.25f)));
-        guiTextures.add(new GuiTexture(waterFBOs.getReflectionTexture(), new Vector2f(0.25f,0.75f), new Vector2f(0.25f,0.25f)));
+        waterRenderer  = new RendererWater(loader, new WaterShader(), renderer.getProjectionMatrix(), waterFBOs);
+//        guiTextures.add(new GuiTexture(waterFBOs.getRefractionTexture(), new Vector2f(0.75f,0.75f), new Vector2f(0.25f,0.25f)));
+//        guiTextures.add(new GuiTexture(waterFBOs.getReflectionTexture(), new Vector2f(0.25f,0.75f), new Vector2f(0.25f,0.25f)));
 
         Logger.debug("Shader Loading finished in " + (System.currentTimeMillis() - startTime) + " miliseconds");
 
@@ -181,6 +183,7 @@ public class GameContainer implements Runnable, IGameContainer
         initGlobalLights();
         initCamera();
 
+        Item.Items.init();
         Tile.Tiles.init();
 
 //        TextureAtlas.instance.CreateAtlas();
@@ -193,7 +196,7 @@ public class GameContainer implements Runnable, IGameContainer
         skyEntMesh = new SkyboxMesh(skybox, skyMesh, skyboxTexture);
 
         //SEA
-        waters.add(new WaterTile(0,0,12));
+        waters.add(new WaterTile(0,0,SEA_LEVEL));
 
         //TERRAIN TEXTURE MUST BE INITIALIZED BEFORE A WORLD IS CREATED
         currentWorld = new World(System.currentTimeMillis());
@@ -221,9 +224,19 @@ public class GameContainer implements Runnable, IGameContainer
 
         currentWorld.update();
 
+        if(KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_SPACE))
+        {
+            currentWorld.cutDownTrees();
+        }
+
         for (StructureMesh mesh : structuresMeshes)
         {
-            if(mesh.getChunkColumn().isFlagForReMesh())
+            if(mesh.getChunkColumn() == null)
+            {
+                structuresMeshes.remove(mesh);
+                loader.unloadMesh(mesh.getMesh());
+            }
+            else if(mesh.getChunkColumn().isFlagForReMesh())
             {
                 mesh.reloadMesh();
                 mesh.getChunkColumn().wasReMeshed();
@@ -274,7 +287,6 @@ public class GameContainer implements Runnable, IGameContainer
 
         //shader.loadSpotLight(spotLight);
 
-        //GL11.glEnable(GL11.GL_CLIP_PLANE0);
         GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 
         //**** START FBO RENDERING ****//
@@ -286,14 +298,17 @@ public class GameContainer implements Runnable, IGameContainer
         //if using roll (z rotation) I need to invert that too
         camera.invertPitch();
         lightlessRenderer.renderScene(null,structuresMeshes,camera);
-        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()));
+        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()+0.1f));
         camera.invertPitch();
         camera.getPosition().y += distance;
 //        waterFBOs.unbindCurrentFrameBuffer();
         //Refraction
         waterFBOs.bindRefractionFrameBuffer();
         renderer.clear();
-        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,-1,0,waters.get(0).getHeight()));
+        GL11.glDisable(GL11.GL_CULL_FACE);
+//        lightlessRenderer.renderScene(null,structuresMeshes,camera);
+        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,-1,0,waters.get(0).getHeight()-1));
+        GL11.glEnable(GL11.GL_CULL_FACE);
         waterFBOs.unbindCurrentFrameBuffer();
         //**** STOP FBO RENDERING ****//
 
@@ -336,6 +351,7 @@ public class GameContainer implements Runnable, IGameContainer
     {
         String fileNatives = OperatingSystem.getOSforLWJGLNatives();
         System.setProperty("org.lwjgl.librarypath", (new File("libs" + File.separator + "native" + File.separator + fileNatives)).getAbsolutePath());
+
         new GameContainer().start();
     }
 

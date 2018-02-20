@@ -100,7 +100,7 @@ public class ChunkColumn extends Entity implements Serializable
         Chunk chunk = getChunk(x,y,z,true);
 
         //Checks if the two tiles are the same
-        if(chunk.getTile(x,y,z) == tile) return;
+        if(chunk.getTile(Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE)) == tile) return;
 
         //calls the Chunk's setTile function upon an adjusted coordinate.
         chunk.setTile(tile, Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE));
@@ -118,6 +118,33 @@ public class ChunkColumn extends Entity implements Serializable
         this.flagForReMesh = true;
     }
 
+    public int getMetadata(int x, int y, int z)
+    {
+        Chunk chunk = getChunk(x,y,z,false);
+        if(chunk != null)
+        {
+            return chunk.getMetadata(Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE));
+        }
+        return 0;
+    }
+
+    public void setMetadata(int x, int y, int z, byte metadata)
+    {
+        Chunk chunk = getChunk(x,y,z,false);
+        if(chunk ==  null) return;
+
+        byte oldMeta = (byte) chunk.getMetadata(Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE));
+        if(oldMeta == metadata) return;
+
+        Tile tile = chunk.getTile(Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE));
+        if(tile.isAir()) return;
+
+        chunk.setMetadata(Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE), metadata);
+
+        if(tile.getTileShape(oldMeta) != tile.getTileShape(metadata)) flagForReMesh = true;
+
+    }
+
     @Override
     public void update()
     {
@@ -127,6 +154,11 @@ public class ChunkColumn extends Entity implements Serializable
     public boolean isFlagForReMesh()
     {
         return this.flagForReMesh;
+    }
+
+    public void flagForReMesh()
+    {
+        this.flagForReMesh = true;
     }
 
     public void wasReMeshed()

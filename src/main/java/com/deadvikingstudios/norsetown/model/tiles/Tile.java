@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
+import com.deadvikingstudios.norsetown.model.RegistrationException;
 import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 
@@ -22,7 +23,7 @@ public abstract class Tile
     /**
      * the index it is stored at in the Tiles array
      */
-    protected final byte INDEX;
+    protected final int INDEX;
 
     protected final EnumMaterial MATERIAL;
 
@@ -37,9 +38,17 @@ public abstract class Tile
 
     public Tile(int index, String unlocalizedName, EnumMaterial material)
     {
-        this.INDEX = (byte)index;
-        this.UNLOCALIZED_NAME = unlocalizedName;
+        this.INDEX = index;
+        this.UNLOCALIZED_NAME = "tile_" + unlocalizedName;
         this.MATERIAL = material;
+
+        if(this.INDEX < 0) try
+        {
+            throw new RegistrationException("Tile: " + UNLOCALIZED_NAME + " was initialized with a negative index");
+        } catch (RegistrationException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public String getUnlocalizedName()
@@ -144,13 +153,43 @@ public abstract class Tile
         return false;
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof Tile)) return false;
+
+        Tile tile = (Tile) o;
+
+        if (INDEX != tile.INDEX) return false;
+        return UNLOCALIZED_NAME != null ? UNLOCALIZED_NAME.equals(tile.UNLOCALIZED_NAME) : tile.UNLOCALIZED_NAME == null;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Tile{" +
+                "unlocalizedName='" + UNLOCALIZED_NAME + '\'' +
+                ",index=" + INDEX +
+                '}';
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = UNLOCALIZED_NAME != null ? UNLOCALIZED_NAME.hashCode() : 0;
+        result = 31 * result + INDEX;
+        return result;
+    }
+
     public static class Tiles
     {
-        private static Tile tiles[] = new Tile[256];
+        private static Tile[] tiles = new Tile[512];
 
         public static Tile tileAir;
         public static Tile tileGrass;
         public static Tile tileSoil;
+        public static Tile tileTreeBase;
         public static Tile tileTrunkFir;
         public static Tile tilePlank;
         public static Tile tileStoneCliff;
@@ -167,17 +206,18 @@ public abstract class Tile
         {
             int i =0;
 
-            register(tileAir = new TileAir(i++,"tile_air").setOpaque(false));
-            register(tileGrass = new TileSod(i++,"tile_sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,4, 18));
-            register(tileSoil = new TileSoil(i++, "tile_soil", EnumMaterial.EARTH).setTextureOffset(3));
-            register(tileTrunkFir = new TileTree(i++,"tile_log").setTextureOffset(7,6));
-            register(tilePlank = new TileWood(i++,"tile_plank", EnumMaterial.WOOD).setTextureOffset(5));
-            register(tileStoneCliff = new TileStone(i++,"tile_stone_cliff", EnumMaterial.STONE).setTextureOffset(8));
-            register(tileStoneCobble = new TileStone(i++,"tile_stone_cobble", EnumMaterial.STONE).setTextureOffset(9));
-            register(tileClay = new TileSoil(i++,"tile_clay", EnumMaterial.EARTH).setTextureOffset(10));
-            register(tileWattleDaub = new TileWood(i++,"tile_wattledaub", EnumMaterial.EARTH).setTextureOffset(10,11));
-            register(tileLeaves = new TileLeaves(i++,"tile_leaves", EnumMaterial.PLANT).setOpaque(false).setTextureOffset(32).setTextureOffsetParticle(33));
-            register(tileGrassTall = new Tile(i++, "tile_grass_tall", EnumMaterial.PLANT)
+            register(tileAir = new TileAir(i++,"air").setOpaque(false));
+            register(tileGrass = new TileSod(i++,"sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,4, 18));
+            register(tileSoil = new TileSoil(i++, "soil", EnumMaterial.EARTH).setTextureOffset(3));
+            register(tileTreeBase = new TileTree(i++,"tree_base").setTextureOffset(7,6));
+            register(tileTrunkFir = new TileTree(i++,"log").setTextureOffset(7,6));
+            register(tilePlank = new TileWood(i++,"plank", EnumMaterial.WOOD).setTextureOffset(5));
+            register(tileStoneCliff = new TileStone(i++,"stone_cliff", EnumMaterial.STONE).setTextureOffset(8));
+            register(tileStoneCobble = new TileStone(i++,"stone_cobble", EnumMaterial.STONE).setTextureOffset(9));
+            register(tileClay = new TileSoil(i++,"clay", EnumMaterial.EARTH).setTextureOffset(10));
+            register(tileWattleDaub = new TileWood(i++,"wattledaub", EnumMaterial.EARTH).setTextureOffset(10,11));
+            register(tileLeaves = new TileLeaves(i++,"leaves", EnumMaterial.PLANT).setOpaque(false).setTextureOffset(32).setTextureOffsetParticle(33));
+            register(tileGrassTall = new Tile(i++, "grass_tall", EnumMaterial.PLANT)
             {
                 @Override
                 public void update(Structure structure, int x, int y, int z)

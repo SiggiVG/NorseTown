@@ -1,6 +1,7 @@
 package com.deadvikingstudios.norsetown.model.world.structures;
 
 import com.deadvikingstudios.norsetown.controller.GameContainer;
+import com.deadvikingstudios.norsetown.model.items.ItemStack;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.utils.Logger;
 import com.deadvikingstudios.norsetown.utils.vector.Vector2i;
@@ -217,6 +218,11 @@ public class Structure implements Serializable
         this.dockedStructures.put(structureTree.position, structureTree);
     }
 
+    public <STRUCTURE extends Structure> void removeDockedStructure(STRUCTURE structureTree)
+    {
+        this.dockedStructures.remove(structureTree.position);
+    }
+
     public Vector3i getPosition()
     {
         return position;
@@ -225,5 +231,21 @@ public class Structure implements Serializable
     public void setPosition(Vector3i position)
     {
         this.position = position;
+    }
+
+    public List<ItemStack> destroy(Structure parent, boolean dropItems)
+    {
+        for (Map.Entry<Vector2i, ChunkColumn> entry : this.getChunks().entrySet())
+        {
+            entry.getValue().getChunks().clear();
+            entry.getValue().flagForReMesh();
+        }
+        this.getChunks().clear();
+        if(parent != null)
+        {
+            parent.removeDockedStructure(this);
+        }
+
+        return null;
     }
 }

@@ -5,10 +5,12 @@ import com.deadvikingstudios.norsetown.model.entities.EntityStructure;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.model.world.structures.StructureIsland;
 import com.deadvikingstudios.norsetown.model.world.structures.StructureTree;
+import com.deadvikingstudios.norsetown.utils.Logger;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class World
 {
@@ -31,7 +33,11 @@ public class World
     public void init()
     {
         addStructure(new StructureIsland(0,0,0));
-        addStructure(new StructureTree(new Vector3i(0,0,30)));
+        Random rand = new Random(seed);
+        for (int i = 0; i < 16; i++)
+        {
+            addStructure(new StructureTree(new Vector3i(rand.nextInt(64)-32, rand.nextInt(64), rand.nextInt(64)-32 )));
+        }
     }
 
     private void addStructure(Structure structure)
@@ -42,6 +48,24 @@ public class World
     private void addStructure(Structure structure, Vector3i pos)
     {
         this.structures.add(new EntityStructure(structure, pos.x, pos.y, pos.z));
+    }
+
+    /**
+     * Testing only
+     */
+    public void cutDownTrees()
+    {
+//        Logger.debug("fizz");
+        List<EntityStructure> ents = new ArrayList<>();
+        for (EntityStructure structure : structures)
+        {
+            if(structure.getStructure() instanceof StructureTree)
+            {
+                ents.add(structure);
+                ((StructureTree) structure.getStructure()).destroy(null,true);
+            }
+        }
+        this.structures.removeAll(ents);
     }
 
     public void update()

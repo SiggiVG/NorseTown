@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.view.meshes;
 
+import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.model.tiles.EnumTileFace;
 import com.deadvikingstudios.norsetown.model.tiles.EnumTileShape;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
@@ -89,9 +90,10 @@ public class StructureMesh extends EntityMesh
         for (Map.Entry<Integer, Chunk> entry : getChunkColumn().getChunks().entrySet())
         {
             Chunk chunk = entry.getValue();
-            int x = chunk.getRenderPosition().x + (this.getChunkColumn().position.x * Chunk.SIZE);// - this.getEntityStructure().getStructureOffset().x;
-            int y = chunk.getRenderPosition().y;// - this.getEntityStructure().getStructureOffset().y;
-            int z = chunk.getRenderPosition().z + (this.getChunkColumn().position.y * Chunk.SIZE);// - this.getEntityStructure().getStructureOffset().y;
+            Vector3f renderChunkPos = chunk.getRenderPosition(this.getChunkColumn().position.x * Chunk.SIZE, 0, this.getChunkColumn().position.y * Chunk.SIZE);
+            int x = (int) renderChunkPos.x;
+            int y = (int) renderChunkPos.y;
+            int z = (int) renderChunkPos.z;
             //Logger.debug("Mesh created for " + x + "," + y + "," + y);
 
             int m = this.getChunkColumn().getStructure().getPosition().x;
@@ -370,7 +372,7 @@ public class StructureMesh extends EntityMesh
 //        tileShapeCheck = tileCheck.getTileShape(tileCheckMeta);
 //
 //        if(vec.y > Tile.TILE_HEIGHT)
-        if(!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.BOTTOM, tileShapeCheck)  )
+        if((!tileCheck.isOpaque() || thisTileShape.renderThisFace(EnumTileFace.BOTTOM, tileShapeCheck)  ) || y == GameContainer.SEA_LEVEL)
         /*if (((!tileCheck.isOpaque()) || tileCheck.isAir())
                 && ((!thisTileShape.isOtherFaceGTEQThisFace(tileShapeCheck, EnumTileFace.BOTTOM, EnumTileFace.TOP) || tileShapeCheck == EnumTileShape.FULL_CUBE)))*/
         {

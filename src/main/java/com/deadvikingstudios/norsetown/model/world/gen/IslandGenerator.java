@@ -15,9 +15,9 @@ public class IslandGenerator extends Generator
 
     private int dimX, dimY, dimZ;
 
-    private final static int MIN_DIM_XZ = 32;
+    private final static int MIN_DIM_XZ = 64;
     private final static int MIN_DIM_Y = 16;
-    private final static int MAX_DIM_XZ = 128;
+    private final static int MAX_DIM_XZ = 256;
     private final static int MAX_DIM_Y = 64;
 
     public IslandGenerator(Structure islandStructure)
@@ -32,6 +32,8 @@ public class IslandGenerator extends Generator
     {
         rand = new Random(this.seed);
         this.genDimensions();
+//        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 0, 0);
+
 
         Vector2i pos = new Vector2i(0,0);
 
@@ -40,6 +42,7 @@ public class IslandGenerator extends Generator
         Vector2i near = new Vector2i((int) (-dimX*0.5), (int) (-dimZ*0.5));
         Vector2i far = new Vector2i((int) (dimX*0.5), (int) (dimZ*0.5));
 
+//        Cylinder
         for (int i = near.x; i < far.x; i++)
         {
             for (int j = 0; j < dimY; j++)
