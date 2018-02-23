@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.controller;
 
+import com.deadvikingstudios.norsetown.controller.input.MouseInputHandler;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.util.vector.Vector3f;
 

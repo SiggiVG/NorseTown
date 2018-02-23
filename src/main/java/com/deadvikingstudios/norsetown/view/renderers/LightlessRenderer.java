@@ -2,9 +2,9 @@ package com.deadvikingstudios.norsetown.view.renderers;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
 import com.deadvikingstudios.norsetown.controller.GameContainer;
+import com.deadvikingstudios.norsetown.view.meshes.ChunkColMesh;
 import com.deadvikingstudios.norsetown.view.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
-import com.deadvikingstudios.norsetown.view.meshes.StructureMesh;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class LightlessRenderer extends Renderer
         super(shader);
     }
 
-    public void renderScene(List<EntityMesh> entities, List<StructureMesh> structures, CameraController camera)
+    public void renderScene(List<EntityMesh> entities, List<ChunkColMesh> structures, CameraController camera)
     {
         shader.start();
 

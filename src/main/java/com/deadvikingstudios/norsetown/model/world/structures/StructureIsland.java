@@ -13,7 +13,7 @@ public class StructureIsland extends Structure
 
     public StructureIsland(int i, int j, int k)
     {
-        super(new Vector3i(i,j,k),true);
+        super(new Vector3i(i,j,k), null, true);
     }
 
     @Override

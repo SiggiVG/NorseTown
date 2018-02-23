@@ -4,9 +4,9 @@ import com.deadvikingstudios.norsetown.controller.CameraController;
 import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.utils.RenderMath;
 import com.deadvikingstudios.norsetown.view.WindowManager;
+import com.deadvikingstudios.norsetown.view.meshes.ChunkColMesh;
 import com.deadvikingstudios.norsetown.view.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
-import com.deadvikingstudios.norsetown.view.meshes.StructureMesh;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -41,7 +41,7 @@ public class Renderer
 
     }
 
-    public void renderScene(List<EntityMesh> entities, List<StructureMesh> structures, CameraController camera, Vector4f clip)
+    public void renderScene(List<EntityMesh> entities, List<ChunkColMesh> structures, CameraController camera, Vector4f clip)
     {
         shader.start();
         shader.loadClipPlane(clip);
@@ -50,7 +50,7 @@ public class Renderer
         shader.loadAmbientLight(GameContainer.ambientLight);
         shader.loadDirectionalLight(GameContainer.sunLight);
 
-        for (StructureMesh mesh : structures)
+        for (ChunkColMesh mesh : structures)
         {
             render(mesh, shader);
         }
@@ -87,7 +87,7 @@ public class Renderer
         //just do perspective for now
         if(!isOrthogonal)
         {
-            projectionMatrix = RenderMath.createPerspectiveMatrix(
+            projectionMatrix = RenderMath.createProjectionMatrix(
                 WindowManager.getCurrentWidth(), WindowManager.getCurrentHeight(), P_FOV, P_NEAR_PLANE, P_FAR_PLANE);
         }
         else
@@ -96,6 +96,7 @@ public class Renderer
             //        (float) Display.getWidth() / (float) Display.getHeight(),);
         }
         shader.start();
+        System.out.println(projectionMatrix);
         shader.loadProjectionMatrix(projectionMatrix);
         shader.stop();
         //TODO Orthogonal
@@ -150,7 +151,7 @@ public class Renderer
 //        GL30.glBindVertexArray(0);
 //    }
 
-    public static void render(StructureMesh structureChunkMesh, StaticShader shader)
+    public static void render(ChunkColMesh structureChunkMesh, StaticShader shader)
     {
         GL30.glBindVertexArray(structureChunkMesh.getMesh().getVaoID());
         GL20.glEnableVertexAttribArray(0);

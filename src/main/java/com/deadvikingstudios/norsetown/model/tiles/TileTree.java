@@ -1,6 +1,8 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
+import com.deadvikingstudios.norsetown.view.meshes.TileMesh;
+import com.deadvikingstudios.norsetown.view.meshes.components.TileMeshDef;
 
 public class TileTree extends Tile
 {
@@ -10,6 +12,7 @@ public class TileTree extends Tile
     }
 
     @Override
+    @Deprecated
     public EnumTileShape getTileShape(int metadata)
     {
 //        if(metadata > growthMeta*3)
@@ -31,6 +34,20 @@ public class TileTree extends Tile
     }
 
     private static int growthMeta = 3;
+
+    private static final TileMesh MESH = new TileMesh(new TileMeshDef.Cuboid(
+            new TileMeshDef.Quad(6, EnumTileFace.NORTH),
+            new TileMeshDef.Quad(6, EnumTileFace.EAST),
+            new TileMeshDef.Quad(6, EnumTileFace.SOUTH),
+            new TileMeshDef.Quad(6, EnumTileFace.WEST),
+            new TileMeshDef.Quad(7, EnumTileFace.TOP),
+            new TileMeshDef.Quad(7, EnumTileFace.BOTTOM)
+    ));
+    @Override
+    public TileMesh getTileMesh(int metadata)
+    {
+        return MESH;
+    }
 
     @Override
     public void update(Structure structure, int x, int y, int z)

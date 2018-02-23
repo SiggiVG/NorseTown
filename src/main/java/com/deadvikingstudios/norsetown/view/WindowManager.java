@@ -1,9 +1,9 @@
 package com.deadvikingstudios.norsetown.view;
 
 import com.deadvikingstudios.norsetown.controller.GameContainer;
-import com.deadvikingstudios.norsetown.controller.KeyboardInputHandler;
-import com.deadvikingstudios.norsetown.controller.MouseInputHandler;
-import com.deadvikingstudios.norsetown.controller.MousePositionHandler;
+import com.deadvikingstudios.norsetown.controller.input.KeyboardInputHandler;
+import com.deadvikingstudios.norsetown.controller.input.MouseInputHandler;
+import com.deadvikingstudios.norsetown.controller.input.MousePositionHandler;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -135,9 +135,13 @@ public class WindowManager
 
     public static void resize()
     {
-        GL11.glViewport(0,0, getCurrentWidth(), getCurrentHeight());
-        GameContainer.renderer.createProjectionMatrix(GameContainer.renderer.getShader(), false);
-
+        int w = pWidth.get(0);
+        int h = pHeight.get(0);
+        if(w != getCurrentWidth() || h != getCurrentHeight())
+        {
+            GL11.glViewport(0, 0, getCurrentWidth(), getCurrentHeight());
+            GameContainer.renderer.createProjectionMatrix(GameContainer.renderer.getShader(), false);
+        }
     }
 
     /**

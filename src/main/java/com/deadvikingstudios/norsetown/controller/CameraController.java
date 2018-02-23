@@ -1,5 +1,7 @@
 package com.deadvikingstudios.norsetown.controller;
 
+import com.deadvikingstudios.norsetown.controller.input.KeyboardInputHandler;
+import com.deadvikingstudios.norsetown.controller.input.MousePositionHandler;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -59,37 +61,37 @@ public class CameraController
 
     public void move()
     {
-        if(KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_TAB))
-        {
-            isOrthogonal = !isOrthogonal;
-            if(isOrthogonal)
-            {
-                rotation.x = 35;
-
-                if(rotation.y < 90)
-                {
-                    rotation.y = 45;
-                }
-                else if(rotation.y < 180)
-                {
-                    rotation.y = 135;
-                }
-                else if(rotation.y < 270)
-                {
-                    rotation.y = 225;
-                }
-                else if(rotation.y < 360)
-                {
-                    rotation.y = 315;
-                }
-                //Mouse.setGrabbed(false);
-                //Mouse.setCursorPosition(WindowManager.getHalfWidth(), WindowManager.getHalfHeight());
-            }
+//        if(KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_TAB))
+//        {
+//            isOrthogonal = !isOrthogonal;
+//            if(isOrthogonal)
+//            {
+//                rotation.x = 35;
+//
+//                if(rotation.y < 90)
+//                {
+//                    rotation.y = 45;
+//                }
+//                else if(rotation.y < 180)
+//                {
+//                    rotation.y = 135;
+//                }
+//                else if(rotation.y < 270)
+//                {
+//                    rotation.y = 225;
+//                }
+//                else if(rotation.y < 360)
+//                {
+//                    rotation.y = 315;
+//                }
+//                //Mouse.setGrabbed(false);
+//                //Mouse.setCursorPosition(WindowManager.getHalfWidth(), WindowManager.getHalfHeight());
+//            }
 //            else
 //            {
 //                //Mouse.setGrabbed(true);
 //            }
-        }
+//        }
 
 
         float moveAt = speed;
@@ -210,27 +212,27 @@ public class CameraController
 
             if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
             {
-                dx = (moveAt * (float) Math.sin(Math.toRadians(rotation.y)));
-                dy = -(moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
-                dz = -(moveAt * (float) Math.cos(Math.toRadians(rotation.y)));
+                dx += (moveAt * (float) Math.sin(Math.toRadians(rotation.y)));
+                dy += -(moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
+                dz += -(moveAt * (float) Math.cos(Math.toRadians(rotation.y)));
             }
             if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
             {
-                dx = -(moveAt * (float) Math.sin(Math.toRadians(rotation.y)));
-                dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
-                dz = (moveAt * (float) Math.cos(Math.toRadians(rotation.y)));
+                dx += -(moveAt * (float) Math.sin(Math.toRadians(rotation.y)));
+                dy += (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
+                dz += (moveAt * (float) Math.cos(Math.toRadians(rotation.y)));
             }
             if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
             {
-                dx = (moveAt * (float) Math.sin(Math.toRadians(rotation.y-90)));
+                dx += (moveAt * (float) Math.sin(Math.toRadians(rotation.y-90)));
                 //dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
-                dz = -(moveAt * (float) Math.cos(Math.toRadians(rotation.y-90)));
+                dz += -(moveAt * (float) Math.cos(Math.toRadians(rotation.y-90)));
             }
             if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
             {
-                dx = -(moveAt * (float) Math.sin(Math.toRadians(rotation.y-90)));
+                dx += -(moveAt * (float) Math.sin(Math.toRadians(rotation.y-90)));
                 //dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
-                dz = (moveAt * (float) Math.cos(Math.toRadians(rotation.y-90)));
+                dz += (moveAt * (float) Math.cos(Math.toRadians(rotation.y-90)));
             }
 
             translate(dx,dy,dz);

@@ -3,6 +3,7 @@ package com.deadvikingstudios.norsetown.model.tiles;
 import com.deadvikingstudios.norsetown.model.RegistrationException;
 import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
+import com.deadvikingstudios.norsetown.view.meshes.TileMesh;
 
 /**
  * Created by SiggiVG on 6/19/2017.
@@ -60,6 +61,12 @@ public abstract class Tile
     {
         return INDEX;
     }
+
+    public abstract TileMesh getTileMesh(int metadata);
+//    public TileMesh getTileMesh(int metadata)
+//    {
+//        return null;
+//    }
 
     /**
      * Visually takes up entire tilespace
@@ -141,11 +148,12 @@ public abstract class Tile
      */
     public boolean isAir()
     {
-        return this == Tiles.tileAir || (!isSolid && !isOpaque);
+        return this == Tiles.tileAir;// || (!isSolid && !isOpaque);
     }
 
     public abstract void update(Structure structure, int x, int y, int z);
 
+    @Deprecated
     public abstract EnumTileShape getTileShape(int metadata);
 
     public boolean isReplacable()
@@ -219,6 +227,12 @@ public abstract class Tile
             register(tileLeaves = new TileLeaves(i++,"leaves", EnumMaterial.PLANT).setOpaque(false).setTextureOffset(32).setTextureOffsetParticle(33));
             register(tileGrassTall = new Tile(i++, "grass_tall", EnumMaterial.PLANT)
             {
+                @Override
+                public TileMesh getTileMesh(int metadata)
+                {
+                    return null;
+                }
+
                 @Override
                 public void update(Structure structure, int x, int y, int z)
                 {

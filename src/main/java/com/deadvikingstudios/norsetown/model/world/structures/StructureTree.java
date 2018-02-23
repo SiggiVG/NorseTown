@@ -17,9 +17,9 @@ public class StructureTree extends Structure
     private Tile woodBlock = Tile.Tiles.tileTrunkFir, leavesBlock = Tile.Tiles.tileLeaves;
     private Item woodItem = Item.Items.itemTimberFir, leavesItem = Item.Items.itemLeavesFir;
 
-    public StructureTree(Vector3i pos)
+    public StructureTree(Vector3i pos, Structure parent)
     {
-        super(pos, true);
+        super(pos, parent, true);
     }
 
     @Override

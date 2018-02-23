@@ -2,12 +2,17 @@ package com.deadvikingstudios.norsetown.model.world.structures;
 
 import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
+import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.utils.vector.Vector2i;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
+import javafx.scene.chart.Axis;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.deadvikingstudios.norsetown.model.world.structures.Chunk.SIZE;
@@ -174,5 +179,27 @@ public class ChunkColumn extends Entity implements Serializable
             if(!entry.getValue().isEmpty()) return false;
         }
         return true;
+    }
+
+    public List<AxisAlignedBoundingBox> getRoughCollider()
+    {
+        List<AxisAlignedBoundingBox> aabbs = new ArrayList<AxisAlignedBoundingBox>();
+        for (Map.Entry<Integer,Chunk> entry : chunks.entrySet())
+        {
+            Vector3i chunkPos = entry.getValue().position;
+            aabbs.add(new AxisAlignedBoundingBox(chunkPos.x * Chunk.SIZE, chunkPos.y * Chunk.SIZE, chunkPos.z * Chunk.SIZE,
+                    (chunkPos.x+1)*Chunk.SIZE, (chunkPos.y+1)*Chunk.SIZE,(chunkPos.z+1)*Chunk.SIZE));
+        }
+        return aabbs;
+    }
+
+    public boolean[][][] getAccurateCollider(int x, int y, int z)
+    {
+        Chunk chunk = this.getChunk(x,y,z);
+        if(chunk != null)
+        {
+            return chunk.getCollider();
+        }
+        return null;//new boolean[Chunk.SIZE][Chunk.SIZE][Chunk.SIZE];
     }
 }

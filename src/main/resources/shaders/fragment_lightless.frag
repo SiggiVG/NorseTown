@@ -1,4 +1,4 @@
-#version 400 core
+#version 330
 
 //vao inputs
 in vec2 pass_uvs;

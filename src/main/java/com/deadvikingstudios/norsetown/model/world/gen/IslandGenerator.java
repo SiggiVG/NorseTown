@@ -33,6 +33,17 @@ public class IslandGenerator extends Generator
         rand = new Random(this.seed);
         this.genDimensions();
 //        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 0, 0);
+//        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 0, 1);
+//        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 0, 2);
+//        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 0, 15);
+//        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 15, 0);
+//
+//        this.getStructure().setTile(Tile.Tiles.tileSoil, 0, -1, 0);
+//        this.getStructure().setTile(Tile.Tiles.tileSoil, -1, -1, 0);
+//        this.getStructure().setTile(Tile.Tiles.tileSoil, 0, 0, 16);
+//        this.getStructure().setTile(Tile.Tiles.tileSoil, 0, 16, 0);
+
+
 
 
         Vector2i pos = new Vector2i(0,0);
@@ -91,7 +102,7 @@ public class IslandGenerator extends Generator
                         if(!this.getTile(i,j-3,k).isAir())
                             this.setTile(Tile.Tiles.tileSoil,i,j-3,k);
                         if(rand.nextInt(60) == 0)
-                        this.getStructure().addDockedStructure(new StructureTree(new Vector3i(i,j,k)));
+                            this.getStructure().addDockedStructure(new StructureTree(new Vector3i(i,j,k), this.structure));
                         break;
                     }
                 }

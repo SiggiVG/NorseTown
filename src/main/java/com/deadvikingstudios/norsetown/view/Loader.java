@@ -1,9 +1,12 @@
 package com.deadvikingstudios.norsetown.view;
 
 import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
-import de.matthiasmann.twl.utils.PNGDecoder;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+import org.newdawn.slick.opengl.PNGDecoder;
 
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
@@ -170,7 +173,7 @@ public class Loader
     public int loadTexture(String filePath)
     {
         int texture = 0;
-        int rgba = PNGDecoder.Format.RGBA.getNumComponents();
+        int rgba = PNGDecoder.RGBA.getNumComponents();
 
         BufferedInputStream in = null;
         try
@@ -179,7 +182,7 @@ public class Loader
             PNGDecoder decoder = new PNGDecoder(in);
             // assuming RGB here but should allow for RGB and RGBA (changing wall.png to RGBA will crash this!)
             ByteBuffer buf = ByteBuffer.allocateDirect(rgba*decoder.getWidth()*decoder.getHeight());
-            decoder.decode(buf, decoder.getWidth()*rgba, PNGDecoder.Format.RGBA);
+            decoder.decode(buf, decoder.getWidth()*rgba, PNGDecoder.RGBA);
             buf.flip();
             texture=glGenTextures();
             glBindTexture(GL_TEXTURE_2D, texture);

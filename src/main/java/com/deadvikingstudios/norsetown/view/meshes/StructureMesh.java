@@ -24,6 +24,7 @@ import static com.deadvikingstudios.norsetown.controller.GameContainer.loader;
  *
  * TODO: move some code around so it's easier to follow.
  */
+@Deprecated
 public class StructureMesh extends EntityMesh
 {
     public StructureMesh(ChunkColumn col, MeshTexture texture)
@@ -223,7 +224,7 @@ public class StructureMesh extends EntityMesh
                 uvs.add(uvFace[i]);
             }
 
-            normFace = getCuboidFaceNormals(EnumTileFace.NORTH);
+            normFace = getCuboidFaceNormals(EnumTileFace.NORTH);//new Vector3f(normList[EnumTileFace.NORTH.ordinal()][0], normList[EnumTileFace.NORTH.ordinal()][1], normList[EnumTileFace.NORTH.ordinal()][2]);
             for (int i = 0; i < normFace.length; i++)
             {
                 norms.add(normFace[i]);
@@ -834,6 +835,16 @@ public class StructureMesh extends EntityMesh
             {
                     0,1,3,
                     3,1,2
+            };
+
+    private static float[][] normList =
+            {
+                    new float[]{0,0,1},
+                    new float[]{1,0,0},
+                    new float[]{0,0,-1},
+                    new float[]{-1,0,0},
+                    new float[]{0,1,0},
+                    new float[]{0,-1,0},
             };
 
     private float[] getFaceUVs(boolean isY, EnumTileFace face, int id, int metadata)

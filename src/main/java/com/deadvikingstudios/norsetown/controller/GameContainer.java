@@ -1,6 +1,9 @@
 package com.deadvikingstudios.norsetown.controller;
 
 
+import com.deadvikingstudios.norsetown.controller.input.KeyboardInputHandler;
+import com.deadvikingstudios.norsetown.controller.input.MouseInputHandler;
+import com.deadvikingstudios.norsetown.controller.input.MousePositionHandler;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.items.Item;
 import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
@@ -27,7 +30,6 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -77,7 +79,8 @@ public class GameContainer implements Runnable, IGameContainer
     private static LightlessRenderer lightlessRenderer = null;
     private static GuiRenderer guiRenderer = null;
 
-    private static List<StructureMesh> structuresMeshes = new ArrayList<StructureMesh>();
+//    private static List<StructureMesh> structuresMeshes = new ArrayList<StructureMesh>();
+private static List<ChunkColMesh> structuresMeshes = new ArrayList<ChunkColMesh>();
     private static List<EntityMesh> entityMeshes = new ArrayList<EntityMesh>();
 
     private static RawMesh defaultMesh;
@@ -164,8 +167,8 @@ public class GameContainer implements Runnable, IGameContainer
 
     private void initCamera()
     {
-        camera = new CameraController(0, 0, 0);
-        camera.setRotation(35, 135, 0);//135
+        camera = new CameraController(0,0,0);//-30, 20, -30);
+//        camera.setRotation(35, 135, 0);//135
     }
 
     public void stop()
@@ -207,7 +210,7 @@ public class GameContainer implements Runnable, IGameContainer
     @Override
     public void input()
     {
-        KeyboardInputHandler.update();
+//        KeyboardInputHandler.update();
         MouseInputHandler.update();
         MousePositionHandler.update();
     }
@@ -229,7 +232,7 @@ public class GameContainer implements Runnable, IGameContainer
             currentWorld.cutDownTrees();
         }
 
-        for (StructureMesh mesh : structuresMeshes)
+        for (ChunkColMesh mesh : structuresMeshes)
         {
             if(mesh.getChunkColumn() == null)
             {
@@ -261,12 +264,12 @@ public class GameContainer implements Runnable, IGameContainer
 
     public static void addStructureMesh(ChunkColumn col)
     {
-        structuresMeshes.add(new StructureMesh(col, terrainTexture));
+        structuresMeshes.add(new ChunkColMesh(col, terrainTexture));
     }
 
     public static void removeStructureMesh(ChunkColumn col)
     {
-        for (StructureMesh mesh : structuresMeshes)
+        for (ChunkColMesh mesh : structuresMeshes)
         {
             if(mesh.getChunkColumn() == col)
             {
@@ -290,33 +293,33 @@ public class GameContainer implements Runnable, IGameContainer
         GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 
         //**** START FBO RENDERING ****//
-        //Reflection
-        waterFBOs.bindReflectionFrameBuffer();
-        renderer.clear();
-        float distance = 2 * (camera.getPosition().y - waters.get(0).getHeight());
-        camera.getPosition().y -= distance;
-        //if using roll (z rotation) I need to invert that too
-        camera.invertPitch();
-        lightlessRenderer.renderScene(null,structuresMeshes,camera);
-        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()+0.1f));
-        camera.invertPitch();
-        camera.getPosition().y += distance;
-//        waterFBOs.unbindCurrentFrameBuffer();
-        //Refraction
-        waterFBOs.bindRefractionFrameBuffer();
-        renderer.clear();
-        GL11.glDisable(GL11.GL_CULL_FACE);
+//        //Reflection
+//        waterFBOs.bindReflectionFrameBuffer();
+//        renderer.clear();
+//        float distance = 2 * (camera.getPosition().y - waters.get(0).getHeight());
+//        camera.getPosition().y -= distance;
+//        //if using roll (z rotation) I need to invert that too
+//        camera.invertPitch();
 //        lightlessRenderer.renderScene(null,structuresMeshes,camera);
-        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,-1,0,waters.get(0).getHeight()-1));
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        waterFBOs.unbindCurrentFrameBuffer();
+//        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()+0.1f));
+//        camera.invertPitch();
+//        camera.getPosition().y += distance;
+////        waterFBOs.unbindCurrentFrameBuffer();
+//        //Refraction
+//        waterFBOs.bindRefractionFrameBuffer();
+//        renderer.clear();
+//        GL11.glDisable(GL11.GL_CULL_FACE);
+////        lightlessRenderer.renderScene(null,structuresMeshes,camera);
+//        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,-1,0,waters.get(0).getHeight()-1));
+//        GL11.glEnable(GL11.GL_CULL_FACE);
+//        waterFBOs.unbindCurrentFrameBuffer();
         //**** STOP FBO RENDERING ****//
 
         //Some drivers have issues with this command not actually disabling it. Mine works fine, however.
         GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
         lightlessRenderer.renderScene(null,structuresMeshes,camera);
         renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()));
-        waterRenderer.render(waters, camera);
+//        waterRenderer.render(waters, camera);
 
         //GUI
         guiRenderer.render(guiTextures);
@@ -351,6 +354,22 @@ public class GameContainer implements Runnable, IGameContainer
     {
         String fileNatives = OperatingSystem.getOSforLWJGLNatives();
         System.setProperty("org.lwjgl.librarypath", (new File("libs" + File.separator + "native" + File.separator + fileNatives)).getAbsolutePath());
+
+//        double firstTime;
+//        firstTime = System.nanoTime();
+//        for (int i = 0; i < 1_000_000_000; i++)
+//        {
+//            int n = (int) (100 * 0.2);
+//        }
+//        System.out.println((System.nanoTime() - firstTime));
+//
+//        firstTime = System.nanoTime();
+//        for (int i = 0; i < 1_000_000_000; i++)
+//        {
+//            int n = 100 / 5;
+//        }
+//        System.out.println((System.nanoTime() - firstTime));
+
 
         new GameContainer().start();
     }

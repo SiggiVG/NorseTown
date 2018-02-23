@@ -55,11 +55,11 @@ public class RenderMath
         return matrix;
     }
 
-    public static Matrix4f createPerspectiveMatrix(int displayWidth, int displayHeight, float fov, float near, float far)
+    public static Matrix4f createProjectionMatrix(int displayWidth, int displayHeight, float fov, float near, float far)
     {
         float aspectRatio = (float) displayWidth / (float) displayHeight;
-        float yScale = (float) ((1.0f / Math.tan(Math.toRadians(fov / 2.0f))) * aspectRatio);
-        float xScale = yScale / aspectRatio;
+        float xScale = (float) (1.0f / Math.tan(Math.toRadians(fov / 2.0f)));
+        float yScale = xScale * aspectRatio;
         float frustum_length = far - near;
 
         Matrix4f matrix = new Matrix4f();
@@ -81,7 +81,7 @@ public class RenderMath
         return matrix;
     }
 
-    /*public static Matrix4f createPerspectiveMatrix(float left, float right, float bottom, float top, float near, float far)
+    /*public static Matrix4f createProjectionMatrix(float left, float right, float bottom, float top, float near, float far)
     {
         Matrix4f matrix = new Matrix4f();
         matrix.setIdentity();

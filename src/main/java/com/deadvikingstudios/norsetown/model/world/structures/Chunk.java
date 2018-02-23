@@ -131,7 +131,7 @@ public class Chunk implements Serializable
         if(coord >= 0 && coord < SIZE_CUBED)
         {
             //Moved same tile check to ChunkColumn
-            this.tiles[coord] = (tile.getIndex() & TILE_MASK) | (((metaData-128) << (8*3)) & META_MASK);
+            this.tiles[coord] = (tile.getIndex() & TILE_MASK) | (((metaData) << (8*3)) & META_MASK);
         }
     }
 
@@ -149,7 +149,7 @@ public class Chunk implements Serializable
         if(coord >= 0 && coord < SIZE_CUBED)
         {
             //I shouldn't have to mask this
-            return (this.tiles[coord] >>> (8*3))+128;
+            return (this.tiles[coord] >>> (8*3));
         }
         return 0;
     }
@@ -167,7 +167,7 @@ public class Chunk implements Serializable
         int coord = getCoord(x,y,z);
         if(coord >= 0 && coord < SIZE_CUBED)
         {
-            this.tiles[coord] = (this.tiles[coord] & TILE_MASK) | (((metadata-128) << (8*3) ) & META_MASK);
+            this.tiles[coord] = (this.tiles[coord] & TILE_MASK) | (((metadata) << (8*3) ) & META_MASK);
         }
     }
 
@@ -214,5 +214,25 @@ public class Chunk implements Serializable
     public String toString()
     {
         return "Chunk" + position;
+    }
+
+    /**
+     *
+     * @return a set of boolean values describing where solid tiles are
+     */
+    boolean[][][] getCollider()
+    {
+        boolean[][][] collider = new boolean[SIZE][SIZE][SIZE];
+        for (int i = 0; i < SIZE; i++)
+        {
+            for (int j = 0; j < SIZE; j++)
+            {
+                for (int k = 0; k < SIZE; k++)
+                {
+                    collider[i][j][k] = !getTile(i,j,k).isAir();
+                }
+            }
+        }
+        return collider;
     }
 }

@@ -2,10 +2,12 @@ package com.deadvikingstudios.norsetown.model.world.structures;
 
 import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.model.items.ItemStack;
+import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.utils.Logger;
 import com.deadvikingstudios.norsetown.utils.vector.Vector2i;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -22,6 +24,8 @@ public class Structure implements Serializable
     protected Vector3i position = new Vector3i(0,0,0);
 
     protected HashMap<Vector2i, ChunkColumn> chunks;
+
+    protected Structure parent;
 
     /**
      * Might change this to be a List? accessing structures by location is useful, but not super so.
@@ -41,15 +45,16 @@ public class Structure implements Serializable
 
     public Structure()
     {
-        this(null, true);
+        this(null, null, true);
     }
 
-    public Structure(Vector3i pos, boolean doInit)
+    public Structure(Vector3i pos, Structure parent, boolean doInit)
     {
         if(pos != null)
         {
             this.position = pos;
         }
+        this.parent = parent;
         chunks = new HashMap<Vector2i, ChunkColumn>();
         dockedStructures = new HashMap<Vector3i, Structure>();
         if(doInit)
@@ -61,20 +66,21 @@ public class Structure implements Serializable
     public <STRUCTURE extends Structure> Structure(STRUCTURE structure)
     {
         this.chunks = copyChunks(structure.chunks, this);
-        this.dockedStructures = copyDocked(structure);
+        this.dockedStructures = copyDocked(structure, this);
     }
 
-    public static <STRUCTURE extends Structure> STRUCTURE copy(STRUCTURE structureIn, boolean copyDocked)
+    public static <STRUCTURE extends Structure> STRUCTURE copy(STRUCTURE structureIn, Structure parent, boolean copyDocked)
     {
         Structure copy = null;
         try
         {
-            copy = structureIn.getClass().getConstructor(Vector3i.class, boolean.class).newInstance(new Vector3i(structureIn.position),false);
+            copy = structureIn.getClass().getConstructor(Vector3i.class, Structure.class, boolean.class).newInstance(new Vector3i(structureIn.position), parent,false);
+
             copy.chunks = copyChunks(structureIn.chunks, copy);
 
             if(copyDocked)
             {
-                copy.dockedStructures = copyDocked(structureIn);
+                copy.dockedStructures = copyDocked(structureIn, parent);
             }
 
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e)
@@ -100,13 +106,13 @@ public class Structure implements Serializable
         return copyChunks;
     }
 
-    public static <STRUCTURE extends Structure> HashMap<Vector3i, Structure> copyDocked(STRUCTURE structureIn)
+    public static <STRUCTURE extends Structure> HashMap<Vector3i, Structure> copyDocked(STRUCTURE structureIn, Structure parent)
     {
         HashMap<Vector3i, Structure> copyDocked = new HashMap<Vector3i, Structure>();
 
         for (Map.Entry<Vector3i, Structure> entry : structureIn.dockedStructures.entrySet() )
         {
-            copyDocked.put(new Vector3i(entry.getKey()), copy(structureIn, true));
+            copyDocked.put(new Vector3i(entry.getKey()), copy(structureIn, parent,true));
         }
 
         return copyDocked;
@@ -153,6 +159,11 @@ public class Structure implements Serializable
         }
     }
 
+    public Tile getTile(Vector3f pos)
+    {
+        return this.getTile((int)pos.x, (int)pos.y, (int)pos.z);
+    }
+
     public Tile getTile(int x, int y, int z)
     {
         int i = Math.floorMod(x, SIZE);
@@ -171,7 +182,19 @@ public class Structure implements Serializable
         return Tile.Tiles.tileAir;
     }
 
-//    private boolean chunkExists(Vector3i pos)
+    public Structure getParent()
+    {
+        return parent;
+    }
+
+    public void setParent(Structure parent)
+    {
+        assert parent != null;
+        this.parent = parent;
+        parent.addDockedStructure(this);
+    }
+
+    //    private boolean chunkExists(Vector3i pos)
 //    {
 //        if(chunks.containsKey(pos.toVector2i()))
 //        {
@@ -213,14 +236,14 @@ public class Structure implements Serializable
         }
     }
 
-    public <STRUCTURE extends Structure> void addDockedStructure(STRUCTURE structureTree)
+    public <STRUCTURE extends Structure> void addDockedStructure(STRUCTURE structure)
     {
-        this.dockedStructures.put(structureTree.position, structureTree);
+        this.dockedStructures.put(structure.position, structure);
     }
 
-    public <STRUCTURE extends Structure> void removeDockedStructure(STRUCTURE structureTree)
+    public <STRUCTURE extends Structure> void removeDockedStructure(STRUCTURE structure)
     {
-        this.dockedStructures.remove(structureTree.position);
+        this.dockedStructures.remove(structure.position);
     }
 
     public Vector3i getPosition()
@@ -231,6 +254,23 @@ public class Structure implements Serializable
     public void setPosition(Vector3i position)
     {
         this.position = position;
+    }
+
+    public List<AxisAlignedBoundingBox> getRoughCollider(boolean includeChildren)
+    {
+        List<AxisAlignedBoundingBox> aabbs = new ArrayList<AxisAlignedBoundingBox>();
+        for (Map.Entry<Vector2i, ChunkColumn> cols : this.chunks.entrySet())
+        {
+            aabbs.addAll(cols.getValue().getRoughCollider());
+        }
+        if(includeChildren)
+        {
+            for (Map.Entry<Vector3i, Structure> child : this.dockedStructures.entrySet())
+            {
+                aabbs.addAll(child.getValue().getRoughCollider(true));
+            }
+        }
+        return aabbs;
     }
 
     public List<ItemStack> destroy(Structure parent, boolean dropItems)

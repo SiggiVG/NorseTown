@@ -33,11 +33,12 @@ public class World
     public void init()
     {
         addStructure(new StructureIsland(0,0,0));
-        Random rand = new Random(seed);
-        for (int i = 0; i < 16; i++)
-        {
-            addStructure(new StructureTree(new Vector3i(rand.nextInt(64)-32, rand.nextInt(64), rand.nextInt(64)-32 )));
-        }
+        addStructure(new StructureTree(new Vector3i(-30,0,-30), null));
+//        Random rand = new Random(seed);
+//        for (int i = 0; i < 16; i++)
+//        {
+//            addStructure(new StructureTree(new Vector3i(rand.nextInt(64)-32, rand.nextInt(64), rand.nextInt(64)-32 ), null));
+//        }
     }
 
     private void addStructure(Structure structure)

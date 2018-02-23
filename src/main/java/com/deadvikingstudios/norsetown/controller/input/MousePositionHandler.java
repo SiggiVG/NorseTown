@@ -1,4 +1,4 @@
-package com.deadvikingstudios.norsetown.controller;
+package com.deadvikingstudios.norsetown.controller.input;
 
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.util.vector.Vector2f;

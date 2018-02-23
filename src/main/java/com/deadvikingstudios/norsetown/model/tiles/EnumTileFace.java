@@ -20,7 +20,7 @@ public enum EnumTileFace
     private Vector3f offset;
     private EnumTileFace[] values;
 
-    EnumTileFace(String name, Vector3f off)
+    EnumTileFace(final String name, final Vector3f off)
     {
         this.name = name;
         this.offset = off;
@@ -37,7 +37,7 @@ public enum EnumTileFace
             case 4: return TOP;
             case 5: return BOTTOM;
             case 6: return PARTICLE;
-            default: return null;
+            default: return NULL;
         }
     }
 
@@ -51,12 +51,22 @@ public enum EnumTileFace
             case WEST: return EAST;
             case TOP: return BOTTOM;
             case BOTTOM: return TOP;
-            default:return NULL;
+            default: return NULL;
 
         }
     }
 
-//    public Vector3f north(Vector3f in)
+    public Vector3f getOffset(int x, int y, int z)
+    {
+        return new Vector3f(x+offset.x,y+offset.y,z+offset.z);
+    }
+
+    public Vector3f getOffset(Vector3f pos)
+    {
+        return new Vector3f(pos).translate(offset.x, offset.y, offset.z);
+    }
+
+    //    public Vector3f north(Vector3f in)
 //    {
 //        in.z++;
 //        return in;
