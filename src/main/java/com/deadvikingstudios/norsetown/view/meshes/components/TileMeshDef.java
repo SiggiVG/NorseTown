@@ -3,7 +3,6 @@ package com.deadvikingstudios.norsetown.view.meshes.components;
 import com.deadvikingstudios.norsetown.model.tiles.EnumTileFace;
 import com.deadvikingstudios.norsetown.view.meshes.TileMesh;
 import com.sun.istack.internal.NotNull;
-import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
@@ -11,6 +10,7 @@ import java.util.List;
 
 public class TileMeshDef
 {
+    //TODO: move to a TextureAtlas class definition
     private static final int TERRAIN_TEXTURE_ROWS = 16;
     private static final int TERRAIN_TEXTURE_COLS = 16;
 
@@ -23,7 +23,7 @@ public class TileMeshDef
      */
     public static List<TileMesh.Face> drawCuboid(@NotNull final Cuboid cuboid, @NotNull final boolean[] cullFaces)
     {
-        assert cuboid.faces.length == 6;
+//        assert cuboid.faces.length == 6;
         List<TileMesh.Face> faces = new ArrayList<>();
 
         for (int i = 0; i < 6; i++)
@@ -36,7 +36,7 @@ public class TileMeshDef
                 faces.add(drawQuad(EnumTileFace.values()[i], quad, cuboid));
             }
             else if(quad.cullFace == EnumTileFace.PARTICLE){} //do nothing
-            else if(!cullFaces[quad.cullFace.ordinal()])
+            else if(cullFaces[quad.cullFace.ordinal()])
             {
                 faces.add(drawQuad(EnumTileFace.values()[i], quad, cuboid));
             }
@@ -50,10 +50,17 @@ public class TileMeshDef
         //dimensions
         Vector3f from = new Vector3f(0, 0, 0);
         Vector3f to = new Vector3f(1, 1, 1);
-        //rotation
+
+        /**
+         * The point around which the cuboid will be rotated
+         */
         Vector3f originOfRotation = new Vector3f(0.5f, 0.5f, 0.5f);
+        /**
+         * The amount to rotate each axis by, in degrees
+         */
         Vector3f rotation = new Vector3f(0, 0, 0);
         /**
+         * Contains the Quad faces of the cuboid
          * North  0
          * East   1
          * South  2
@@ -62,7 +69,6 @@ public class TileMeshDef
          * Bottom 5
          */
         Quad[] faces = new Quad[6];
-
         /**
          * should generate a full cube of MISSING_TEXTURE
          */
@@ -85,7 +91,7 @@ public class TileMeshDef
 
         public Cuboid(Quad ... quads)
         {
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 6 && i < quads.length; i++)
             {
                 this.faces[i] = quads[i];
             }

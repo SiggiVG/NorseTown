@@ -90,16 +90,19 @@ public class ChunkColMesh extends EntityMesh
                 {
                     for (byte k = 0; k < Chunk.SIZE; ++k)
                     {
-                        Tile tile = this.getChunkColumn().getTile(i, j+y, k);
-                        int metadata = this.getChunkColumn().getMetadata(i, j+y, k);
+                        Tile tile = this.getChunkColumn().getTile(i, j + y, k);
+                        int metadata = this.getChunkColumn().getMetadata(i, j + y, k);
 
-                        if(tile.isAir()) continue;
+                        if (tile.isAir()) continue;
 
-                        boolean[] bools = getCullNeighbors(i+x, j+y, k+z);
+                        boolean[] bools = getCullNeighbors(i + x, j + y, k + z);
                         List<TileMesh.Face> faces = TileMesh.drawTile(tile, bools, metadata);
-                        for (TileMesh.Face face : faces)
+                        if (faces != null)
                         {
-                            face.draw(vertices, indices, uvs, norms, new Vector3f(i+x+m, j+y+n, k+z+o));
+                            for (TileMesh.Face face : faces)
+                            {
+                                face.draw(vertices, indices, uvs, norms, new Vector3f(i + x + m, j + y + n, k + z + o));
+                            }
                         }
                     }
                 }

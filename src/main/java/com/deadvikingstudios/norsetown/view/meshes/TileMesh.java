@@ -9,6 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -16,7 +17,12 @@ import java.util.List;
  */
 public class TileMesh
 {
+    //TODO: change to store Faces, such that it keeps track of the actual information, not the blueprint
+    // And have it grab each chunk of data based on which faces are culled
     private List<TileMeshDef.Cuboid> cuboids = new ArrayList<TileMeshDef.Cuboid>();
+
+    private HashMap<Integer, List<Face>> facemap = new HashMap<Integer, List<Face>>();
+
 
     public TileMesh()
     {
@@ -26,30 +32,66 @@ public class TileMesh
     public TileMesh(int texture)
     {
         this.cuboids.add(new TileMeshDef.Cuboid(texture));
+        this.genFaces();
     }
 
     public TileMesh(TileMeshDef.Cuboid ... cuboids)
     {
         Collections.addAll(this.cuboids, cuboids);
+        this.genFaces();
     }
 
     public TileMesh(List<TileMeshDef.Cuboid> cuboids)
     {
         this.cuboids.addAll(cuboids);
+        this.genFaces();
+    }
+
+    private void genFaces()
+    {
+        //adds all permutations of the tile to the Map
+        int l = 6;
+        for (int i = 0; i < Math.pow(2, l); i++)
+        {
+            StringBuilder bin = new StringBuilder(Integer.toBinaryString(i));
+            //pads the left side with 0s
+            while(bin.length() < l)
+                bin.insert(0, "0");
+            //converts to a character array for quick access
+            char[] chars = bin.toString().toCharArray();
+            boolean[] bools = new boolean[l];
+            //populates boolean array
+            for (int j = 0; j < chars.length; j++)
+            {
+                bools[j] = chars[j] == '0';
+            }
+            //populates map
+            this.facemap.put(i, drawTile(bools));
+        }
+    }
+
+    private List<Face> drawTile(boolean[] cullFaces)
+    {
+        List<Face> faces = new ArrayList<>();
+        for (TileMeshDef.Cuboid cuboid : this.cuboids)
+        {
+            faces.addAll(TileMeshDef.drawCuboid(cuboid, cullFaces));
+        }
+        return faces;
     }
 
     public static List<Face> drawTile(@NotNull final Tile tile, @NotNull final boolean[] cullFaces, int metadata)
     {
-        List<Face> faces = new ArrayList<>();
         TileMesh mesh = tile.getTileMesh(metadata);
         if(mesh != null)
         {
-            for (TileMeshDef.Cuboid cuboid : mesh.cuboids)
-            {
-                faces.addAll(TileMeshDef.drawCuboid(cuboid, cullFaces));
+            int n = 0, l = cullFaces.length;
+            for (int i = 0; i < l; ++i) {
+                n = (n << 1) + (cullFaces[i] ? 1 : 0);
             }
+            return mesh.facemap.get(n);
         }
-        return faces;
+        return null;
     }
 
     public static class Face

@@ -293,33 +293,33 @@ private static List<ChunkColMesh> structuresMeshes = new ArrayList<ChunkColMesh>
         GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 
         //**** START FBO RENDERING ****//
-//        //Reflection
-//        waterFBOs.bindReflectionFrameBuffer();
-//        renderer.clear();
-//        float distance = 2 * (camera.getPosition().y - waters.get(0).getHeight());
-//        camera.getPosition().y -= distance;
-//        //if using roll (z rotation) I need to invert that too
-//        camera.invertPitch();
-//        lightlessRenderer.renderScene(null,structuresMeshes,camera);
-//        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()+0.1f));
-//        camera.invertPitch();
-//        camera.getPosition().y += distance;
-////        waterFBOs.unbindCurrentFrameBuffer();
-//        //Refraction
-//        waterFBOs.bindRefractionFrameBuffer();
-//        renderer.clear();
-//        GL11.glDisable(GL11.GL_CULL_FACE);
-////        lightlessRenderer.renderScene(null,structuresMeshes,camera);
-//        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,-1,0,waters.get(0).getHeight()-1));
-//        GL11.glEnable(GL11.GL_CULL_FACE);
+        //Reflection
+        waterFBOs.bindReflectionFrameBuffer();
+        renderer.clear();
+        float distance = 2 * (camera.getPosition().y - waters.get(0).getHeight());
+        camera.getPosition().y -= distance;
+        //if using roll (z rotation) I need to invert that too
+        camera.invertPitch();
+        lightlessRenderer.renderScene(null,structuresMeshes,camera);
+        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()+0.1f));
+        camera.invertPitch();
+        camera.getPosition().y += distance;
 //        waterFBOs.unbindCurrentFrameBuffer();
+        //Refraction
+        waterFBOs.bindRefractionFrameBuffer();
+        renderer.clear();
+        GL11.glDisable(GL11.GL_CULL_FACE);
+//        lightlessRenderer.renderScene(null,structuresMeshes,camera);
+        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,-1,0,waters.get(0).getHeight()-1));
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        waterFBOs.unbindCurrentFrameBuffer();
         //**** STOP FBO RENDERING ****//
 
         //Some drivers have issues with this command not actually disabling it. Mine works fine, however.
         GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
         lightlessRenderer.renderScene(null,structuresMeshes,camera);
         renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()));
-//        waterRenderer.render(waters, camera);
+        waterRenderer.render(waters, camera);
 
         //GUI
         guiRenderer.render(guiTextures);
