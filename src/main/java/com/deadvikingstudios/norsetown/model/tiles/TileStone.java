@@ -23,10 +23,4 @@ public class TileStone extends Tile
     {
 
     }
-
-    @Override
-    public EnumTileShape getTileShape(int metadata)
-    {
-        return EnumTileShape.FULL_CUBE;
-    }
 }

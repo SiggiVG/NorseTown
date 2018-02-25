@@ -146,7 +146,7 @@ public class ChunkColumn extends Entity implements Serializable
 
         chunk.setMetadata(Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE), metadata);
 
-        if(tile.getTileShape(oldMeta) != tile.getTileShape(metadata)) flagForReMesh = true;
+        if(tile.getTileMesh(oldMeta) != tile.getTileMesh(metadata)) flagForReMesh = true;
 
     }
 

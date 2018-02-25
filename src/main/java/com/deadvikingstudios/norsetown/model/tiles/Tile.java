@@ -83,69 +83,13 @@ public abstract class Tile
         return this;
     }
 
-    public boolean isFullCuboid(){return this.getTileShape(0) == EnumTileShape.FULL_CUBE;}
+    public boolean isFullCuboid(){return true;}
 
     public boolean isSolidCuboid(){return this.isOpaque && isFullCuboid();}
 
     public boolean isSideSolid(EnumTileFace side)
     {
         return true;
-    }
-
-    private int[] textureOffsets = new int[7];
-
-    /**
-     * @param side
-     * @return the UV offset
-     */
-    public int getTextureOffset(int side, int metadata)
-    {
-        return textureOffsets[side];
-    }
-
-    public Tile setTextureOffset(int allSides)
-    {
-        for (int i = 0; i < textureOffsets.length; i++)
-        {
-            textureOffsets[i] = allSides;
-        }
-        return this;
-    }
-
-    public Tile setTextureOffset(int columnEnds, int columnSides)
-    {
-        textureOffsets[4] = textureOffsets[5] = columnEnds;
-        textureOffsets[0] = textureOffsets[1] = textureOffsets[2] = textureOffsets[3] = columnSides;
-        return this;
-    }
-
-    public Tile setTextureOffset(int north, int east, int south, int west, int top, int bottom)
-    {
-        textureOffsets[0] = north;
-        textureOffsets[1] = east;
-        textureOffsets[2] = south;
-        textureOffsets[3] = west;
-        textureOffsets[4] = top;
-        textureOffsets[5] = bottom;
-        return this;
-    }
-
-    public Tile setTextureOffset(int north, int east, int south, int west, int top, int bottom, int particle)
-    {
-        textureOffsets[0] = north;
-        textureOffsets[1] = east;
-        textureOffsets[2] = south;
-        textureOffsets[3] = west;
-        textureOffsets[4] = top;
-        textureOffsets[5] = bottom;
-        textureOffsets[6] = particle;
-        return this;
-    }
-
-    public Tile setTextureOffsetParticle(int particle)
-    {
-        textureOffsets[6] = particle;
-        return this;
     }
 
     /**
@@ -157,9 +101,6 @@ public abstract class Tile
     }
 
     public abstract void update(Structure structure, int x, int y, int z);
-
-    @Deprecated
-    public abstract EnumTileShape getTileShape(int metadata);
 
     public boolean isReplacable()
     {
@@ -220,16 +161,16 @@ public abstract class Tile
             int i =0;
 
             register(tileAir = new TileAir(i++,"air").setOpaque(false));
-            register(tileGrass = new TileSod(i++,"sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,4, 18));
-            register(tileSoil = new TileSoil(i++, "soil", EnumMaterial.EARTH).setTextureOffset(3));
-            register(tileTreeBase = new TileLog(i++,"tree_base").setTextureOffset(7,6));
-            register(tileTrunkFir = new TileLog(i++,"log").setTextureOffset(7,6));
-            register(tilePlank = new TileWood(i++,"plank", EnumMaterial.WOOD).setTextureOffset(5));
-            register(tileStoneCliff = new TileStone(i++,"stone_cliff", EnumMaterial.STONE).setTextureOffset(8));
-            register(tileStoneCobble = new TileStone(i++,"stone_cobble", EnumMaterial.STONE).setTextureOffset(9));
-            register(tileClay = new TileSoil(i++,"clay", EnumMaterial.EARTH).setTextureOffset(10));
-            register(tileWattleDaub = new TileWood(i++,"wattledaub", EnumMaterial.EARTH).setTextureOffset(10,11));
-            register(tileLeaves = new TileLeaves(i++,"leaves", EnumMaterial.PLANT).setOpaque(false).setTextureOffset(32).setTextureOffsetParticle(33));
+            register(tileGrass = new TileSod(i++,"sod", EnumMaterial.EARTH));
+            register(tileSoil = new TileSoil(i++, "soil", EnumMaterial.EARTH));
+            register(tileTreeBase = new TileLog(i++,"tree_base"));
+            register(tileTrunkFir = new TileLog(i++,"log"));
+            register(tilePlank = new TileWood(i++,"plank", EnumMaterial.WOOD));
+            register(tileStoneCliff = new TileStone(i++,"stone_cliff", EnumMaterial.STONE));
+            register(tileStoneCobble = new TileStone(i++,"stone_cobble", EnumMaterial.STONE));
+            register(tileClay = new TileSoil(i++,"clay", EnumMaterial.EARTH));
+            register(tileWattleDaub = new TileWood(i++,"wattledaub", EnumMaterial.EARTH));
+            register(tileLeaves = new TileLeaves(i++,"leaves", EnumMaterial.PLANT).setOpaque(false));
             register(tileGrassTall = new Tile(i++, "grass_tall", EnumMaterial.PLANT)
             {
                 @Override
@@ -245,17 +186,11 @@ public abstract class Tile
                 }
 
                 @Override
-                public EnumTileShape getTileShape(int metadata)
-                {
-                    return EnumTileShape.CROSS_TALL_FULL;
-                }
-
-                @Override
                 public boolean isReplacable()
                 {
                     return true;
                 }
-            }.setOpaque(false).setTextureOffset(18));
+            }.setOpaque(false));
             register(tileCropOnion = new TileCrop(i++, "tile_vegi_onion"));
         }
 

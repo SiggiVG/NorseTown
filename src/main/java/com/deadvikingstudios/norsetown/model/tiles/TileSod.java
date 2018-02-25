@@ -38,11 +38,4 @@ public class TileSod extends Tile
 
     }
 
-    @Deprecated
-    @Override
-    public EnumTileShape getTileShape(int metadata)
-    {
-        return EnumTileShape.FULL_CUBE;
-    }
-
 }

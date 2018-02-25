@@ -18,12 +18,6 @@ public class TileAir extends Tile
     }
 
     @Override
-    public EnumTileShape getTileShape(int metadata)
-    {
-        return EnumTileShape.NULL;
-    }
-
-    @Override
     public boolean isReplacable()
     {
         return true;

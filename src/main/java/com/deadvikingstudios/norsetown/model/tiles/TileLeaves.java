@@ -50,12 +50,6 @@ public class TileLeaves extends Tile
     }
 
     @Override
-    public EnumTileShape getTileShape(int metadata)
-    {
-        return EnumTileShape.CUBE_CROSS_EXTENDED;
-    }
-
-    @Override
     public boolean isReplacable()
     {
         return true;

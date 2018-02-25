@@ -13,29 +13,6 @@ public class TileLog extends Tile
         this.isOpaque = false;
     }
 
-    @Override
-    @Deprecated
-    public EnumTileShape getTileShape(int metadata)
-    {
-//        if(metadata > growthMeta*3)
-        {
-            return EnumTileShape.FULL_CUBE;
-        }
-//        else if(metadata > growthMeta*2)
-//        {
-//            return EnumTileShape.COL_THICK;
-//        }
-//        else if(metadata > growthMeta)
-//        {
-//            return EnumTileShape.COL_MED;
-//        }
-//        else
-//        {
-//            return EnumTileShape.COL_THIN;
-//        }
-    }
-
-
     private static float edge1 = (float) Math.sqrt((0.25f*0.25f) + (0.25f*0.25f));
     private static float edge2 = (float) (Math.sqrt(0.5) - (0.25*Math.cos(Math.toRadians(45))));
 

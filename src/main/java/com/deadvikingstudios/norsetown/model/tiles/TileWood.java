@@ -22,12 +22,4 @@ public class TileWood extends Tile
     {
 
     }
-
-    @Override
-    public EnumTileShape getTileShape(int metadata)
-    {
-        return EnumTileShape.FULL_CUBE;
-    }
-
-
 }

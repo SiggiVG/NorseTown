@@ -21,10 +21,4 @@ public class TileCrop extends Tile
     {
 
     }
-
-    @Override
-    public EnumTileShape getTileShape(int metadata)
-    {
-        return null;
-    }
 }

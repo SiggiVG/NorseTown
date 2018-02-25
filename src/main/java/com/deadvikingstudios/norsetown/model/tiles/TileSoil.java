@@ -12,10 +12,11 @@ public class TileSoil extends Tile
 
     private static final TileMesh MESH_SOIL = new TileMesh(3);
     private static final TileMesh MESH_CLAY = new TileMesh(10);
+
     @Override
     public TileMesh getTileMesh(int metadata)
     {
-        if(this == Tiles.tileClay) return MESH_CLAY;
+        if (this == Tiles.tileClay) return MESH_CLAY;
         return MESH_SOIL;
     }
 
@@ -23,11 +24,5 @@ public class TileSoil extends Tile
     public void update(Structure structure, int x, int y, int z)
     {
 
-    }
-
-    @Override
-    public EnumTileShape getTileShape(int metadata)
-    {
-        return EnumTileShape.FULL_CUBE;
     }
 }
