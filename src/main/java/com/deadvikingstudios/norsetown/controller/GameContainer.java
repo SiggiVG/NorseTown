@@ -5,6 +5,7 @@ import com.deadvikingstudios.norsetown.controller.input.KeyboardInputHandler;
 import com.deadvikingstudios.norsetown.controller.input.MouseInputHandler;
 import com.deadvikingstudios.norsetown.controller.input.MousePositionHandler;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
+import com.deadvikingstudios.norsetown.model.entities.ai.Task;
 import com.deadvikingstudios.norsetown.model.items.Item;
 import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
 import com.deadvikingstudios.norsetown.model.lighting.SpotLight;
@@ -45,7 +46,7 @@ import java.util.List;
 public class GameContainer implements Runnable, IGameContainer
 {
     public static final String GAME_NAME = "NorseTown";
-    public static final String VERSION = "Indev-0.03";
+    public static final String VERSION = "Indev-0.04";
 
     public static final String DEBUG = "debug";
     public static String MODE = DEBUG;
@@ -67,7 +68,7 @@ public class GameContainer implements Runnable, IGameContainer
     //TODO: setup HashMap<String, Shader>
 
 
-    public static final float SEA_LEVEL = 12f;
+    public static final float SEA_LEVEL = -5f;
 
     public static RendererWater waterRenderer = null;
 
@@ -80,8 +81,10 @@ public class GameContainer implements Runnable, IGameContainer
     private static GuiRenderer guiRenderer = null;
 
 //    private static List<StructureMesh> structuresMeshes = new ArrayList<StructureMesh>();
-private static List<ChunkColMesh> structuresMeshes = new ArrayList<ChunkColMesh>();
+    private static List<ChunkColMesh> structuresMeshes = new ArrayList<ChunkColMesh>();
+    private static List<ChunkColMesh> structuresMeshesToRemove = new ArrayList<ChunkColMesh>();
     private static List<EntityMesh> entityMeshes = new ArrayList<EntityMesh>();
+    private static List<EntityMesh> entityMeshesToRemove = new ArrayList<EntityMesh>();
 
     private static RawMesh defaultMesh;
 
@@ -112,6 +115,9 @@ private static List<ChunkColMesh> structuresMeshes = new ArrayList<ChunkColMesh>
 
     //**** TERRAIN TEXTURE ****//
     private static MeshTexture terrainTexture;
+
+    //TEST
+    private static MeshTexture skullTexture;
 
     /**
      * The current world object
@@ -157,6 +163,8 @@ private static List<ChunkColMesh> structuresMeshes = new ArrayList<ChunkColMesh>
         skyboxTexture = new MeshTexture(loader.loadTexture("textures/skybox"));
         //**** TERRAIN ****//
         terrainTexture = new MeshTexture(loader.loadTexture("textures/terrain"));//"textures/tiles/grass_top"));
+        //**** TEST ****//
+        skullTexture = new MeshTexture(loader.loadTexture("textures/skull_logo"));
     }
 
     private void initGlobalLights()
@@ -229,20 +237,40 @@ private static List<ChunkColMesh> structuresMeshes = new ArrayList<ChunkColMesh>
 
         if(KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_SPACE))
         {
-            currentWorld.cutDownTrees();
+            //currentWorld.cutDownTrees();
+
         }
+
+        //Chunk Structures
+        for (ChunkColMesh mesh : structuresMeshesToRemove)
+        {
+            structuresMeshes.remove(mesh);
+            loader.unloadMesh(mesh.getMesh());
+        }
+        structuresMeshesToRemove.clear();
 
         for (ChunkColMesh mesh : structuresMeshes)
         {
             if(mesh.getChunkColumn() == null)
             {
-                structuresMeshes.remove(mesh);
-                loader.unloadMesh(mesh.getMesh());
+                structuresMeshesToRemove.add(mesh);
             }
             else if(mesh.getChunkColumn().isFlagForReMesh())
             {
                 mesh.reloadMesh();
                 mesh.getChunkColumn().wasReMeshed();
+            }
+        }
+
+        //Entities
+        entityMeshes.removeAll(entityMeshesToRemove);
+        entityMeshesToRemove.clear();
+
+        for(EntityMesh mesh : entityMeshes)
+        {
+            if(mesh.getEntity() == null)
+            {
+                entityMeshesToRemove.add(mesh);
             }
         }
 
@@ -273,8 +301,23 @@ private static List<ChunkColMesh> structuresMeshes = new ArrayList<ChunkColMesh>
         {
             if(mesh.getChunkColumn() == col)
             {
-                structuresMeshes.remove(mesh);
-                loader.unloadMesh(mesh.getMesh());
+                structuresMeshesToRemove.add(mesh);
+            }
+        }
+    }
+
+    public static void addEntity(Entity entity)
+    {
+        entityMeshes.add(new EntityMesh(entity, defaultMesh, skullTexture));
+    }
+
+    public static void removeEntity(Entity entity)
+    {
+        for (EntityMesh mesh : entityMeshes)
+        {
+            if(mesh.getEntity() == entity)
+            {
+                entityMeshesToRemove.add(mesh);
             }
         }
     }
@@ -300,8 +343,8 @@ private static List<ChunkColMesh> structuresMeshes = new ArrayList<ChunkColMesh>
         camera.getPosition().y -= distance;
         //if using roll (z rotation) I need to invert that too
         camera.invertPitch();
-        lightlessRenderer.renderScene(null,structuresMeshes,camera);
-        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()+0.1f));
+        lightlessRenderer.renderScene(entityMeshes,structuresMeshes,camera);
+        renderer.renderScene(entityMeshes, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()+0.1f));
         camera.invertPitch();
         camera.getPosition().y += distance;
 //        waterFBOs.unbindCurrentFrameBuffer();
@@ -310,15 +353,15 @@ private static List<ChunkColMesh> structuresMeshes = new ArrayList<ChunkColMesh>
         renderer.clear();
         GL11.glDisable(GL11.GL_CULL_FACE);
 //        lightlessRenderer.renderScene(null,structuresMeshes,camera);
-        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,-1,0,waters.get(0).getHeight()-1));
+        renderer.renderScene(entityMeshes, structuresMeshes, camera, new Vector4f(0,-1,0,waters.get(0).getHeight()-1));
         GL11.glEnable(GL11.GL_CULL_FACE);
         waterFBOs.unbindCurrentFrameBuffer();
         //**** STOP FBO RENDERING ****//
 
         //Some drivers have issues with this command not actually disabling it. Mine works fine, however.
         GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
-        lightlessRenderer.renderScene(null,structuresMeshes,camera);
-        renderer.renderScene(null, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()));
+        lightlessRenderer.renderScene(entityMeshes,structuresMeshes,camera);
+        renderer.renderScene(entityMeshes, structuresMeshes, camera, new Vector4f(0,1,0,-waters.get(0).getHeight()));
         waterRenderer.render(waters, camera);
 
         //GUI

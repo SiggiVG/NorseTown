@@ -251,27 +251,32 @@ public class TileMeshDef
          */
         int rotation = 0;
 
-        public Quad()
-        {
-            this(0);
-        }
+//        public Quad()
+//        {
+//            this(0);
+//        }
 
-        public Quad(int texture)
+//        public Quad(int texture)
+//        {
+//            this(texture, new float[]
+//                    {
+//                            0,0,
+//                            0,tileTextureHeight,
+//                            tileTextureWidth,tileTextureHeight,
+//                            tileTextureWidth,0
+//                    });
+//        }
+
+        public Quad(int texture, EnumTileFace cullFace)
         {
             this(texture, new float[]
                     {
                             0,0,
-                            0,tileTextureHeight,
-                            tileTextureWidth,tileTextureHeight,
-                            tileTextureWidth,0
-                    });
-        }
-
-        public Quad(int texture, EnumTileFace cullFace)
-        {
-            this(texture);
-            this.cullFace = cullFace;
-            if(this.cullFace == null || this.cullFace == EnumTileFace.PARTICLE) this.cullFace = EnumTileFace.NULL;
+                            0,1,
+                            1,1,
+                            1,0
+                    },
+                    0, cullFace);
         }
 
         public Quad(int texture, @NotNull float[] uv)
@@ -305,17 +310,20 @@ public class TileMeshDef
          */
         private float[] genUV(int rotation, float[] uvIn)
         {
+            /*
+            The issue I'm having is that uvIn is scales around 0:1, while the
+             */
             assert uvIn.length == 4*2;
 
-            float r0 = (this.texture % TERRAIN_TEXTURE_ROWS) * tileTextureWidth;
-            float c0 = (this.texture / TERRAIN_TEXTURE_COLS) * tileTextureHeight;
+            float r0 = (this.texture % TERRAIN_TEXTURE_ROWS);
+            float c0 = (this.texture / TERRAIN_TEXTURE_COLS);
 
             float[] uvs = new float[]
                     {
-                            r0 + uvIn[0], c0 + uvIn[1],
-                            r0 + uvIn[2], c0 + uvIn[3],
-                            r0 + uvIn[4], c0 + uvIn[5],
-                            r0 + uvIn[6], c0 + uvIn[7]
+                            (r0 + uvIn[0]) * tileTextureWidth, (c0 + uvIn[1]) * tileTextureHeight,
+                            (r0 + uvIn[2]) * tileTextureWidth, (c0 + uvIn[3]) * tileTextureHeight,
+                            (r0 + uvIn[4]) * tileTextureWidth, (c0 + uvIn[5]) * tileTextureHeight,
+                            (r0 + uvIn[6]) * tileTextureWidth, (c0 + uvIn[7]) * tileTextureHeight
                     };
 
             for (int i = 0; i < rotation; i++)
@@ -336,7 +344,7 @@ public class TileMeshDef
 
         if(axis >= 0 && axis < 3)
         { //valid axis
-            //translate
+            //offset
             float tPointX = point.x - origin.x;
             float tPointY = point.y - origin.y;
             float tPointZ = point.z - origin.z;
@@ -375,7 +383,7 @@ public class TileMeshDef
                     break;
             }
 
-            //translate back
+            //offset back
             return new Vector3f(
                     tPointX + origin.x,
                     tPointY + origin.y,

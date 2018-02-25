@@ -210,6 +210,11 @@ public class Chunk implements Serializable
         return Arrays.stream(this.tiles).allMatch((i) -> i == 0);
     }
 
+    boolean isFull()
+    {
+        return Arrays.stream(this.tiles).noneMatch((i) -> i == 0);
+    }
+
     @Override
     public String toString()
     {

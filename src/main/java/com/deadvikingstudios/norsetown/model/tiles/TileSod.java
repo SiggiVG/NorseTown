@@ -21,10 +21,10 @@ public class TileSod extends Tile
             new TileMeshDef.Quad(4, EnumTileFace.BOTTOM)),
             new TileMeshDef.Cuboid(new Vector3f(0.5f,1f,-0.25f), new Vector3f(0.5f,2f,1.25f),
                     new Vector3f(0,45,0), new TileMeshDef.Quad[]{
-                    null, new TileMeshDef.Quad(18, EnumTileFace.NULL), null, new TileMeshDef.Quad(18, EnumTileFace.NULL), null, null}),
+                    null, new TileMeshDef.Quad(18, EnumTileFace.TOP), null, new TileMeshDef.Quad(18, EnumTileFace.TOP), null, null}),
             new TileMeshDef.Cuboid(new Vector3f(0.5f,1f,-0.25f), new Vector3f(0.5f,2f,1.25f),
                     new Vector3f(0,135,0), new TileMeshDef.Quad[]{
-                    null, new TileMeshDef.Quad(18, EnumTileFace.NULL), null, new TileMeshDef.Quad(18, EnumTileFace.NULL), null, null})
+                    null, new TileMeshDef.Quad(18, EnumTileFace.TOP), null, new TileMeshDef.Quad(18, EnumTileFace.TOP), null, null})
     );
     @Override
     public TileMesh getTileMesh(int metadata)

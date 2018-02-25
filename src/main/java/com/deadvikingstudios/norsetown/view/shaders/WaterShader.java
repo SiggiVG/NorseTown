@@ -1,7 +1,7 @@
 package com.deadvikingstudios.norsetown.view.shaders;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
-import com.deadvikingstudios.norsetown.utils.RenderMath;
+import com.deadvikingstudios.norsetown.utils.Maths;
 import org.lwjgl.util.vector.Matrix4f;
 
 public class WaterShader extends ShaderProgram {
@@ -57,7 +57,7 @@ public class WaterShader extends ShaderProgram {
     }
 
     public void loadViewMatrix(CameraController camera){
-        Matrix4f viewMatrix = RenderMath.createViewMatrix(camera);
+        Matrix4f viewMatrix = Maths.createViewMatrix(camera);
         loadMatrix(location_viewMatrix, viewMatrix);
         super.loadVector3D(location_cameraPosition, camera.getPosition());
     }

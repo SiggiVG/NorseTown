@@ -1,36 +1,39 @@
 package com.deadvikingstudios.norsetown.model.physics;
 
+import com.deadvikingstudios.norsetown.utils.Maths;
+import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 import org.lwjgl.util.vector.Vector3f;
 
 public class Ray
 {
-    private float yaw, pitch;
-    Vector3f startPoint;
-    Vector3f endPoint;
+    private Vector3f startPoint;
+    private Vector3f endPoint;
+    private Vector3f direction;
 
-    public Ray(float yaw, float pitch, final Vector3f origin)
+    public Ray(final Vector3f position, final Vector3f direction)
     {
-        this.yaw = yaw;
-        this.pitch = pitch;
-        this.startPoint = origin;
-        this.endPoint = origin;
+        this.startPoint = new Vector3f(position);
+        this.endPoint = new Vector3f(position);
+        this.direction = new Vector3f(direction);
     }
 
-    public void step(float scaler)
+    public void step(float scale)
     {
-        endPoint.x -= Math.cos(Math.toRadians(yaw))*scaler;
-        endPoint.z -= Math.sin(Math.toRadians(yaw))*scaler;
-        endPoint.y -= Math.tan(Math.toRadians(pitch))*scaler;
+        float yaw = (float) Math.toRadians(this.direction.y +90);
+        float pitch = (float) Math.toRadians(this.direction.x);
+
+        this.endPoint.x = (float) (Math.cos(yaw) * scale);
+        this.endPoint.z = (float) (Math.sin(yaw) * scale);
+        this.endPoint.y = (float) (Math.tan(pitch) * scale);
     }
 
-    public Vector3f getEndPoint()
+    public Vector3f getEnd()
     {
-        return endPoint;
+        return new Vector3f(this.endPoint);
     }
 
-    public double getLength()
+    public float getLength()
     {
-        return MathPhysics.getDistance(startPoint, endPoint);
+        return Maths.distance(this.startPoint, this.endPoint);
     }
-
 }

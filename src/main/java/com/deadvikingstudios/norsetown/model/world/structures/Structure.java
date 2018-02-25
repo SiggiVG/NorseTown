@@ -1,10 +1,10 @@
 package com.deadvikingstudios.norsetown.model.world.structures;
 
 import com.deadvikingstudios.norsetown.controller.GameContainer;
+import com.deadvikingstudios.norsetown.model.entities.ai.pathfinding.Node;
 import com.deadvikingstudios.norsetown.model.items.ItemStack;
 import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
-import com.deadvikingstudios.norsetown.utils.Logger;
 import com.deadvikingstudios.norsetown.utils.vector.Vector2i;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 import org.lwjgl.util.vector.Vector3f;
@@ -25,23 +25,13 @@ public class Structure implements Serializable
 
     protected HashMap<Vector2i, ChunkColumn> chunks;
 
+    protected boolean canHaveChildren = false;
     protected Structure parent;
 
     /**
      * Might change this to be a List? accessing structures by location is useful, but not super so.
      */
     protected HashMap<Vector3i, Structure> dockedStructures;
-
-    /*
-    TODO:
-    construct a way to hasten collision detection by having a preliminary check for where there are any blocks
-    center of mass calculator/setter for use with entities.
-     */
-
-    public HashMap<Vector2i, ChunkColumn> getChunks()
-    {
-        return this.chunks;
-    }
 
     public Structure()
     {
@@ -63,62 +53,49 @@ public class Structure implements Serializable
         }
     }
 
-    public <STRUCTURE extends Structure> Structure(STRUCTURE structure)
+    public Structure(Structure structure)
     {
         this.chunks = copyChunks(structure.chunks, this);
         this.dockedStructures = copyDocked(structure, this);
     }
 
-    public static <STRUCTURE extends Structure> STRUCTURE copy(STRUCTURE structureIn, Structure parent, boolean copyDocked)
-    {
-        Structure copy = null;
-        try
-        {
-            copy = structureIn.getClass().getConstructor(Vector3i.class, Structure.class, boolean.class).newInstance(new Vector3i(structureIn.position), parent,false);
-
-            copy.chunks = copyChunks(structureIn.chunks, copy);
-
-            if(copyDocked)
-            {
-                copy.dockedStructures = copyDocked(structureIn, parent);
-            }
-
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e)
-        {
-            e.printStackTrace();
-        }
-
-
-        return (STRUCTURE) copy;
-    }
-
-    public static <STRUCTURE extends Structure> HashMap<Vector2i, ChunkColumn> copyChunks(HashMap<Vector2i, ChunkColumn> chunksIn, Structure structureOut)
-    {
-        HashMap<Vector2i, ChunkColumn> copyChunks = new HashMap<Vector2i, ChunkColumn>();
-
-        for (Map.Entry<Vector2i, ChunkColumn> entry : chunksIn.entrySet() )
-        {
-            ChunkColumn chunkCol = new ChunkColumn(entry.getValue());
-            chunkCol.setStructure(structureOut);
-            copyChunks.put(new Vector2i(entry.getKey()), chunkCol);
-        }
-
-        return copyChunks;
-    }
-
-    public static <STRUCTURE extends Structure> HashMap<Vector3i, Structure> copyDocked(STRUCTURE structureIn, Structure parent)
-    {
-        HashMap<Vector3i, Structure> copyDocked = new HashMap<Vector3i, Structure>();
-
-        for (Map.Entry<Vector3i, Structure> entry : structureIn.dockedStructures.entrySet() )
-        {
-            copyDocked.put(new Vector3i(entry.getKey()), copy(structureIn, parent,true));
-        }
-
-        return copyDocked;
-    }
-
     public void init(){}
+
+    public HashMap<Vector2i, ChunkColumn> getChunks()
+    {
+        return this.chunks;
+    }
+
+    /**
+     * Input tile-in-structure coordinates
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
+    public List<Chunk> getChunkAt(int x, int y, int z)
+    {
+        List<Chunk> chunkies = new ArrayList<Chunk>();
+        ChunkColumn inChunkCol = this.getChunks().get(new Vector2i(x / Chunk.SIZE, z / Chunk.SIZE));
+        if(inChunkCol != null)
+        {
+            Chunk inChunk = inChunkCol.getChunk(x, y, z);
+            if (inChunk != null)
+            {
+                if(inChunkCol.getTile(x,y,z) != Tile.Tiles.tileAir)
+                {
+                    chunkies.add(inChunk);
+                }
+            }
+        }
+        for (Map.Entry<Vector3i, Structure> entry : this.dockedStructures.entrySet())
+        {
+            Structure structure = entry.getValue();
+            //make sure to offset by the position of the structure
+            chunkies.addAll(structure.getChunkAt(x - structure.position.x, y - structure.position.y, z - structure.position.z));
+        }
+        return chunkies;
+    }
 
     public void setTile(Tile tile, int x, int y, int z)
     {
@@ -189,9 +166,29 @@ public class Structure implements Serializable
 
     public void setParent(Structure parent)
     {
-        assert parent != null;
+        if(!parent.canHaveChildren) return;
+        //TODO: check that parent is not a child of this and that this is not a parent of parent
+        if(this.containsStructure(parent) || parent.isChildOf(this)) return; //TODO: Error
+
+        if(this.parent != null) this.parent.removeDockedStructure(this);
         this.parent = parent;
         parent.addDockedStructure(this);
+    }
+
+    private boolean containsStructure(Structure structure)
+    {
+        if(!this.canHaveChildren) return false;
+        if(this.dockedStructures.containsValue(structure)) return true;
+        for (Map.Entry<Vector3i, Structure> struct : this.dockedStructures.entrySet())
+        {
+            if(struct.getValue().containsStructure(structure)) return true;
+        }
+        return false;
+    }
+
+    private boolean isChildOf(Structure structure)
+    {
+        return parent != null && parent.isChildOf(this);
     }
 
     //    private boolean chunkExists(Vector3i pos)
@@ -238,6 +235,7 @@ public class Structure implements Serializable
 
     public <STRUCTURE extends Structure> void addDockedStructure(STRUCTURE structure)
     {
+        if(!this.canHaveChildren) return;
         this.dockedStructures.put(structure.position, structure);
     }
 
@@ -256,23 +254,6 @@ public class Structure implements Serializable
         this.position = position;
     }
 
-    public List<AxisAlignedBoundingBox> getRoughCollider(boolean includeChildren)
-    {
-        List<AxisAlignedBoundingBox> aabbs = new ArrayList<AxisAlignedBoundingBox>();
-        for (Map.Entry<Vector2i, ChunkColumn> cols : this.chunks.entrySet())
-        {
-            aabbs.addAll(cols.getValue().getRoughCollider());
-        }
-        if(includeChildren)
-        {
-            for (Map.Entry<Vector3i, Structure> child : this.dockedStructures.entrySet())
-            {
-                aabbs.addAll(child.getValue().getRoughCollider(true));
-            }
-        }
-        return aabbs;
-    }
-
     public List<ItemStack> destroy(Structure parent, boolean dropItems)
     {
         for (Map.Entry<Vector2i, ChunkColumn> entry : this.getChunks().entrySet())
@@ -287,5 +268,86 @@ public class Structure implements Serializable
         }
 
         return null;
+    }
+
+    public boolean containsPoint(Vector3f point)
+    {
+        if(!this.getChunkAt((int)point.x-this.position.x, (int)point.y-this.position.y, (int)point.z-this.position.z).isEmpty())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @return a list of AABBs describing the chunks held within that are offset be the position of the structure
+     */
+    public List<AxisAlignedBoundingBox> getRoughCollider(boolean includeDocked)
+    {
+        List<AxisAlignedBoundingBox> list = new ArrayList<AxisAlignedBoundingBox>();
+        for (Map.Entry<Vector2i, ChunkColumn> entry : this.chunks.entrySet())
+        {
+            list.addAll(entry.getValue().getAxisAlignedBoundingBox());
+        }
+        if(includeDocked && this.canHaveChildren)
+        {
+            for (Map.Entry<Vector3i, Structure> entry : this.dockedStructures.entrySet())
+            {
+                list.addAll(entry.getValue().getRoughCollider(true));
+            }
+        }
+        return list;
+    }
+
+    public static <STRUCTURE extends Structure> STRUCTURE copy(STRUCTURE structureIn, Structure parent, boolean copyDocked)
+    {
+        Structure copy = null;
+        try
+        {
+            copy = structureIn.getClass().getConstructor(Vector3i.class, Structure.class, boolean.class).newInstance(
+                    new Vector3i(structureIn.position), parent,false);
+
+            copy.chunks = copyChunks(structureIn.chunks, copy);
+
+            if(copyDocked && copy.canHaveChildren)
+            {
+                copy.dockedStructures = copyDocked(structureIn, parent);
+            }
+
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+
+
+        return (STRUCTURE) copy;
+    }
+
+    private static <STRUCTURE extends Structure> HashMap<Vector2i, ChunkColumn> copyChunks(HashMap<Vector2i, ChunkColumn> chunksIn, Structure structureOut)
+    {
+        HashMap<Vector2i, ChunkColumn> copyChunks = new HashMap<Vector2i, ChunkColumn>();
+
+        for (Map.Entry<Vector2i, ChunkColumn> entry : chunksIn.entrySet() )
+        {
+            ChunkColumn chunkCol = new ChunkColumn(entry.getValue());
+            chunkCol.setStructure(structureOut);
+            copyChunks.put(new Vector2i(entry.getKey()), chunkCol);
+        }
+
+        return copyChunks;
+    }
+
+    private static <STRUCTURE extends Structure> HashMap<Vector3i, Structure> copyDocked(STRUCTURE structureIn, Structure parent)
+    {
+        if(!structureIn.canHaveChildren) return null;
+        HashMap<Vector3i, Structure> copyDocked = new HashMap<Vector3i, Structure>();
+
+        for (Map.Entry<Vector3i, Structure> entry : structureIn.dockedStructures.entrySet() )
+        {
+            copyDocked.put(new Vector3i(entry.getKey()), copy(structureIn, parent,true));
+        }
+
+        return copyDocked;
     }
 }

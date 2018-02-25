@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.view;
 
+import com.deadvikingstudios.norsetown.utils.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL30;
@@ -65,6 +66,7 @@ public class WaterFrameBuffers {
     private void initialiseReflectionFrameBuffer() {
         reflectionFrameBuffer = createFrameBuffer();
         reflectionTexture = createTextureAttachment(REFLECTION_WIDTH,REFLECTION_HEIGHT);
+        Logger.debug("FBO: Reflection Texture bound to " + reflectionTexture);
         reflectionDepthBuffer = createDepthBufferAttachment(REFLECTION_WIDTH,REFLECTION_HEIGHT);
         unbindCurrentFrameBuffer();
     }
@@ -72,6 +74,7 @@ public class WaterFrameBuffers {
     private void initialiseRefractionFrameBuffer() {
         refractionFrameBuffer = createFrameBuffer();
         refractionTexture = createTextureAttachment(REFRACTION_WIDTH,REFRACTION_HEIGHT);
+        Logger.debug("FBO: Refraction Texture bound to " + refractionTexture);
         refractionDepthTexture = createDepthTextureAttachment(REFRACTION_WIDTH,REFRACTION_HEIGHT);
         unbindCurrentFrameBuffer();
     }

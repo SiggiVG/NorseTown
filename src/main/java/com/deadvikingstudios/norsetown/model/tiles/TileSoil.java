@@ -10,11 +10,13 @@ public class TileSoil extends Tile
         super(index, unlocalizedName, material);
     }
 
-    private static final TileMesh MESH = new TileMesh(3);
+    private static final TileMesh MESH_SOIL = new TileMesh(3);
+    private static final TileMesh MESH_CLAY = new TileMesh(10);
     @Override
     public TileMesh getTileMesh(int metadata)
     {
-        return MESH;
+        if(this == Tiles.tileClay) return MESH_CLAY;
+        return MESH_SOIL;
     }
 
     @Override

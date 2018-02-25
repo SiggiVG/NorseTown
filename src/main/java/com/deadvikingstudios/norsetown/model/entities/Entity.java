@@ -1,6 +1,10 @@
 package com.deadvikingstudios.norsetown.model.entities;
 
+import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import org.lwjgl.util.vector.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by SiggiVG on 6/20/2017.
@@ -74,6 +78,11 @@ public class Entity
     public void update()
     {
 
+    }
+
+    public List<AxisAlignedBoundingBox> getAxisAlignedBoundingBox()
+    {
+        return null;
     }
 
 

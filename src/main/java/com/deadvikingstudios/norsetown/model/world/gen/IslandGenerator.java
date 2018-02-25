@@ -31,99 +31,69 @@ public class IslandGenerator extends Generator
     protected void gen()
     {
         rand = new Random(this.seed);
-        this.genDimensions();
-//        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 0, 0);
-//        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 0, 1);
-//        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 0, 2);
-//        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 0, 15);
-//        this.getStructure().setTile(Tile.Tiles.tileGrass, 0, 15, 0);
-//
-//        this.getStructure().setTile(Tile.Tiles.tileSoil, 0, -1, 0);
-//        this.getStructure().setTile(Tile.Tiles.tileSoil, -1, -1, 0);
-//        this.getStructure().setTile(Tile.Tiles.tileSoil, 0, 0, 16);
-//        this.getStructure().setTile(Tile.Tiles.tileSoil, 0, 16, 0);
 
-
-
-
-        Vector2i pos = new Vector2i(0,0);
-
-        int radius = (int) (dimY*0.5f);
-
-        Vector2i near = new Vector2i((int) (-dimX*0.5), (int) (-dimZ*0.5));
-        Vector2i far = new Vector2i((int) (dimX*0.5), (int) (dimZ*0.5));
-
-//        Cylinder
-        for (int i = near.x; i < far.x; i++)
-        {
-            for (int j = 0; j < dimY; j++)
-            {
-                for (int k = near.y; k < far.y; k++)
-                {
-                    if(distanceTo(i,k,0,0) < radius) this.getStructure().setTile(Tile.Tiles.tileStoneCliff, i,j,k);
-                }
-            }
-        }
-
-//        //weird cross
-//        for (int i = near.x; i < far.x; i++)
-//        {
-//            for (int k = near.y; k < far.y; k++)
-//            {
-//                //TODO: different values for each quadrant
-//                int h = (int) Math.min(distanceTo(i,pos.x,k,pos.y), distanceTo(-k,pos.x,i,pos.y));
-//
-//                for (int j = h; j >= 0; j--)
-//                {
-//                    this.islandStructure.setTile(Tile.Tiles.tileStoneCliff,i,j,k);
-//                }
-//            }
-//        }
-//        //standing pole
-//        for (int i = 0; i < dimY+10; i++)
-//        {
-//            this.islandStructure.setTile(Tile.Tiles.tileTrunkFir, 0, i,0);
-//        }
+        Vector3i near = new Vector3i(-32, -6, -32);
+        Vector3i far = new Vector3i(31, 0, 31);
 
         //change stone to dirt+grass
         for (int i = near.x; i < far.x; i++)
         {
-            for (int k = near.y; k < far.y; k++)
+            for (int k = near.z; k < far.z; k++)
             {
-                for (int j = dimY; j >= 0; j--)
-                {
-                    if(this.getTile(i,j,k) == Tile.Tiles.tileStoneCliff)
-                    {
-                        this.setTile(Tile.Tiles.tileGrass,i,j,k);
-                        if(!this.getTile(i,j-1,k).isAir())
-                            this.setTile(Tile.Tiles.tileSoil,i,j-1,k);
-                        if(!this.getTile(i,j-2,k).isAir())
-                            this.setTile(Tile.Tiles.tileSoil,i,j-2,k);
-                        if(!this.getTile(i,j-3,k).isAir())
-                            this.setTile(Tile.Tiles.tileSoil,i,j-3,k);
-                        if(rand.nextInt(60) == 0)
-                            this.getStructure().addDockedStructure(new StructureTree(new Vector3i(i,j,k), this.structure));
-                        break;
-                    }
-                }
+
+
+                this.setTile(Tile.Tiles.tileGrass,i,-1,k);
+                this.setTile(Tile.Tiles.tileSoil,i,-2,k);
+                this.setTile(Tile.Tiles.tileSoil,i,-3,k);
+                this.setTile(Tile.Tiles.tileSoil,i,-4,k);
+                this.setTile(Tile.Tiles.tileStoneCliff, i, -5, k);
+                this.setTile(Tile.Tiles.tileStoneCliff, i, -6, k);
+//                if(rand.nextInt(60) == 0)
+//                        this.getStructure().addDockedStructure(new StructureTree(new Vector3i(i,0,k), this.structure));
             }
         }
 
+        for (int i = -1; i < 15; i++)
+        {
+            for (int k = -1; k < 2; k++)
+            {
+                this.setTile(Tile.Tiles.tilePlank, i, 0, k);
+                this.setTile(Tile.Tiles.tilePlank, i, 1, k);
+            }
+        }
+        for(int i = 0; i < 15; i++)
+        {
+            this.setTile(Tile.Tiles.tileAir, i, 0, 0);
+            this.setTile(Tile.Tiles.tileAir, i, 1, 0);
+        }
 
+        for (int i = -15; i < 15; i++)
+        {
+            for (int k = 5; k < 20; k++)
+            {
+                this.setTile(Tile.Tiles.tilePlank, i, 0, k);
+            }
+            for (int k = 15; k < 20; k++)
+            {
+                this.setTile(Tile.Tiles.tilePlank, i, 1, k);
+            }
+        }
+
+        this.getStructure().addDockedStructure(new StructureTree(new Vector3i(-10,0,-10), this.structure));
     }
 
-    private double distanceTo(int x1, int z1, int x2, int z2)
-    {
-        int x = x2 - x1;
-        int z = z2 - z1;
-        return Math.sqrt((x*x)+(z*z));
-    }
+//    private double distanceTo(int x1, int z1, int x2, int z2)
+//    {
+//        int x = x2 - x1;
+//        int z = z2 - z1;
+//        return Math.sqrt((x*x)+(z*z));
+//    }
 
-    private void genDimensions()
-    {
-        Random rand = new Random(this.seed);
-        this.dimX = rand.nextInt(MAX_DIM_XZ - MIN_DIM_XZ) + MIN_DIM_XZ;
-        this.dimZ = dimX;//rand.nextInt(MAX_DIM_XZ - MIN_DIM_XZ) + MIN_DIM_XZ;
-        this.dimY = rand.nextInt(MAX_DIM_Y - MIN_DIM_Y) + MIN_DIM_Y;
-    }
+//    private void genDimensions()
+//    {
+//        Random rand = new Random(this.seed);
+//        this.dimX = rand.nextInt(MAX_DIM_XZ - MIN_DIM_XZ) + MIN_DIM_XZ;
+//        this.dimZ = dimX;//rand.nextInt(MAX_DIM_XZ - MIN_DIM_XZ) + MIN_DIM_XZ;
+//        this.dimY = rand.nextInt(MAX_DIM_Y - MIN_DIM_Y) + MIN_DIM_Y;
+//    }
 }

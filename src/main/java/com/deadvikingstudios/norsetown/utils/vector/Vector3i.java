@@ -18,6 +18,11 @@ public class Vector3i
         this.z = position.z;
     }
 
+    public Vector3i(float x, float y, float z)
+    {
+        this((int)x,(int)y,(int)z);
+    }
+
     @Override
     public boolean equals(Object o)
     {

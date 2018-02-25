@@ -1,14 +1,15 @@
 package com.deadvikingstudios.norsetown.model.entities;
 
+import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
+
+import java.util.List;
 
 public class EntityStructure extends Entity
 {
     private final boolean canChangePosition;
     private final boolean canRotate;
-
-    private Vector3i structureOffset = new Vector3i(0,0,0);
 
     private Structure structure;
 
@@ -34,14 +35,10 @@ public class EntityStructure extends Entity
         //this.position.y += 0.1;
     }
 
-    public Vector3i getStructureOffset()
+    @Override
+    public List<AxisAlignedBoundingBox> getAxisAlignedBoundingBox()
     {
-        return structureOffset;
-    }
-
-    public void setStructureOffset(Vector3i structureOffset)
-    {
-        this.structureOffset = structureOffset;
+        return this.structure.getRoughCollider(true);
     }
 
     public <STRUCTURE extends Structure> EntityStructure(STRUCTURE structure, double x, double y, double z, boolean canChangePosition, boolean canRotate)

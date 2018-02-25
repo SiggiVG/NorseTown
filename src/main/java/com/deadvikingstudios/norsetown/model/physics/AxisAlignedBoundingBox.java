@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.model.physics;
 
+import com.sun.istack.internal.NotNull;
 import org.lwjgl.util.vector.Vector3f;
 
 public class AxisAlignedBoundingBox
@@ -15,44 +16,33 @@ public class AxisAlignedBoundingBox
         this.max = new Vector3f(x2,y2,z2);
     }
 
-    public AxisAlignedBoundingBox(Vector3f least, Vector3f greatest)
+    public AxisAlignedBoundingBox(@NotNull final Vector3f least, @NotNull final Vector3f greatest)
     {
         this.min = new Vector3f(least);
         this.max = new Vector3f(greatest);
     }
 
-    public boolean isPointInside(Vector3f point)
+    public AxisAlignedBoundingBox(@NotNull final AxisAlignedBoundingBox that)
     {
+        //uses getters so that it assigns copies of the vectors
+        this.min = that.getMin();
+        this.max = that.getMax();
+    }
+
+    public boolean isPointInside(@NotNull final Vector3f point)
+    {
+        if(point == null) return false;
         return  (point.x >=this.min.x && point.x <= this.max.x) &&
                 (point.y >=this.min.y && point.y <= this.max.y) &&
                 (point.z >=this.min.z && point.z <= this.max.z);
     }
 
-    public boolean collide(AxisAlignedBoundingBox collideWith)
+    public boolean collide(@NotNull final AxisAlignedBoundingBox collideWith)
     {
+        if(collideWith == null) return false;
         return  (this.min.x <= collideWith.max.x && this.max.x >= collideWith.min.x) &&
                 (this.min.y <= collideWith.max.y && this.max.y >= collideWith.min.y) &&
                 (this.min.z <= collideWith.max.z && this.max.z >= collideWith.min.z);
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (!(o instanceof AxisAlignedBoundingBox)) return false;
-
-        AxisAlignedBoundingBox that = (AxisAlignedBoundingBox) o;
-
-        if (min != null ? !min.equals(that.min) : that.min != null) return false;
-        return max != null ? max.equals(that.max) : that.max == null;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int result = min != null ? min.hashCode() : 0;
-        result = 31 * result + (max != null ? max.hashCode() : 0);
-        return result;
     }
 
     public Vector3f getMin()
@@ -65,8 +55,9 @@ public class AxisAlignedBoundingBox
         this.min = new Vector3f(x,y,z);
     }
 
-    public void setMin(Vector3f min)
+    public void setMin(@NotNull final Vector3f min)
     {
+        if(min == null) return;
         this.min = new Vector3f(min);
     }
 
@@ -80,8 +71,9 @@ public class AxisAlignedBoundingBox
         this.max = new Vector3f(x,y,z);
     }
 
-    public void setMax(Vector3f max)
+    public void setMax(@NotNull final Vector3f max)
     {
+        if(max == null) return;
         this.max = new Vector3f(max);
     }
 
@@ -113,5 +105,43 @@ public class AxisAlignedBoundingBox
     public float getMaxZ()
     {
         return max.z;
+    }
+
+    public AxisAlignedBoundingBox offset(@NotNull final Vector3f vec)
+    {
+        if(vec == null) return this;
+        return new AxisAlignedBoundingBox(this.min.x+vec.x, this.min.y+vec.y, this.min.z+vec.z,
+                this.max.x+vec.x, this.max.y+vec.y, this.max.z+vec.z);
+    }
+
+    public static AxisAlignedBoundingBox getUnitBox()
+    {
+        return new AxisAlignedBoundingBox(0,0,0,1,1,1);
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof AxisAlignedBoundingBox)) return false;
+
+        AxisAlignedBoundingBox that = (AxisAlignedBoundingBox) o;
+
+        if (getMin() != null ? !getMin().equals(that.getMin()) : that.getMin() != null) return false;
+        return getMax() != null ? getMax().equals(that.getMax()) : that.getMax() == null;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = getMin() != null ? getMin().hashCode() : 0;
+        result = 31 * result + (getMax() != null ? getMax().hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    protected AxisAlignedBoundingBox clone()
+    {
+        return new AxisAlignedBoundingBox(this);
     }
 }

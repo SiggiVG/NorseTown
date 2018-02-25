@@ -1,6 +1,7 @@
 package com.deadvikingstudios.norsetown.utils;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
+import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
@@ -10,8 +11,78 @@ import org.lwjgl.util.vector.Vector3f;
  *
  * Various Utility functions to do with rendering, mostly matrices
  */
-public class RenderMath
+public class Maths
 {
+    public static float lerp(float start, float end, float percent)
+    {
+        return start * (1.0f - percent) + end * percent;
+    }
+
+    public static Vector2f lerp(Vector2f start, Vector2f end, float percent)
+    {
+        return new Vector2f(lerp(start.x, end.x, percent), lerp(start.y, end.y, percent));
+    }
+
+    public static float lerp(float x1, float y1, float x2, float y2, float percent)
+    {
+        return lerp(lerp(x1, x2, percent), lerp(y1, y2, percent), percent);
+    }
+
+    public static Vector3f lerp(Vector3f start, Vector3f end, float percent)
+    {
+        return new Vector3f(lerp(start.x, end.x, percent), lerp(start.y, end.y, percent), lerp(start.z, end.z, percent));
+    }
+
+    public static float lerp(float x1, float y1, float z1, float x2, float y2, float z2, float percent)
+    {
+        return lerp(lerp(x1, y1, x2, y2, percent), lerp(y1, z1, y2, z2, percent), percent);
+    }
+
+    public static Vector3f lerp(Vector3i startMove, Vector3i target, float percent)
+    {
+        return lerp(new Vector3f(startMove.x, startMove.y, startMove.z), new Vector3f(target.x, target.y, target.z), percent);
+    }
+
+    public static float distance(float n1, float n2)
+    {
+        return (float) Math.sqrt(distanceSquared(n1,n2));
+    }
+
+    public static float distanceSquared(float n1, float n2)
+    {
+        return (float) Math.pow(n1-n2,2);
+    }
+
+    public static float distance(Vector2f start, Vector2f end)
+    {
+        return (float) Math.sqrt(distanceSquared(start,end));
+    }
+
+    public static float distanceSquared(Vector2f start, Vector2f end)
+    {
+        return distanceSquared(start.x, end.x) + distanceSquared(start.x, end.x);
+    }
+
+    public static float distance(Vector3f start, Vector3f end)
+    {
+        return (float) Math.sqrt(distanceSquared(start,end));
+    }
+
+    public static float distanceSquared(Vector3f start, Vector3f end)
+    {
+        return distanceSquared(start.x, end.x) + distanceSquared(start.y, end.y) + distanceSquared(start.z, end.z);
+    }
+
+    public static float distance(Vector3i start, Vector3i end)
+    {
+        return (float) Math.sqrt(distanceSquared(start,end));
+    }
+
+    public static float distanceSquared(Vector3i start, Vector3i end)
+    {
+        return distanceSquared(start.x, end.x) + distanceSquared(start.y, end.y) + distanceSquared(start.z, end.z);
+    }
+
     public static Matrix4f createTransformationMatrix(Vector3f translation, float rx, float ry, float rz, float scale)
     {
         Matrix4f matrix = new Matrix4f();
@@ -21,7 +92,7 @@ public class RenderMath
         matrix.setIdentity();
         //x,0,0
         //0,y,0
-        //0,0,y
+        //0,0,z
         Matrix4f.translate(translation, matrix, matrix);
         //x,0,0
         //0,ycos(rx),-ysin(rx)

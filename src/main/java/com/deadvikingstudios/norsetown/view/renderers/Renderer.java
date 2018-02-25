@@ -2,7 +2,7 @@ package com.deadvikingstudios.norsetown.view.renderers;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
 import com.deadvikingstudios.norsetown.controller.GameContainer;
-import com.deadvikingstudios.norsetown.utils.RenderMath;
+import com.deadvikingstudios.norsetown.utils.Maths;
 import com.deadvikingstudios.norsetown.view.WindowManager;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkColMesh;
 import com.deadvikingstudios.norsetown.view.shaders.StaticShader;
@@ -55,6 +55,11 @@ public class Renderer
             render(mesh, shader);
         }
 
+        for (EntityMesh entity : entities)
+        {
+            render(entity, shader);
+        }
+
         shader.stop();
     }
 
@@ -87,16 +92,16 @@ public class Renderer
         //just do perspective for now
         if(!isOrthogonal)
         {
-            projectionMatrix = RenderMath.createProjectionMatrix(
+            projectionMatrix = Maths.createProjectionMatrix(
                 WindowManager.getCurrentWidth(), WindowManager.getCurrentHeight(), P_FOV, P_NEAR_PLANE, P_FAR_PLANE);
         }
         else
         {
-            //projectionMatrix = RenderMath.createOrthogonalMatrix(
+            //projectionMatrix = Maths.createOrthogonalMatrix(
             //        (float) Display.getWidth() / (float) Display.getHeight(),);
         }
         shader.start();
-        System.out.println(projectionMatrix);
+//        System.out.println(projectionMatrix);
         shader.loadProjectionMatrix(projectionMatrix);
         shader.stop();
         //TODO Orthogonal
@@ -114,7 +119,7 @@ public class Renderer
         GL20.glEnableVertexAttribArray(1);
         GL20.glEnableVertexAttribArray(2);
 
-        Matrix4f transform = RenderMath.createTransformationMatrix(entity.getPosition(),
+        Matrix4f transform = Maths.createTransformationMatrix(entity.getPosition(),
                 entity.getRotationX(), entity.getRotationY(), entity.getRotationZ(), entity.getScale());
         shader.loadTransformationMatrix(transform);
 
@@ -136,7 +141,7 @@ public class Renderer
 //        GL20.glEnableVertexAttribArray(1);
 //        GL20.glEnableVertexAttribArray(2);
 //
-//        Matrix4f transform = RenderMath.createTransformationMatrix(chunkMesh.getPosition(),
+//        Matrix4f transform = Maths.createTransformationMatrix(chunkMesh.getPosition(),
 //                chunkMesh.getRotationX(),chunkMesh.getRotationY(),chunkMesh.getRotationZ(), chunkMesh.getScale());
 //        shader.loadTransformationMatrix(transform);
 //
@@ -158,7 +163,7 @@ public class Renderer
         GL20.glEnableVertexAttribArray(1);
         GL20.glEnableVertexAttribArray(2);
 
-        Matrix4f transform = RenderMath.createTransformationMatrix(structureChunkMesh.getPosition(),
+        Matrix4f transform = Maths.createTransformationMatrix(structureChunkMesh.getPosition(),
                 structureChunkMesh.getRotationX(),structureChunkMesh.getRotationY(),structureChunkMesh.getRotationZ(), structureChunkMesh.getScale());
         shader.loadTransformationMatrix(transform);
 
@@ -189,7 +194,7 @@ public class Renderer
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);
         GL20.glEnableVertexAttribArray(2);
-        /*Matrix4f transform = RenderMath.createTransformationMatrix(chunkMesh.getPosition(), 0,0,0, 1);
+        /*Matrix4f transform = Maths.createTransformationMatrix(chunkMesh.getPosition(), 0,0,0, 1);
         shader.loadTransformationMatrix(transform);*//*
         shader.loadShineVariables(mesh.getShineDamper(), mesh.getReflectivity());
 

@@ -22,5 +22,6 @@ public abstract class TileEntity extends Entity
     public boolean save(){return true;}
     public boolean load(){return true;}
 
+    @Override
     public abstract void update();
 }

@@ -3,7 +3,7 @@ package com.deadvikingstudios.norsetown.view.shaders;
 import com.deadvikingstudios.norsetown.controller.CameraController;
 import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
 import com.deadvikingstudios.norsetown.model.lighting.SpotLight;
-import com.deadvikingstudios.norsetown.utils.RenderMath;
+import com.deadvikingstudios.norsetown.utils.Maths;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -99,7 +99,7 @@ public class StaticShader extends ShaderProgram
 
     public void loadTransformationMatrix(Vector3f translate, float rx, float ry, float rz, float scale)
     {
-        this.loadTransformationMatrix(RenderMath.createTransformationMatrix(translate, rx, ry, rz, scale));
+        this.loadTransformationMatrix(Maths.createTransformationMatrix(translate, rx, ry, rz, scale));
     }
 
     public void loadProjectionMatrix(Matrix4f matrix)
@@ -109,7 +109,7 @@ public class StaticShader extends ShaderProgram
 
     public void loadViewMatrix(CameraController camera)
     {
-        super.loadMatrix(location_viewMatrix, RenderMath.createViewMatrix(camera));
+        super.loadMatrix(location_viewMatrix, Maths.createViewMatrix(camera));
     }
 
     public void loadDirectionalLight(DirectionalLight light)

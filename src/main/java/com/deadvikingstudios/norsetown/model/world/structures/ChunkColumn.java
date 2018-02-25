@@ -156,6 +156,19 @@ public class ChunkColumn extends Entity implements Serializable
 
     }
 
+    @Override
+    public List<AxisAlignedBoundingBox> getAxisAlignedBoundingBox()
+    {
+        List<AxisAlignedBoundingBox> aabbs = new ArrayList<AxisAlignedBoundingBox>();
+        for (Map.Entry<Integer,Chunk> entry : chunks.entrySet())
+        {
+            Vector3i chunkPos = entry.getValue().position;
+            aabbs.add(new AxisAlignedBoundingBox(chunkPos.x * Chunk.SIZE, chunkPos.y * Chunk.SIZE, chunkPos.z * Chunk.SIZE,
+                    (chunkPos.x+1)*Chunk.SIZE, (chunkPos.y+1)*Chunk.SIZE,(chunkPos.z+1)*Chunk.SIZE));
+        }
+        return aabbs;
+    }
+
     public boolean isFlagForReMesh()
     {
         return this.flagForReMesh;
@@ -179,18 +192,6 @@ public class ChunkColumn extends Entity implements Serializable
             if(!entry.getValue().isEmpty()) return false;
         }
         return true;
-    }
-
-    public List<AxisAlignedBoundingBox> getRoughCollider()
-    {
-        List<AxisAlignedBoundingBox> aabbs = new ArrayList<AxisAlignedBoundingBox>();
-        for (Map.Entry<Integer,Chunk> entry : chunks.entrySet())
-        {
-            Vector3i chunkPos = entry.getValue().position;
-            aabbs.add(new AxisAlignedBoundingBox(chunkPos.x * Chunk.SIZE, chunkPos.y * Chunk.SIZE, chunkPos.z * Chunk.SIZE,
-                    (chunkPos.x+1)*Chunk.SIZE, (chunkPos.y+1)*Chunk.SIZE,(chunkPos.z+1)*Chunk.SIZE));
-        }
-        return aabbs;
     }
 
     public boolean[][][] getAccurateCollider(int x, int y, int z)

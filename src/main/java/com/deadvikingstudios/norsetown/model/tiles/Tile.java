@@ -87,6 +87,11 @@ public abstract class Tile
 
     public boolean isSolidCuboid(){return this.isOpaque && isFullCuboid();}
 
+    public boolean isSideSolid(EnumTileFace side)
+    {
+        return true;
+    }
+
     private int[] textureOffsets = new int[7];
 
     /**
@@ -217,8 +222,8 @@ public abstract class Tile
             register(tileAir = new TileAir(i++,"air").setOpaque(false));
             register(tileGrass = new TileSod(i++,"sod", EnumMaterial.EARTH).setTextureOffset(2,2,2,2,1,4, 18));
             register(tileSoil = new TileSoil(i++, "soil", EnumMaterial.EARTH).setTextureOffset(3));
-            register(tileTreeBase = new TileTree(i++,"tree_base").setTextureOffset(7,6));
-            register(tileTrunkFir = new TileTree(i++,"log").setTextureOffset(7,6));
+            register(tileTreeBase = new TileLog(i++,"tree_base").setTextureOffset(7,6));
+            register(tileTrunkFir = new TileLog(i++,"log").setTextureOffset(7,6));
             register(tilePlank = new TileWood(i++,"plank", EnumMaterial.WOOD).setTextureOffset(5));
             register(tileStoneCliff = new TileStone(i++,"stone_cliff", EnumMaterial.STONE).setTextureOffset(8));
             register(tileStoneCobble = new TileStone(i++,"stone_cobble", EnumMaterial.STONE).setTextureOffset(9));

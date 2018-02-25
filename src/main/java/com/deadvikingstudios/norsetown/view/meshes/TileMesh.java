@@ -21,7 +21,7 @@ public class TileMesh
     // And have it grab each chunk of data based on which faces are culled
     private List<TileMeshDef.Cuboid> cuboids = new ArrayList<TileMeshDef.Cuboid>();
 
-    private HashMap<Integer, List<Face>> facemap = new HashMap<Integer, List<Face>>();
+    private List<List<Face>> facemap;
 
 
     public TileMesh()
@@ -49,6 +49,7 @@ public class TileMesh
 
     private void genFaces()
     {
+        facemap = new ArrayList<List<Face>>();
         //adds all permutations of the tile to the Map
         int l = 6;
         for (int i = 0; i < Math.pow(2, l); i++)
@@ -66,7 +67,7 @@ public class TileMesh
                 bools[j] = chars[j] == '0';
             }
             //populates map
-            this.facemap.put(i, drawTile(bools));
+            this.facemap.add(i,drawTile(bools));
         }
     }
 
@@ -128,11 +129,4 @@ public class TileMesh
             norms.addAll(this.norms);
         }
     }
-
-
-
-
-
-
-
 }

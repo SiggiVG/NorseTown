@@ -1,15 +1,12 @@
 package com.deadvikingstudios.norsetown.view.renderers;
 
 import com.deadvikingstudios.norsetown.controller.CameraController;
-import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.model.world.WaterTile;
-import com.deadvikingstudios.norsetown.utils.RenderMath;
+import com.deadvikingstudios.norsetown.utils.Maths;
 import com.deadvikingstudios.norsetown.view.Loader;
 import com.deadvikingstudios.norsetown.view.WaterFrameBuffers;
-import com.deadvikingstudios.norsetown.view.WindowManager;
 import com.deadvikingstudios.norsetown.view.shaders.WaterShader;
 import com.deadvikingstudios.norsetown.view.meshes.RawMesh;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
@@ -45,7 +42,7 @@ public class RendererWater {
     public void render(List<WaterTile> water, CameraController camera) {
         prepareRender(camera);
         for (WaterTile tile : water) {
-            Matrix4f modelMatrix = RenderMath.createTransformationMatrix(
+            Matrix4f modelMatrix = Maths.createTransformationMatrix(
                     new Vector3f(tile.getX(), tile.getHeight(), tile.getZ()), 0, 0, 0,
                     WaterTile.TILE_SIZE);
             shader.loadModelMatrix(modelMatrix);
