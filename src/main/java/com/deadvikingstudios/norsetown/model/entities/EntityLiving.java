@@ -8,6 +8,7 @@ import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.utils.Logger;
 import com.deadvikingstudios.norsetown.utils.Maths;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +31,22 @@ public class EntityLiving extends Entity
         this.name = name;
     }
 
-
-
-    private Vector3i treavelFrom;
-    private Vector3i destination;
-    private float velocity = VELOCITY_ADJ;
+    /**
+     * The position that it is lerping from
+     */
+    private Vector3i travelFrom;
+    /**
+     * the destination that it is lerping to
+     */
+    protected Vector3i destination;
+    /**
+     * it's progress in it's current lerp
+     */
     private float moved = 0;
-    private List<Node> path;
+    /**
+     * The path it is traveling
+     */
+    protected List<Node> path;
 
     private static final float VELOCITY_ADJ = 0.1f;
     private static final float VELOCITY_DIAG = VELOCITY_ADJ / (float) Math.sqrt(2);
@@ -68,56 +78,97 @@ public class EntityLiving extends Entity
         return list;
     }
 
+    int counter = 0;
+    //TODO: do pathfinding on another Thread
     protected void doMovement()
     {
         if (path != null)
         {
             if (path.size() > 0)
             {
+                counter++;
                 Vector3i vec = path.get(path.size() - 1).position;
-                if(World.getCurrentWorld().currentIsland.getTile(vec.x, vec.y, vec.z) != Tile.Tiles.tileAir)
+//                if(World.getCurrentWorld().currentIsland.getTile(vec.x, vec.y, vec.z) != Tile.Tiles.tileAir)
+                if(counter % 10 == 0)
                 {
-                    this.position.x = this.treavelFrom.x;
-                    this.position.y = this.treavelFrom.y;
-                    this.position.z = this.treavelFrom.z;
-                    path = Pathfinder.findPathAStar(World.getCurrentWorld().currentIsland, this, this.treavelFrom, this.destination, true);
-                    return;
+                    recalcPath();
+                    counter = 0;
                 }
-                this.position = Maths.lerp(treavelFrom, vec, moved);
+                //Changes rotation based on movement direction
+                this.rotateToFace(new Vector3f(vec.x, vec.y, vec.z));
+                //Changes movespeed to keep the lerp constant
+                float velocity;
+                if(this.rotation.y % 90 != 0)
+                {
+                    velocity = VELOCITY_DIAG;
+                }
+                else
+                {
+                    velocity = VELOCITY_ADJ;
+                }
+
+                this.position = Maths.lerp(travelFrom, vec, moved);
                 moved += velocity;
 
                 if (moved >= 1f)
                 {
                     moved = 0;
-                    this.treavelFrom = vec;
+                    this.travelFrom = vec;
                     path.remove(path.size() - 1);
                 }
             }
-            if (this.destination.equals(this.treavelFrom))
+            if(this.destination != null)
             {
-                World.getCurrentWorld().currentIsland.setTile(Tile.Tiles.tileSoil, destination.x, destination.y, destination.z);
-                this.path = null;
-                this.destination = null;
+                if (this.destination.equals(this.travelFrom))
+                {
+                    //World.getCurrentWorld().currentIsland.setTile(Tile.Tiles.tileSoil, destination.x, destination.y, destination.z);
+                    this.path = null;
+                    this.destination = null;
+                }
             }
         } else
         {
-
-            this.destination = new Vector3i(
-                    World.getUpdateRandom().nextInt(64) - 32,
-                    World.getUpdateRandom().nextInt(32),
-                    World.getUpdateRandom().nextInt(64) - 32);
-            if (World.getCurrentWorld().currentIsland.getTile(destination.x, destination.y - 1, destination.z) == Tile.Tiles.tileAir)
-                return;
-            for (int i = 0; i <= this.height; i++)
-            {
-                if (World.getCurrentWorld().currentIsland.getTile(destination.x, destination.y + i, destination.z) != Tile.Tiles.tileAir)
-                    return;
-            }
+            this.acquireTarget();
             if (this.destination != null)
             {
-                this.treavelFrom = new Vector3i(Math.round(this.position.x), Math.round(this.position.y), Math.round(this.position.z));
-                path = Pathfinder.findPathAStar(World.getCurrentWorld().currentIsland, this, this.treavelFrom, this.destination, true);
+                if (World.getCurrentWorld().currentIsland.getTile(destination.x, destination.y - 1, destination.z) == Tile.Tiles.tileAir)
+                    return;
+                for (int i = 0; i <= this.height; i++)
+                {
+                    if (World.getCurrentWorld().currentIsland.getTile(destination.x, destination.y + i, destination.z) != Tile.Tiles.tileAir)
+                        return;
+
+                    this.travelFrom = new Vector3i((int) Math.round(this.position.x), (int) Math.round(this.position.y), (int) Math.round(this.position.z));
+                    path = Pathfinder.findPathAStar(World.getCurrentWorld().currentIsland, this, this.travelFrom, this.destination, true);
+                }
             }
         }
+    }
+
+    protected void recalcPath()
+    {
+        if(travelFrom != null)
+        {
+            this.position.x = this.travelFrom.x;
+            this.position.y = this.travelFrom.y;
+            this.position.z = this.travelFrom.z;
+            path = Pathfinder.findPathAStar(World.getCurrentWorld().currentIsland, this, this.travelFrom, this.destination, true);
+        }
+    }
+
+    protected void acquireTarget()
+    {
+        this.destination = new Vector3i(
+                World.getUpdateRandom().nextInt(64) - 32,
+                World.getUpdateRandom().nextInt(32),
+                World.getUpdateRandom().nextInt(64) - 32);
+    }
+
+    protected void rotateToFace(Vector3f vec)
+    {
+        float x = this.position.x - vec.x;
+        float z = this.position.z - vec.z;
+
+        this.rotation.y = (float) Math.toDegrees(Math.atan2(x, z));
     }
 }

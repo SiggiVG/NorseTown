@@ -1,5 +1,7 @@
 package com.deadvikingstudios.norsetown.utils.vector;
 
+import org.lwjgl.util.vector.Vector3f;
+
 public class Vector3i
 {
     public final int x, y, z;
@@ -21,6 +23,13 @@ public class Vector3i
     public Vector3i(float x, float y, float z)
     {
         this((int)x,(int)y,(int)z);
+    }
+
+    public Vector3i(Vector3f position)
+    {
+        this.x = (int)position.x;
+        this.y = (int)position.y;
+        this.z = (int)position.z;
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.deadvikingstudios.norsetown.controller.input.KeyboardInputHandler;
 import com.deadvikingstudios.norsetown.controller.input.MouseInputHandler;
 import com.deadvikingstudios.norsetown.controller.input.MousePositionHandler;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
+import com.deadvikingstudios.norsetown.model.entities.EntitySkybox;
 import com.deadvikingstudios.norsetown.model.entities.ai.Task;
 import com.deadvikingstudios.norsetown.model.items.Item;
 import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
@@ -15,6 +16,7 @@ import com.deadvikingstudios.norsetown.model.world.WaterTile;
 import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.model.world.structures.ChunkColumn;
 import com.deadvikingstudios.norsetown.utils.Logger;
+import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 import com.deadvikingstudios.norsetown.view.Loader;
 import com.deadvikingstudios.norsetown.view.WaterFrameBuffers;
 import com.deadvikingstudios.norsetown.view.WindowManager;
@@ -100,7 +102,7 @@ public class GameContainer implements Runnable, IGameContainer
 
     //**** SKYBOX ****//
     private static Entity skybox;
-    public static EntityMesh skyEntMesh;
+    public static SkyboxMesh skyEntMesh;
     private static MeshTexture skyboxTexture;
 
     //**** GLOBAL LIGHTING ****//
@@ -199,10 +201,10 @@ public class GameContainer implements Runnable, IGameContainer
 
 //        TextureAtlas.instance.CreateAtlas();
 
-        defaultMesh = loader.loadToVAO(CubeMesh.vertices, CubeMesh.indices, CubeMesh.uv, CubeMesh.cubeNormals);
+        defaultMesh = loader.loadToVAO(CubeMesh.getVertices(1,1,true), CubeMesh.indices, CubeMesh.uv, CubeMesh.cubeNormals);
 
         //x=-65 is about the latitude of iceland, z=-90 is darbreak at the equator
-        skybox = new Entity(0,0,0,-65,0,-90);
+        skybox = new EntitySkybox(0,0,0,-65,0,-90);
         RawMesh skyMesh = loader.loadToVAO(SkyboxMesh.skyVertices, CubeMesh.indices, SkyboxMesh.skyboxUV, SkyboxMesh.skyBoxNormals);
         skyEntMesh = new SkyboxMesh(skybox, skyMesh, skyboxTexture);
 
@@ -514,5 +516,11 @@ public class GameContainer implements Runnable, IGameContainer
             e.printStackTrace();
         }
         dispose();
+    }
+
+    public static Vector3i getCameraPosition()
+    {
+        Vector3f pos = camera.getPosition();
+        return new Vector3i(Math.round(pos.x), 0, Math.round(pos.z));
     }
 }

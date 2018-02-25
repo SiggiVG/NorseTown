@@ -63,14 +63,23 @@ public class World
 
     public void init()
     {
-        this.currentIsland = new StructureIsland(0,0,0);
-        addStructure(this.currentIsland);
+        addStructure(this.currentIsland = new StructureIsland(0,0,0));
 //        addStructure(new StructureTree(new Vector3i(-40,0,-40), island));
 
         for (int i = 0; i < 20; i++)
         {
-            this.addEntity(new EntityHumanoid(0,0,0,0,0,0));
+            int x = updateRandom.nextInt(64) -32;
+            int z = updateRandom.nextInt(64) -32;
+            if(currentIsland.getTile(x,0,z) != Tile.Tiles.tileAir)
+            {
+                i--;
+            }
+            else
+            {
+                this.addEntity(new EntityLiving("cow", x, 0, z));
+            }
         }
+        addEntity(new EntityHumanoid(0,0,0,0,0,0));
     }
 
     public void addStructure(Structure structure)

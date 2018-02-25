@@ -9,32 +9,59 @@ public class CubeMesh extends EntityMesh
         super(entity, rawMesh, texture);
     }
 
+    public static float[] getVertices(float yOffset, float height, boolean centerOnZero)
+    {
+        float[] ret = vertices.clone();
+
+        if(height != 0)
+        {
+            for (int i = 1; i < vertices.length; i += 3)
+            {
+                if(vertices[i] != 0)
+                {
+                    ret[i] = yOffset + height;
+                }
+                else
+                {
+                    ret[i] = yOffset;
+                }
+            }
+        }
+
+        if(!centerOnZero) return vertices;
+        for (int i = 0; i < vertices.length; i++)
+        {
+            ret[i] -= 0.5f;
+        }
+        return ret;
+    }
+
     public static final float[] vertices =
             {
-                    0,2,1,
+                    0,1,1,
                     0,0,1,
                     1,0,1,
-                    1,2,1,
+                    1,1,1,
 
-                    1,2,1,
+                    1,1,1,
                     1,0,1,
                     1,0,0,
-                    1,2,0,
+                    1,1,0,
 
-                    1,2,0,
+                    1,1,0,
                     1,0,0,
                     0,0,0,
-                    0,2,0,
+                    0,1,0,
 
-                    0,2,0,
+                    0,1,0,
                     0,0,0,
                     0,0,1,
-                    0,2,1,
+                    0,1,1,
 
-                    1,2,1,
-                    1,2,0,
-                    0,2,0,
-                    0,2,1,
+                    1,1,1,
+                    1,1,0,
+                    0,1,0,
+                    0,1,1,
 
                     0,0,1,
                     0,0,0,

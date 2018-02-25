@@ -5,6 +5,7 @@ import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.utils.Maths;
 import com.deadvikingstudios.norsetown.view.WindowManager;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkColMesh;
+import com.deadvikingstudios.norsetown.view.meshes.SkyboxMesh;
 import com.deadvikingstudios.norsetown.view.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import org.lwjgl.glfw.GLFW;
@@ -13,6 +14,7 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.List;
@@ -113,6 +115,28 @@ public class Renderer
     }
 
     public static void render(EntityMesh entity, StaticShader shader)
+    {
+        GL30.glBindVertexArray(entity.getMesh().getVaoID());
+        GL20.glEnableVertexAttribArray(0);
+        GL20.glEnableVertexAttribArray(1);
+        GL20.glEnableVertexAttribArray(2);
+
+        Matrix4f transform = Maths.createTransformationMatrix(new Vector3f(entity.getPosition()).translate(0.5f, 0.5f, 0.5f),
+                entity.getRotationX(), entity.getRotationY(), entity.getRotationZ(), entity.getScale());
+        shader.loadTransformationMatrix(transform);
+
+        shader.loadShineVariables(entity.getShineDamper(), entity.getReflectivity());
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, entity.getTexture().getTextureID());
+        GL11.glDrawElements(GL11.GL_TRIANGLES, entity.getMesh().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+        GL20.glDisableVertexAttribArray(0);
+        GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(2);
+        GL30.glBindVertexArray(0);
+    }
+
+    public static void render(SkyboxMesh entity, StaticShader shader)
     {
         GL30.glBindVertexArray(entity.getMesh().getVaoID());
         GL20.glEnableVertexAttribArray(0);

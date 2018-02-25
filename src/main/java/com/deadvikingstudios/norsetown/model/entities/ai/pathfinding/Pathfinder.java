@@ -7,6 +7,7 @@ import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.utils.Logger;
 import com.deadvikingstudios.norsetown.utils.Maths;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
+import com.sun.istack.internal.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,14 +18,15 @@ import java.util.List;
  */
 public class Pathfinder
 {
-    public static List<Node> findPathAStar(Structure structure, EntityLiving entity, Vector3i start, Vector3i goal, boolean useDiagonals)
+    public static List<Node> findPathAStar(Structure structure, EntityLiving entity, @NotNull Vector3i start, @NotNull Vector3i goal, boolean useDiagonals)
     {
+        if(start == null || goal == null) return null;
         //TODO: run this in a thread.
         List<Node> openList = new ArrayList<Node>();
         List<Node> closeList = new ArrayList<Node>();
 
         //TODO: speed up by using distanceSquared
-        Node current = new Node(new Vector3i(start), null, 0, Maths.distance(start, goal));
+        Node current = new Node(new Vector3i(start), null, 0, Maths.distanceSquared(start, goal));
         openList.add(current);
 
 
@@ -85,7 +87,7 @@ public class Pathfinder
                         Vector3i a = new Vector3i(x + i, y + j, z + k);
                         //TODO: speed up by using distanceSquared
                         Node node = new Node(new Vector3i(x + i, y + j, z + k), current,
-                                current.travelSoFarCost + Maths.distance(current.position, a), Maths.distance(a, goal));
+                                current.travelSoFarCost + Maths.distanceSquared(current.position, a), Maths.distanceSquared(a, goal));
 
                         if(vecInList(closeList, node.position) && node.travelSoFarCost >= current.travelSoFarCost) continue;
                         if(!vecInList(openList, node.position) || node.travelSoFarCost < current.travelSoFarCost) openList.add(node);
@@ -95,7 +97,7 @@ public class Pathfinder
         }
         closeList.clear();
 //        Logger.debug("Path from " + start + " to " + goal + " not an attainable destination");
-        World.getCurrentWorld().currentIsland.setTile(Tile.Tiles.tileClay, goal.x, goal.y, goal.z);
+//        World.getCurrentWorld().currentIsland.setTile(Tile.Tiles.tileClay, goal.x, goal.y, goal.z);
         return null;
     }
 
