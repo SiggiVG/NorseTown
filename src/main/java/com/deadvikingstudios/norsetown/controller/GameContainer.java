@@ -6,7 +6,8 @@ import com.deadvikingstudios.norsetown.controller.input.MouseInputHandler;
 import com.deadvikingstudios.norsetown.controller.input.MousePositionHandler;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.entities.EntitySkybox;
-import com.deadvikingstudios.norsetown.model.entities.ai.Task;
+import com.deadvikingstudios.norsetown.model.entities.ai.tasks.TaskPlaceTile;
+import com.deadvikingstudios.norsetown.model.events.TaskEventHandler;
 import com.deadvikingstudios.norsetown.model.items.Item;
 import com.deadvikingstudios.norsetown.model.lighting.DirectionalLight;
 import com.deadvikingstudios.norsetown.model.lighting.SpotLight;
@@ -220,9 +221,10 @@ public class GameContainer implements Runnable, IGameContainer
     @Override
     public void input()
     {
-//        KeyboardInputHandler.update();
+        KeyboardInputHandler.update();
         MouseInputHandler.update();
         MousePositionHandler.update();
+        GLFW.glfwPollEvents();
     }
 
     @Override
@@ -237,10 +239,19 @@ public class GameContainer implements Runnable, IGameContainer
 
         currentWorld.update();
 
-        if(KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_SPACE))
+        if(MouseInputHandler.isButtonPressed(GLFW.GLFW_MOUSE_BUTTON_LEFT))
         {
             //currentWorld.cutDownTrees();
-
+            int x = World.getUpdateRandom().nextInt(64) - 32;
+            int z = World.getUpdateRandom().nextInt(64) - 32;
+            int y = -1;
+            while(!currentWorld.currentIsland.getTile(x,y,z).isAir())
+            {
+                y++;
+            }
+            Vector3i pos = new Vector3i(x,y,z);
+            TaskEventHandler.createTask(new TaskPlaceTile(Tile.Tiles.tileLeaves, pos, 1));
+            Logger.debug("Place Tile task created at " + pos);
         }
 
         //Chunk Structures

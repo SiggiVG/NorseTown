@@ -1,7 +1,10 @@
 package com.deadvikingstudios.norsetown.model.entities;
 
+import com.deadvikingstudios.norsetown.model.entities.ai.tasks.Task;
 import com.deadvikingstudios.norsetown.model.entities.ai.pathfinding.Pathfinder;
 import com.deadvikingstudios.norsetown.model.entities.ai.pathfinding.Node;
+import com.deadvikingstudios.norsetown.model.entities.ai.tasks.TaskManager;
+import com.deadvikingstudios.norsetown.model.events.TaskEventHandler;
 import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.World;
@@ -21,6 +24,8 @@ public class EntityLiving extends Entity
     private int maxHealth = 100;
     private int currentHealth = maxHealth;
     public int height = 2;
+
+    private Task currentTask;
 
     protected AxisAlignedBoundingBox hitBox;
 
@@ -62,12 +67,37 @@ public class EntityLiving extends Entity
 
         if(this.isAlive)
         {
+            if(this.currentTask == null)
+            {
+                acquireTask();
+            }
+            else if(Maths.distanceSquared(this.position, this.currentTask.getPosition()) <= Math.pow(this.height, 1.5))
+            {
+                performTask();
+            }
+            checkInsideWall();
             doMovement();
+
         }
         else
         {
             World.getCurrentWorld().removeEntity(this);
         }
+    }
+
+    private void checkInsideWall()
+    {
+
+    }
+
+    private void performTask()
+    {
+        TaskEventHandler.onTaskExecute(this.currentTask, this);
+    }
+
+    private void acquireTask()
+    {
+        this.setTask(TaskEventHandler.getTask(this));
     }
 
     @Override
@@ -79,23 +109,61 @@ public class EntityLiving extends Entity
     }
 
     int counter = 0;
-    //TODO: do pathfinding on another Thread
+
+    private Thread pathThread;
+    //TODO: Have a timeout if it's unable to get to it's task
     protected void doMovement()
     {
-        if (path != null)
+        if(pathThread == null && path == null)
         {
+            this.travelFrom = new Vector3i((int) Math.round(this.position.x), (int) Math.round(this.position.y), (int) Math.round(this.position.z));
+            this.acquireTarget();
+            if (this.destination != null)
+            {
+                if (World.getCurrentWorld().currentIsland.getTile(destination.x, destination.y - 1, destination.z) == Tile.Tiles.tileAir)
+                    return;
+                for (int i = 0; i <= this.height; i++)
+                {
+                    if (World.getCurrentWorld().currentIsland.getTile(destination.x, destination.y + i, destination.z) != Tile.Tiles.tileAir)
+                        return;
+                }
+
+                //launch a new Pathfinder Thread
+                this.recalcPath();
+            }
+        }
+        else if(pathThread != null && pathThread.isAlive())
+        {
+            //wait for the thread to resolve
+            return;
+        }
+        else if(path == null && (!pathThread.isAlive()))
+        {
+            //pathThread returned null, there is no path
+            this.pathThread = null;
+            TaskEventHandler.onTaskCanceled(this.currentTask, this);
+        }
+        else if(path != null)
+        {
+            //there is a path found, so reset the pathThread
+            this.pathThread = null;
+
+            //has not finished the path
             if (path.size() > 0)
             {
                 counter++;
+                //gets the current node on the path as a vector
                 Vector3i vec = path.get(path.size() - 1).position;
 //                if(World.getCurrentWorld().currentIsland.getTile(vec.x, vec.y, vec.z) != Tile.Tiles.tileAir)
                 if(counter % 10 == 0)
                 {
                     recalcPath();
+
                     counter = 0;
                 }
                 //Changes rotation based on movement direction
                 this.rotateToFace(new Vector3f(vec.x, vec.y, vec.z));
+
                 //Changes movespeed to keep the lerp constant
                 float velocity;
                 if(this.rotation.y % 90 != 0)
@@ -106,10 +174,12 @@ public class EntityLiving extends Entity
                 {
                     velocity = VELOCITY_ADJ;
                 }
-
+                //actually moves
                 this.position = Maths.lerp(travelFrom, vec, moved);
+                //updates movement progress
                 moved += velocity;
 
+                //sets up for next move if it's completed this move
                 if (moved >= 1f)
                 {
                     moved = 0;
@@ -117,51 +187,87 @@ public class EntityLiving extends Entity
                     path.remove(path.size() - 1);
                 }
             }
+            //if has a destination and path has completed
             if(this.destination != null)
             {
+                //if is at the destination
                 if (this.destination.equals(this.travelFrom))
                 {
-                    //World.getCurrentWorld().currentIsland.setTile(Tile.Tiles.tileSoil, destination.x, destination.y, destination.z);
+                    //reset the paththread just in case
+                    if(pathThread != null)
+                    {
+                        this.pathThread.interrupt();
+                        this.pathThread = null;
+                    }
+                    //reset the path and the destination. now the entity will become aimless
                     this.path = null;
                     this.destination = null;
+
                 }
             }
-        } else
-        {
-            this.acquireTarget();
-            if (this.destination != null)
+            //path is finished, redundancy
+            else
             {
-                if (World.getCurrentWorld().currentIsland.getTile(destination.x, destination.y - 1, destination.z) == Tile.Tiles.tileAir)
-                    return;
-                for (int i = 0; i <= this.height; i++)
+                if(pathThread != null)
                 {
-                    if (World.getCurrentWorld().currentIsland.getTile(destination.x, destination.y + i, destination.z) != Tile.Tiles.tileAir)
-                        return;
-
-                    this.travelFrom = new Vector3i((int) Math.round(this.position.x), (int) Math.round(this.position.y), (int) Math.round(this.position.z));
-                    path = Pathfinder.findPathAStar(World.getCurrentWorld().currentIsland, this, this.travelFrom, this.destination, true);
+                    this.pathThread.interrupt();
+                    this.pathThread = null;
                 }
+                path = null;
             }
         }
     }
 
     protected void recalcPath()
     {
-        if(travelFrom != null)
+        if(this.travelFrom != null && this.destination != null)
         {
-            this.position.x = this.travelFrom.x;
-            this.position.y = this.travelFrom.y;
-            this.position.z = this.travelFrom.z;
-            path = Pathfinder.findPathAStar(World.getCurrentWorld().currentIsland, this, this.travelFrom, this.destination, true);
+//            this.position.x = this.travelFrom.x;
+//            this.position.y = this.travelFrom.y;
+//            this.position.z = this.travelFrom.z;
+            //How is a null getting passed in?
+            Vector3i vec = new Vector3i(this.destination);
+            this.pathThread = new Thread(() -> this.path = Pathfinder.findPathAStar(World.getCurrentWorld().currentIsland, this, new Vector3i(this.travelFrom), vec, true));
+            this.pathThread.start();
         }
     }
 
-    protected void acquireTarget()
+    private int wanderRange = 16;
+
+    /**
+     * Will wander to any position within their wander range of their wander position
+     * for most creatures, the wander position is their own position
+     *
+     * for herd animals, the wander position is their herd's center
+     */
+    protected void idle()
     {
-        this.destination = new Vector3i(
-                World.getUpdateRandom().nextInt(64) - 32,
-                World.getUpdateRandom().nextInt(32),
-                World.getUpdateRandom().nextInt(64) - 32);
+        //TODO: check if their trait or profession has an idle task generator
+        if(false)
+        {
+
+        }
+        else //wander
+        {
+            this.destination = new Vector3i(
+                    (int) this.position.x + World.getUpdateRandom().nextInt(wanderRange) - wanderRange / 2,
+                    (int) this.position.y + World.getUpdateRandom().nextInt(wanderRange) - wanderRange / 2,
+                    (int) this.position.z + World.getUpdateRandom().nextInt(wanderRange) - wanderRange / 2
+            );
+        }
+    }
+
+    private void acquireTarget()
+    {
+        //if has a task
+        if(this.currentTask != null)
+        {
+            //set destination to closest accessible side of task's target position
+            this.destination = currentTask.getPosition();
+            return;
+        }
+        //has nothing to do, so idle
+        idle();
     }
 
     protected void rotateToFace(Vector3f vec)
@@ -170,5 +276,25 @@ public class EntityLiving extends Entity
         float z = this.position.z - vec.z;
 
         this.rotation.y = (float) Math.toDegrees(Math.atan2(x, z));
+    }
+
+    public void setTask(Task task)
+    {
+        this.currentTask = task;
+    }
+
+    public void removeTask()
+    {
+        this.currentTask = null;
+    }
+
+    public void cancelTask()
+    {
+        TaskEventHandler.onTaskCanceled(currentTask, this);
+    }
+
+    public boolean hasTask()
+    {
+        return this.currentTask != null;
     }
 }

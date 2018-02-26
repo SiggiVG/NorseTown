@@ -83,6 +83,16 @@ public class Maths
         return distanceSquared(start.x, end.x) + distanceSquared(start.y, end.y) + distanceSquared(start.z, end.z);
     }
 
+    public static float distanceSquared(Vector3f start, Vector3i end)
+    {
+        return distanceSquared(start.x, end.x) + distanceSquared(start.y, end.y) + distanceSquared(start.z, end.z);
+    }
+
+    public static float distanceSquared(Vector3i start, Vector3f end)
+    {
+        return distanceSquared(start.x, end.x) + distanceSquared(start.y, end.y) + distanceSquared(start.z, end.z);
+    }
+
     public static Matrix4f createTransformationMatrix(Vector3f translation, float rx, float ry, float rz, float scale)
     {
         Matrix4f matrix = new Matrix4f();

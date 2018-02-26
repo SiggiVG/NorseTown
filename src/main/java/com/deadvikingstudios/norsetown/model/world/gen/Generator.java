@@ -3,6 +3,9 @@ package com.deadvikingstudios.norsetown.model.world.gen;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 
+/**
+ * Generators generate terrain
+ */
 public abstract class Generator
 {
     protected Structure structure;

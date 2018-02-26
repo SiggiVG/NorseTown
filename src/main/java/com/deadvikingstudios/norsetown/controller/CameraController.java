@@ -96,7 +96,7 @@ public class CameraController
 
         float moveAt = speed;
 
-        if(KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT))
+        if(KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT))
         {
             moveAt *= 5f;
         }
@@ -210,25 +210,25 @@ public class CameraController
             float dy=0;
             float dz=0;
 
-            if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_W))
+            if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_W))
             {
                 dx += (moveAt * (float) Math.sin(Math.toRadians(rotation.y)));
                 dy += -(moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
                 dz += -(moveAt * (float) Math.cos(Math.toRadians(rotation.y)));
             }
-            if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_S))
+            if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_S))
             {
                 dx += -(moveAt * (float) Math.sin(Math.toRadians(rotation.y)));
                 dy += (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
                 dz += (moveAt * (float) Math.cos(Math.toRadians(rotation.y)));
             }
-            if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_A))
+            if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_A))
             {
                 dx += (moveAt * (float) Math.sin(Math.toRadians(rotation.y-90)));
                 //dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
                 dz += -(moveAt * (float) Math.cos(Math.toRadians(rotation.y-90)));
             }
-            if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_D))
+            if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_D))
             {
                 dx += -(moveAt * (float) Math.sin(Math.toRadians(rotation.y-90)));
                 //dy = (moveAt * (float) Math.sin(Math.toRadians(rotation.x)));
@@ -239,11 +239,11 @@ public class CameraController
         }
 
 
-        if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_E))
+        if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_E))
         {
             position.y += moveAt;
         }
-        else if (KeyboardInputHandler.isKeyPressed(GLFW.GLFW_KEY_Q))
+        else if (KeyboardInputHandler.isKeyDown(GLFW.GLFW_KEY_Q))
         {
             position.y -= moveAt;
         }

@@ -1,26 +1,21 @@
-package com.deadvikingstudios.norsetown.model.entities.ai;
+package com.deadvikingstudios.norsetown.model.entities.ai.tasks;
 
 import com.deadvikingstudios.norsetown.utils.Logger;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 import org.lwjgl.util.vector.Vector3f;
 
-public class Task
+public abstract class Task implements Comparable<Task>
 {
-    private Vector3i position;
-    private float jobTime = 1f;
-    private boolean canDoJob = true;
+    protected Vector3i position;
     private boolean jobCanceled = false;
+    private int priority = 0;
+    public boolean retry = false;
 
     public Task (Vector3f position)
     {
         this.position = new Vector3i(position.x, position.y, position.z);
     }
-
-    public Task(Vector3f position, float jobTime)
-    {
-        this(position);
-        this.jobTime = jobTime;
-    }
+    public Task (Vector3i position) { this.position = new Vector3i(position);}
 
     public Vector3i getPosition()
     {
@@ -32,30 +27,16 @@ public class Task
         this.position = position;
     }
 
-    public float getJobTime()
-    {
-        return jobTime;
-    }
-
-    public void setJobTime(float jobTime)
-    {
-        this.jobTime = jobTime;
-    }
-
-    public boolean doWork(float workTime)
-    {
-        jobTime -= workTime;
-        if(jobTime <= 0)
-        {
-            return this.complete();
-        }
-        return false;
-    }
+    /**
+     * performs the task's operation
+     */
+    protected abstract void execute();
 
     public boolean complete()
     {
         if(!jobCanceled)
         {
+            this.execute();
             Logger.debug(this + " completed");
             return true;
         }
@@ -66,6 +47,10 @@ public class Task
     public void cancel()
     {
         this.jobCanceled = true;
-        this.canDoJob = false;
+    }
+
+    public int compareTo(Task task)
+    {
+        return Integer.compare(this.priority, task.priority);
     }
 }

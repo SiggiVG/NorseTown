@@ -8,18 +8,12 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class KeyboardInputHandler extends GLFWKeyCallback
 {
-    private long window;
     private static final int NUM_KEYCODES = 65535;
-    private static final int NUM_MOUSE_BUTTONS = 8;
 
     private static int[] keyStates = new int[NUM_KEYCODES];
     private static boolean[] activeKeys = new boolean[NUM_KEYCODES];
 
-    private static int[] mouseButtonStates = new int[NUM_MOUSE_BUTTONS];
-    private static boolean[] activeMouseButtons = new boolean[NUM_MOUSE_BUTTONS];
-    private static long lastMouseNS = 0;
-    private static long mouseDoubleClickPersiodNS = 1_000_000_000 / 5;
-
+    private static final int NO_STATE = -1;
 
     @Override
     public void invoke(long window, int key, int scancode, int action, int mods)
@@ -28,21 +22,27 @@ public class KeyboardInputHandler extends GLFWKeyCallback
         keyStates[key] = action;
     }
 
-
+    public static void update()
+    {
+        for (int i = 0; i < keyStates.length; i++)
+        {
+            keyStates[i] = NO_STATE;
+        }
+    }
 
     public static boolean isKeyPressed(int keyCode)
     {
-        return activeKeys[keyCode];
+        return keyStates[keyCode] == GLFW_PRESS;
     }
 
     public static boolean isKeyDown(int keyCode)
     {
-        return isKeyPressed(keyCode);//downKeys.contains(keyCode);
+        return activeKeys[keyCode];
     }
-    /*
+
     public static boolean isKeyReleased(int keyCode)
     {
-        return upKeys.contains(keyCode);
-    }*/
+        return keyStates[keyCode] == GLFW_RELEASE;
+    }
 
 }

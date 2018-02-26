@@ -1,71 +1,55 @@
 package com.deadvikingstudios.norsetown.controller.input;
 
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
 import java.util.ArrayList;
 
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class MouseInputHandler extends GLFWMouseButtonCallback
 {
-    public static final int NUM_BUTTONS = 9;
+    public static final int NUM_BUTTONS = 8;
 
-    private static ArrayList<Integer> currentButtons = new ArrayList<Integer>();
-    private static ArrayList<Integer> downButtons= new ArrayList<Integer>();
-    private static ArrayList<Integer> upButtons = new ArrayList<Integer>();
+    private static int[] mouseButtonStates = new int[NUM_BUTTONS];
+    private static boolean[] activeMouseButtons = new boolean[NUM_BUTTONS];
 
+    private static final int NO_STATE = -1;
 
     @Override
     public void invoke(long window, int button, int action, int mods)
     {
-        if(action != GLFW_RELEASE)
-        {
-            currentButtons.add(button);
-        }
+        activeMouseButtons[button] = action != GLFW_RELEASE;
+        mouseButtonStates[button] = action;
     }
 
     public static void update()
     {
-        upButtons.clear();
-        for (int i = 0; i < NUM_BUTTONS; ++i)
+        for (int i = 0; i < mouseButtonStates.length; i++)
         {
-            if (!isButtonPressed(i) && currentButtons.contains(i))
-            {
-                upButtons.add(i);
-            }
+            mouseButtonStates[i] = NO_STATE;
         }
 
-        downButtons.clear();
-        for (int i = 0; i < NUM_BUTTONS; ++i)
-        {
-            if (isButtonPressed(i) && !currentButtons.contains(i))
-            {
-                downButtons.add(i);
-            }
-        }
+//        long now = System.nanoTime();
 
-        currentButtons.clear();
-        for (int i = 0; i < NUM_BUTTONS; ++i)
-        {
-            if (isButtonPressed(i))
-            {
-                currentButtons.add(i);
-            }
-        }
+//        if (now - lastMouseNS > mouseDoubleClickPeriodNS)
+//            lastMouseNS = 0;
     }
+
+
 
     public static boolean isButtonPressed(int buttonCode)
     {
-        return currentButtons.contains(buttonCode);
+        return mouseButtonStates[buttonCode] == GLFW_PRESS;
     }
 
     public static boolean isButtonDown(int buttonCode)
     {
-        return downButtons.contains(buttonCode);
+        return activeMouseButtons[buttonCode];
     }
 
     public static boolean isButtonReleased(int buttonCode)
     {
-        return upButtons.contains(buttonCode);
+        return mouseButtonStates[buttonCode] == GLFW_RELEASE;
     }
 }

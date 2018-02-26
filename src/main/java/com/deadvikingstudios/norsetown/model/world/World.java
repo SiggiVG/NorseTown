@@ -4,8 +4,10 @@ import com.deadvikingstudios.norsetown.controller.GameContainer;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.entities.EntityLiving;
 import com.deadvikingstudios.norsetown.model.entities.EntityStructure;
-import com.deadvikingstudios.norsetown.model.entities.ai.Task;
+import com.deadvikingstudios.norsetown.model.entities.ai.tasks.Task;
+import com.deadvikingstudios.norsetown.model.entities.ai.tasks.TaskPlaceTile;
 import com.deadvikingstudios.norsetown.model.entities.humanoids.EntityHumanoid;
+import com.deadvikingstudios.norsetown.model.events.TaskEventHandler;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.model.world.structures.StructureIsland;
@@ -21,8 +23,6 @@ public class World
     private List<Entity> entitiesToRemove = new ArrayList<Entity>();
     private List<EntityStructure> structures;
 
-    private List<Task> tasks;
-
     private long seed;
 
     private static Random genRandom;
@@ -32,14 +32,9 @@ public class World
     private static World currentWorld;
     public Structure currentIsland;
 
-    //TODO: replace with dedicated class for managing job queues (plural)
-    public Queue<Task> jobQueue;
-
     public World(long seed)
     {
         currentWorld = this;
-
-        jobQueue = new PriorityQueue<Task>();
 
         this.seed = seed;
         this.entities = new ArrayList<Entity>();
@@ -80,6 +75,16 @@ public class World
             }
         }
         addEntity(new EntityHumanoid(0,0,0,0,0,0));
+
+        int n = 20;
+        for (int j = 0; j < 30; j++)
+        {
+            for (int i = -n; i < n; i++)
+            {
+                TaskEventHandler.createTask(new TaskPlaceTile(Tile.Tiles.tileStoneCliff, new Vector3i(i,j,-15), i));
+            }
+            n--;
+        }
     }
 
     public void addStructure(Structure structure)
@@ -170,10 +175,5 @@ public class World
             }
         }
         return structs;
-    }
-
-    public void addTask(Task task)
-    {
-        this.tasks.add(task);
     }
 }
