@@ -6,6 +6,7 @@ import com.deadvikingstudios.norsetown.controller.input.MouseInputHandler;
 import com.deadvikingstudios.norsetown.controller.input.MousePositionHandler;
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.entities.EntitySkybox;
+import com.deadvikingstudios.norsetown.model.entities.Faction;
 import com.deadvikingstudios.norsetown.model.entities.ai.tasks.TaskPlaceTile;
 import com.deadvikingstudios.norsetown.model.events.TaskEventHandler;
 import com.deadvikingstudios.norsetown.model.items.Item;
@@ -30,6 +31,7 @@ import com.deadvikingstudios.norsetown.view.renderers.RendererWater;
 import com.deadvikingstudios.norsetown.view.shaders.LightlessStaticShader;
 import com.deadvikingstudios.norsetown.view.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.shaders.WaterShader;
+import javafx.scene.shape.Mesh;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -119,7 +121,7 @@ public class GameContainer implements Runnable, IGameContainer
     //**** TERRAIN TEXTURE ****//
     private static MeshTexture terrainTexture;
 
-    //TEST
+    //**** TEST ****//
     private static MeshTexture skullTexture;
 
     /**
@@ -199,6 +201,7 @@ public class GameContainer implements Runnable, IGameContainer
 
         Item.Items.init();
         Tile.Tiles.init();
+        Faction.init();
 
 //        TextureAtlas.instance.CreateAtlas();
 
@@ -232,6 +235,8 @@ public class GameContainer implements Runnable, IGameContainer
     {
         camera.move();
 
+        Faction.update();
+
         skybox.rotate(0,0,15f*24f/(float)CalendarNorse.DAY_LENGTH);
 
         //sunLight.update();
@@ -245,12 +250,12 @@ public class GameContainer implements Runnable, IGameContainer
             int x = World.getUpdateRandom().nextInt(64) - 32;
             int z = World.getUpdateRandom().nextInt(64) - 32;
             int y = -1;
-            while(!currentWorld.currentIsland.getTile(x,y,z).isAir())
+            while(!currentWorld.getTileAt(x,y,z).isAir())
             {
                 y++;
             }
             Vector3i pos = new Vector3i(x,y,z);
-            TaskEventHandler.createTask(new TaskPlaceTile(Tile.Tiles.tileLeaves, pos, 1));
+            TaskEventHandler.createTask(Faction.get("player"), new TaskPlaceTile(World.getCurrentWorld().getCurrentBuildStructure(), Tile.Tiles.tileLeaves, pos, 1));
             Logger.debug("Place Tile task created at " + pos);
         }
 

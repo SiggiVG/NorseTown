@@ -14,7 +14,7 @@ public class TileSoil extends Tile
     private static final TileMesh MESH_CLAY = new TileMesh(10);
 
     @Override
-    public TileMesh getTileMesh(int metadata)
+    public TileMesh getTileMesh(int metadata, int x, int y, int z)
     {
         if (this == Tiles.tileClay) return MESH_CLAY;
         return MESH_SOIL;

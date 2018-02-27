@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.model.entities;
 
+import com.deadvikingstudios.norsetown.model.entities.ai.tasks.Task;
 import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import org.lwjgl.util.vector.Vector3f;
 

@@ -21,6 +21,6 @@ public class EntityHumanoid extends EntityLiving
 
     public EntityHumanoid(float posX, float posY, float posZ, float rotationX, float rotationY, float rotationZ)
     {
-        super("humanoid", posX, posY, posZ);
+        super("player","humanoid", posX, posY, posZ);
     }
 }

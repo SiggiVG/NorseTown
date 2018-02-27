@@ -17,12 +17,14 @@ public class Chunk implements Serializable
     public final static byte SIZE = 16;
     public final static int SIZE_CUBED = SIZE * SIZE * SIZE;
 
-    private final static int TILE_MASK = 0x00_ff_ff_ff;
-    private final static int META_MASK = 0xff_00_00_00;
+    private final static int TILE_MASK = 0x00_FF_FF_FF;
+    private final static int META_MASK = 0x7F_00_00_00;
+    private final static int PLAYER_PLACED_MASK = 0x80_00_00_00;
 
     /**
-     * {@link Chunk#TILE_MASK} bits represents the Tile's Id, of which there are 16,777,216 possible values (0-16,777,215)
-     * {@link Chunk#META_MASK} bits represents the Tile's Metadata, of which there are 256 possible values (0-256)
+     * {@link Chunk#TILE_MASK} bits represents the Tile's Id, of which there are 16,777,216 possible values [0,16,777,215]
+     * {@link Chunk#META_MASK} bits represents the Tile's Metadata, of which there are 128 possible values [0,127]
+     * {@link Chunk#PLAYER_PLACED_MASK} bit represents a boolean value of whether the Tile was placed by the player or not.
      */
     private int[] tiles;
 //    private byte[] metadata;
@@ -122,7 +124,7 @@ public class Chunk implements Serializable
      * @param x    x coord, [0,{@link Chunk#SIZE}]
      * @param y    y coord, [0,{@link Chunk#SIZE}]
      * @param z    y coord, [0,{@link Chunk#SIZE}]
-     * @param metaData the metadata value being set, [0,255]
+     * @param metaData the metadata value being set, [0,127]
      * Package private
      */
     void setTile(Tile tile, int x, int y, int z, byte metaData)
@@ -130,8 +132,33 @@ public class Chunk implements Serializable
         int coord = getCoord(x,y,z);
         if(coord >= 0 && coord < SIZE_CUBED)
         {
-            //Moved same tile check to ChunkColumn
+            if(tile.getIndex() == 0) metaData = 0;
             this.tiles[coord] = (tile.getIndex() & TILE_MASK) | (((metaData) << (8*3)) & META_MASK);
+        }
+    }
+
+    /**
+     * Sets the coordinate to the specified tile with the specified metadata
+     * @param tile The tile being set
+     * @param x    x coord, [0,{@link Chunk#SIZE}]
+     * @param y    y coord, [0,{@link Chunk#SIZE}]
+     * @param z    y coord, [0,{@link Chunk#SIZE}]
+     * @param metaData the metadata value being set, [0,127]. Air can never have any metadata but 0
+     * @param byPlayer whether the player had the tile places, Air can never have any metadata but false
+     * Package private
+     */
+    void setTile(Tile tile, int x, int y, int z, byte metaData, boolean byPlayer)
+    {
+        int coord = getCoord(x,y,z);
+        if(coord >= 0 && coord < SIZE_CUBED)
+        {
+            if(tile.getIndex() == 0)
+            {
+                metaData = 0;
+                byPlayer = false;
+            }
+
+            this.tiles[coord] = (tile.getIndex() & TILE_MASK) | (((metaData) << (8*3)) & META_MASK);//| (byPlayer ? Chunk.PLAYER_PLACED_MASK : 0);
         }
     }
 
@@ -205,6 +232,35 @@ public class Chunk implements Serializable
         }
     }
 
+    void setPlayerPlaced(int x, int y, int z)
+    {
+        int coord = getCoord(x,y,z);
+        if(coord >= 0 && coord < SIZE_CUBED)
+        {
+            this.tiles[coord] = (this.tiles[coord] & (TILE_MASK | META_MASK)) | PLAYER_PLACED_MASK;
+        }
+    }
+
+    void setNaturalPlaced(int x, int y, int z)
+    {
+        int coord = getCoord(x,y,z);
+        if(coord >= 0 && coord < SIZE_CUBED)
+        {
+            //effectively removes the Player_Placed_Bit
+            this.tiles[coord] = (this.tiles[coord] & (TILE_MASK | META_MASK));
+        }
+    }
+
+    boolean isPlayerPlaced(int x, int y, int z)
+    {
+        int coord = getCoord(x,y,z);
+        if(coord >= 0 && coord < SIZE_CUBED)
+        {
+            return this.tiles[coord] < 0;
+        }
+        return false;
+    }
+
     boolean isEmpty()
     {
         return Arrays.stream(this.tiles).allMatch((i) -> i == 0);
@@ -234,7 +290,7 @@ public class Chunk implements Serializable
             {
                 for (int k = 0; k < SIZE; k++)
                 {
-                    collider[i][j][k] = !getTile(i,j,k).isAir();
+                    collider[i][j][k] = getTile(i,j,k) != Tile.Tiles.get(0); //air
                 }
             }
         }

@@ -6,6 +6,12 @@ public class Vector3i
 {
     public final int x, y, z;
 
+    public Vector3i() {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+    }
+
     public Vector3i(int x, int y, int z)
     {
         this.x = x;

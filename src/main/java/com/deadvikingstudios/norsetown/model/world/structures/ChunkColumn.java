@@ -27,6 +27,7 @@ import static com.deadvikingstudios.norsetown.model.world.structures.Chunk.SIZE;
 public class ChunkColumn extends Entity implements Serializable
 {
     private HashMap<Integer, Chunk> chunks;
+    private HashMap<Integer, boolean[][][]> colliders;
 
     public final Vector2i position;
 
@@ -102,13 +103,23 @@ public class ChunkColumn extends Entity implements Serializable
 
     public void setTile(Tile tile, int x, int y, int z)
     {
+        this.setTile(tile, x, y, z, 0, false);
+    }
+
+    public void setTile(Tile tile, int x, int y, int z, int metadata)
+    {
+        this.setTile(tile, x, y, z, metadata, false);
+    }
+
+    public void setTile(Tile tile, int x, int y, int z, int metadata, boolean byPlayer)
+    {
         Chunk chunk = getChunk(x,y,z,true);
 
         //Checks if the two tiles are the same
         if(chunk.getTile(Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE)) == tile) return;
 
         //calls the Chunk's setTile function upon an adjusted coordinate.
-        chunk.setTile(tile, Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE));
+        chunk.setTile(tile, Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE), (byte) (metadata % 0x8F), byPlayer);
 
         //If the chunk is now empty, remove it.
         if(tile == Tile.Tiles.tileAir)
@@ -119,7 +130,7 @@ public class ChunkColumn extends Entity implements Serializable
             }
         }
 
-        //Alerts the engine that a new mesh needs to be generated.
+        //Alerts the engine that a new mesh needs to be generated. TODO: move this elsewhere
         this.flagForReMesh = true;
     }
 
@@ -146,7 +157,9 @@ public class ChunkColumn extends Entity implements Serializable
 
         chunk.setMetadata(Math.floorMod(x, SIZE), Math.floorMod(y, SIZE), Math.floorMod(z, SIZE), metadata);
 
-        if(tile.getTileMesh(oldMeta) != tile.getTileMesh(metadata)) flagForReMesh = true;
+//        if(tile.getTileMesh(oldMeta, (int)(x+this.getPosX()*Chunk.SIZE), (int)(y+this.getPosY()*Chunk.SIZE), (int)(x+this.getPosY()*Chunk.SIZE))
+//                != tile.getTileMesh(metadata, (int)(x+this.getPosX()*Chunk.SIZE), (int)(y+this.getPosY()*Chunk.SIZE), (int)(x+this.getPosY()*Chunk.SIZE)))
+//            this.flagForReMesh();
 
     }
 
@@ -177,6 +190,7 @@ public class ChunkColumn extends Entity implements Serializable
     public void flagForReMesh()
     {
         this.flagForReMesh = true;
+        //todo: update the colliders
     }
 
     public void wasReMeshed()
@@ -192,15 +206,5 @@ public class ChunkColumn extends Entity implements Serializable
             if(!entry.getValue().isEmpty()) return false;
         }
         return true;
-    }
-
-    public boolean[][][] getAccurateCollider(int x, int y, int z)
-    {
-        Chunk chunk = this.getChunk(x,y,z);
-        if(chunk != null)
-        {
-            return chunk.getCollider();
-        }
-        return null;//new boolean[Chunk.SIZE][Chunk.SIZE][Chunk.SIZE];
     }
 }

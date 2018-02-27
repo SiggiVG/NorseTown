@@ -1,10 +1,12 @@
 package com.deadvikingstudios.norsetown.model.world.structures;
 
 import com.deadvikingstudios.norsetown.controller.GameContainer;
-import com.deadvikingstudios.norsetown.model.entities.ai.pathfinding.Node;
+import com.deadvikingstudios.norsetown.model.events.TileEventHandler;
 import com.deadvikingstudios.norsetown.model.items.ItemStack;
 import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
+import com.deadvikingstudios.norsetown.model.world.World;
+import com.deadvikingstudios.norsetown.utils.Logger;
 import com.deadvikingstudios.norsetown.utils.vector.Vector2i;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 import org.lwjgl.util.vector.Vector3f;
@@ -25,7 +27,6 @@ public class Structure implements Serializable
 
     protected HashMap<Vector2i, ChunkColumn> chunks;
 
-    protected boolean canHaveChildren = false;
     protected Structure parent;
 
     /**
@@ -43,6 +44,10 @@ public class Structure implements Serializable
         if(pos != null)
         {
             this.position = pos;
+        }
+        else
+        {
+            pos = new Vector3i();
         }
         this.parent = parent;
         chunks = new HashMap<Vector2i, ChunkColumn>();
@@ -64,6 +69,11 @@ public class Structure implements Serializable
     public HashMap<Vector2i, ChunkColumn> getChunks()
     {
         return this.chunks;
+    }
+
+    public boolean canHaveChildren()
+    {
+        return false;
     }
 
     /**
@@ -97,18 +107,27 @@ public class Structure implements Serializable
         return chunkies;
     }
 
-    public void setTile(Tile tile, int x, int y, int z)
+    public boolean setTile(Tile tile, int x, int y, int z)
     {
-        if(tile == this.getTile(x,y,z)) return;
-        if(tile.isAir() && this.getTile(x,y,z).isAir()) return;
+        return this.setTile(tile, x, y, z, 0, false);
+    }
+
+    public boolean setTile(Tile tile, int x, int y, int z, int metadata)
+    {
+        return this.setTile(tile, x, y, z, metadata, false);
+    }
+
+    public boolean setTile(Tile tile, int x, int y, int z, int metadata, boolean byPlayer)
+    {
+        if(tile == this.getTile(x,y,z)) return false;
+        if(tile.isAir() && this.getTile(x,y,z).isAir()) return false;
+
+        //TODO: check if a tile exists there in another structure
+        Structure structCheck = World.getCurrentWorld().getStructureAt(x+this.position.x, y+this.position.y, z+this.position.z);
+        if(structCheck != this && structCheck != null) return false;
 
         int i = Math.floorMod(x, SIZE);
         int k = Math.floorMod(z, SIZE);
-
-        int n = 0;
-        if(x < 0) n = -1;
-        int m = 0;
-        if(z < 0) m = -1;
 
         Vector2i pos = new Vector2i(Math.floorDiv(x, SIZE), Math.floorDiv(z, SIZE));
 
@@ -123,7 +142,8 @@ public class Structure implements Serializable
             this.chunks.put(pos, col);
         }
 
-        col.setTile(tile, i, y, k);
+        col.setTile(tile, i, y, k, metadata, byPlayer);
+
 
         //if the column is now empty, remove it.
         if(tile.isAir())
@@ -134,6 +154,7 @@ public class Structure implements Serializable
                 GameContainer.removeStructureMesh(col);
             }
         }
+        return true;
     }
 
     public Tile getTile(Vector3f pos)
@@ -141,22 +162,33 @@ public class Structure implements Serializable
         return this.getTile((int)pos.x, (int)pos.y, (int)pos.z);
     }
 
+    //TODO: check children?
     public Tile getTile(int x, int y, int z)
     {
+        Tile tileAt = Tile.Tiles.tileAir;
+
+        //check this structure's chunk
         int i = Math.floorMod(x, SIZE);
         int k = Math.floorMod(z, SIZE);
-
-        int n = 0;
-        if(x < 0) n = -1;
-        int m = 0;
-        if(z < 0) m = -1;
 
         ChunkColumn col = chunks.get( new Vector2i(Math.floorDiv(x, SIZE), Math.floorDiv(z, SIZE)));
         if(col != null)
         {
-            return col.getTile(i, y, k);
+            tileAt = col.getTile(i, y, k);
+            if(tileAt != Tile.Tiles.tileAir) return tileAt;
         }
-        return Tile.Tiles.tileAir;
+
+        if(this.canHaveChildren() && !this.dockedStructures.isEmpty())
+        {
+            for (Map.Entry<Vector3i, Structure> struct : this.dockedStructures.entrySet())
+            {
+                //it's never getting in here
+                Vector3i sPos = struct.getValue().getPosition();
+                Tile tileAt2 = struct.getValue().getTile(x-sPos.x,y-sPos.y,z-sPos.z);
+                tileAt = (tileAt2 != Tile.Tiles.tileAir) ? tileAt2 : tileAt;
+            }
+        }
+        return tileAt;
     }
 
     public Structure getParent()
@@ -166,7 +198,7 @@ public class Structure implements Serializable
 
     public void setParent(Structure parent)
     {
-        if(!parent.canHaveChildren) return;
+        if(!parent.canHaveChildren()) return;
         //TODO: check that parent is not a child of this and that this is not a parent of parent
         if(this.containsStructure(parent) || parent.isChildOf(this)) return; //TODO: Error
 
@@ -177,7 +209,7 @@ public class Structure implements Serializable
 
     private boolean containsStructure(Structure structure)
     {
-        if(!this.canHaveChildren) return false;
+        if(!this.canHaveChildren()) return false;
         if(this.dockedStructures.containsValue(structure)) return true;
         for (Map.Entry<Vector3i, Structure> struct : this.dockedStructures.entrySet())
         {
@@ -235,7 +267,7 @@ public class Structure implements Serializable
 
     public <STRUCTURE extends Structure> void addDockedStructure(STRUCTURE structure)
     {
-        if(!this.canHaveChildren) return;
+        if(!this.canHaveChildren()) return;
         this.dockedStructures.put(structure.position, structure);
     }
 
@@ -272,6 +304,7 @@ public class Structure implements Serializable
 
     public boolean containsPoint(Vector3f point)
     {
+        //if the chunk at the location offset by this structure's origin is not null
         if(!this.getChunkAt((int)point.x-this.position.x, (int)point.y-this.position.y, (int)point.z-this.position.z).isEmpty())
         {
             return true;
@@ -290,7 +323,7 @@ public class Structure implements Serializable
         {
             list.addAll(entry.getValue().getAxisAlignedBoundingBox());
         }
-        if(includeDocked && this.canHaveChildren)
+        if(includeDocked && this.canHaveChildren())
         {
             for (Map.Entry<Vector3i, Structure> entry : this.dockedStructures.entrySet())
             {
@@ -310,7 +343,7 @@ public class Structure implements Serializable
 
             copy.chunks = copyChunks(structureIn.chunks, copy);
 
-            if(copyDocked && copy.canHaveChildren)
+            if(copyDocked && copy.canHaveChildren())
             {
                 copy.dockedStructures = copyDocked(structureIn, parent);
             }
@@ -324,7 +357,7 @@ public class Structure implements Serializable
         return (STRUCTURE) copy;
     }
 
-    private static <STRUCTURE extends Structure> HashMap<Vector2i, ChunkColumn> copyChunks(HashMap<Vector2i, ChunkColumn> chunksIn, Structure structureOut)
+    private static <STRUCTURE extends Structure> HashMap<Vector2i, ChunkColumn> copyChunks(HashMap<Vector2i, ChunkColumn> chunksIn, STRUCTURE structureOut)
     {
         HashMap<Vector2i, ChunkColumn> copyChunks = new HashMap<Vector2i, ChunkColumn>();
 
@@ -340,7 +373,7 @@ public class Structure implements Serializable
 
     private static <STRUCTURE extends Structure> HashMap<Vector3i, Structure> copyDocked(STRUCTURE structureIn, Structure parent)
     {
-        if(!structureIn.canHaveChildren) return null;
+        if(!structureIn.canHaveChildren()) return null;
         HashMap<Vector3i, Structure> copyDocked = new HashMap<Vector3i, Structure>();
 
         for (Map.Entry<Vector3i, Structure> entry : structureIn.dockedStructures.entrySet() )

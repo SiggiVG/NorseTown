@@ -1,9 +1,12 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
+import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.view.meshes.TileMesh;
 import com.deadvikingstudios.norsetown.view.meshes.components.TileMeshDef;
 import org.lwjgl.util.vector.Vector3f;
+
+import java.util.HashMap;
 
 public class TileLog extends Tile
 {
@@ -16,54 +19,96 @@ public class TileLog extends Tile
     private static float edge1 = (float) Math.sqrt((0.25f*0.25f) + (0.25f*0.25f));
     private static float edge2 = (float) (Math.sqrt(0.5) - (0.25*Math.cos(Math.toRadians(45))));
 
-    private static final TileMesh MESH = new TileMesh(
-            //Top & Bottom Face
-            new TileMeshDef.Cuboid( new Vector3f(0,-0.0001f,0), new Vector3f(1,1.0001f,1),
-                    new TileMeshDef.Quad[]{null,null,null,null, new TileMeshDef.Quad(7, EnumTileFace.TOP),new TileMeshDef.Quad(7, EnumTileFace.BOTTOM)}),
-            //Sides
-            new TileMeshDef.Cuboid( new Vector3f(0.25f, 0, 0), new Vector3f(0.75f,1,1),
-                    new TileMeshDef.Quad(6, EnumTileFace.NORTH), null, new TileMeshDef.Quad(6, EnumTileFace.SOUTH), null,
-                    null, null),
-            new TileMeshDef.Cuboid( new Vector3f(0, 0, 0.25f), new Vector3f(1,1,0.75f),
-                new TileMeshDef.Quad[] {null, new TileMeshDef.Quad(6, EnumTileFace.EAST), null, new TileMeshDef.Quad(6, EnumTileFace.WEST),
-                        null, null}),
-            //Corners
-            new TileMeshDef.Cuboid( new Vector3f(0.5f-edge2, 0, 0.5f - edge1/2), new Vector3f(0.5f+edge2,1,0.5f + edge1/2), new Vector3f(0,45,0),
-                new TileMeshDef.Quad[] {null, new TileMeshDef.Quad(6, EnumTileFace.NULL), null, new TileMeshDef.Quad(6, EnumTileFace.NULL),
-                        null, null}),
-            new TileMeshDef.Cuboid( new Vector3f(0.5f - edge1/2, 0, 0.5f-edge2), new Vector3f(0.5f + edge1/2 ,1,0.5f+edge2), new Vector3f(0,45,0),
-                    new TileMeshDef.Quad(6, EnumTileFace.NULL), null, new TileMeshDef.Quad(6, EnumTileFace.NULL), null, null, null),
-            //Side Edges
-            new TileMeshDef.Cuboid(new Vector3f(0.25f, 0, 0), new Vector3f(0.75f, 1,1/32f),
-                new TileMeshDef.Quad[]{null,null,null,null,new TileMeshDef.Quad(6, new float[]{ 0,0, 0,1/32f, 1f,1/32f, 1f,0 }, EnumTileFace.TOP),
-                    new TileMeshDef.Quad(6, new float[]{ 0,0, 0,1/32f, 1f,1/32f, 1f,0 }, EnumTileFace.BOTTOM)}),
-            new TileMeshDef.Cuboid(new Vector3f(0.25f, 0, 0), new Vector3f(0.75f, 1,1/32f), new Vector3f(0,90,0),
-                    new TileMeshDef.Quad[]{null,null,null,null,new TileMeshDef.Quad(6, new float[]{ 0,0, 0,1/32f, 1f,1/32f, 1f,0 }, EnumTileFace.TOP),
-                            new TileMeshDef.Quad(6, new float[]{ 0,0, 0,1/32f, 1f,1/32f, 1f,0 }, EnumTileFace.BOTTOM)}),
-            new TileMeshDef.Cuboid(new Vector3f(0.25f, 0, 0), new Vector3f(0.75f, 1,1/32f), new Vector3f(0,180,0),
-                    new TileMeshDef.Quad[]{null,null,null,null,new TileMeshDef.Quad(6, new float[]{ 0,0, 0,1/32f, 1f,1/32f, 1f,0 }, EnumTileFace.TOP),
-                            new TileMeshDef.Quad(6, new float[]{ 0,0, 0,1/32f, 1f,1/32f, 1f,0 }, EnumTileFace.BOTTOM)}),
-            new TileMeshDef.Cuboid(new Vector3f(0.25f, 0, 0), new Vector3f(0.75f, 1,1/32f), new Vector3f(0,270,0),
-                    new TileMeshDef.Quad[]{null,null,null,null,new TileMeshDef.Quad(6, new float[]{ 0,0, 0,1/32f, 1f,1/32f, 1f,0 }, EnumTileFace.TOP),
-                            new TileMeshDef.Quad(6, new float[]{ 0,0, 0,1/32f, 1f,1/32f, 1f,0 }, EnumTileFace.BOTTOM)}),
-            //Corner Edges
-            new TileMeshDef.Cuboid( new Vector3f(0.5f-edge2, -0.00005f, 0.5f - edge1/2), new Vector3f(1/32f,1.00005f,0.5f + edge1/2), new Vector3f(0,45,0),
-                    new TileMeshDef.Quad[] {null,null,null,null,new TileMeshDef.Quad(6, new float[]{ 0,0, 0,2/32f, 1f,2/32f, 1f,0 }, 1, EnumTileFace.TOP),
-                            new TileMeshDef.Quad(6, new float[]{ 0,0, 0,2/32f, 1f,2/32f, 1f,0 }, 1,EnumTileFace.BOTTOM)}),
-            new TileMeshDef.Cuboid( new Vector3f(0.5f-edge2, -0.00005f, 0.5f - edge1/2), new Vector3f(1/32f,1.00005f,0.5f + edge1/2), new Vector3f(0,135,0),
-                    new TileMeshDef.Quad[] {null,null,null,null,new TileMeshDef.Quad(6, new float[]{ 0,0, 0,2/32f, 1f,2/32f, 1f,0 }, 1, EnumTileFace.TOP),
-                            new TileMeshDef.Quad(6, new float[]{ 0,0, 0,2/32f, 1f,2/32f, 1f,0 }, 1,EnumTileFace.BOTTOM)}),
-            new TileMeshDef.Cuboid( new Vector3f(0.5f-edge2, -0.00005f, 0.5f - edge1/2), new Vector3f(1/32f,1.00005f,0.5f + edge1/2), new Vector3f(0,225,0),
-                    new TileMeshDef.Quad[] {null,null,null,null,new TileMeshDef.Quad(6, new float[]{ 0,0, 0,2/32f, 1f,2/32f, 1f,0 }, 1, EnumTileFace.TOP),
-                            new TileMeshDef.Quad(6, new float[]{ 0,0, 0,2/32f, 1f,2/32f, 1f,0 }, 1,EnumTileFace.BOTTOM)}),
-            new TileMeshDef.Cuboid( new Vector3f(0.5f-edge2, -0.00005f, 0.5f - edge1/2), new Vector3f(1/32f,1.00005f,0.5f + edge1/2), new Vector3f(0,315,0),
-                    new TileMeshDef.Quad[] {null,null,null,null,new TileMeshDef.Quad(6, new float[]{ 0,0, 0,2/32f, 1f,2/32f, 1f,0 }, 1, EnumTileFace.TOP),
-                            new TileMeshDef.Quad(6, new float[]{ 0,0, 0,2/32f, 1f,2/32f, 1f,0 }, 1,EnumTileFace.BOTTOM)})
-    );
-    @Override
-    public TileMesh getTileMesh(int metadata)
+    private static final HashMap<Integer, TileMesh> MESHES;
+
+    static
     {
-        return MESH;
+        MESHES = new HashMap<>();
+        int l = 6;
+        for (int i = 0; i < Math.pow(2, l); i++)
+        {
+            StringBuilder bin = new StringBuilder(Integer.toBinaryString(i));
+            //pads the left side with 0s
+            while (bin.length() < l)
+                bin.insert(0, "0");
+            //converts to a character array for quick access
+            char[] chars = bin.toString().toCharArray();
+            boolean[] bools = new boolean[l];
+            //populates boolean array
+            for (int j = 0; j < chars.length; j++)
+            {
+                bools[j] = chars[j] == '0';
+            }
+            //populates map
+            int n = 0, m = bools.length;
+            for (int j = 0; j < m; ++j)
+            {
+                n = (n << 1) + (bools[j] ? 1 : 0);
+            }
+
+            MESHES.put(n, new TileMesh(
+                    //Top & Bottom Face
+                    new TileMeshDef.Cuboid(new Vector3f(0, -0.0001f, 0), new Vector3f(1, 1.0001f, 1),
+                            new TileMeshDef.Quad[]{null, null, null, null, !bools[4] ? new TileMeshDef.Quad(7, EnumTileFace.TOP) : null, !bools[5] ? new TileMeshDef.Quad(7, EnumTileFace.BOTTOM) : null}),
+                    //Sides
+                    new TileMeshDef.Cuboid(new Vector3f(0.25f, 0, 0), new Vector3f(0.75f, 1, 1), new TileMeshDef.Quad[] {
+                            !bools[0] ? new TileMeshDef.Quad(6, EnumTileFace.NORTH): null, null, !bools[2] ? new TileMeshDef.Quad(6, EnumTileFace.SOUTH) : null, null,
+                            null, null}),
+                    new TileMeshDef.Cuboid(new Vector3f(0, 0, 0.25f), new Vector3f(1, 1, 0.75f),
+                            new TileMeshDef.Quad[]{null, new TileMeshDef.Quad(6, EnumTileFace.EAST), null, new TileMeshDef.Quad(6, EnumTileFace.WEST),
+                                    null, null}),
+                    //Corners
+                    new TileMeshDef.Cuboid(new Vector3f(0.5f - edge2, 0, 0.5f - edge1 / 2), new Vector3f(0.5f + edge2, 1, 0.5f + edge1 / 2), new Vector3f(0, 45, 0),
+                            new TileMeshDef.Quad[]{null, new TileMeshDef.Quad(6, EnumTileFace.NULL), null, new TileMeshDef.Quad(6, EnumTileFace.NULL),
+                                    null, null}),
+                    new TileMeshDef.Cuboid(new Vector3f(0.5f - edge1 / 2, 0, 0.5f - edge2), new Vector3f(0.5f + edge1 / 2, 1, 0.5f + edge2), new Vector3f(0, 45, 0),
+                            new TileMeshDef.Quad(6, EnumTileFace.NULL), null, new TileMeshDef.Quad(6, EnumTileFace.NULL), null, null, null),
+                    //Side Edges
+                    new TileMeshDef.Cuboid(new Vector3f(0.25f, 0, 0), new Vector3f(0.75f, 1, 1 / 32f),
+                            new TileMeshDef.Quad[]{null, null, null, null, !bools[4] ? new TileMeshDef.Quad(6, new float[]{0, 0, 0, 1 / 32f, 1f, 1 / 32f, 1f, 0}, EnumTileFace.TOP) : null,
+                                    !bools[5] ?  new TileMeshDef.Quad(6, new float[]{0, 0, 0, 1 / 32f, 1f, 1 / 32f, 1f, 0}, EnumTileFace.BOTTOM) : null}),
+                    new TileMeshDef.Cuboid(new Vector3f(0.25f, 0, 0), new Vector3f(0.75f, 1, 1 / 32f), new Vector3f(0, 90, 0),
+                            new TileMeshDef.Quad[]{null, null, null, null, !bools[4] ?  new TileMeshDef.Quad(6, new float[]{0, 0, 0, 1 / 32f, 1f, 1 / 32f, 1f, 0}, EnumTileFace.TOP): null,
+                                    !bools[5] ? new TileMeshDef.Quad(6, new float[]{0, 0, 0, 1 / 32f, 1f, 1 / 32f, 1f, 0}, EnumTileFace.BOTTOM) : null}),
+                    new TileMeshDef.Cuboid(new Vector3f(0.25f, 0, 0), new Vector3f(0.75f, 1, 1 / 32f), new Vector3f(0, 180, 0),
+                            new TileMeshDef.Quad[]{null, null, null, null, !bools[4] ? new TileMeshDef.Quad(6, new float[]{0, 0, 0, 1 / 32f, 1f, 1 / 32f, 1f, 0}, EnumTileFace.TOP) : null,
+                                    !bools[5] ? new TileMeshDef.Quad(6, new float[]{0, 0, 0, 1 / 32f, 1f, 1 / 32f, 1f, 0}, EnumTileFace.BOTTOM) : null}),
+                    new TileMeshDef.Cuboid(new Vector3f(0.25f, 0, 0), new Vector3f(0.75f, 1, 1 / 32f), new Vector3f(0, 270, 0),
+                            new TileMeshDef.Quad[]{null, null, null, null, !bools[4] ? new TileMeshDef.Quad(6, new float[]{0, 0, 0, 1 / 32f, 1f, 1 / 32f, 1f, 0}, EnumTileFace.TOP) : null,
+                                    !bools[5] ? new TileMeshDef.Quad(6, new float[]{0, 0, 0, 1 / 32f, 1f, 1 / 32f, 1f, 0}, EnumTileFace.BOTTOM) : null}),
+                    //Corner Edges
+                    new TileMeshDef.Cuboid(new Vector3f(0.5f - edge2, -0.00005f, 0.5f - edge1 / 2), new Vector3f(1 / 32f, 1.00005f, 0.5f + edge1 / 2), new Vector3f(0, 45, 0),
+                            new TileMeshDef.Quad[]{null, null, null, null, new TileMeshDef.Quad(6, new float[]{0, 0, 0, 2 / 32f, 1f, 2 / 32f, 1f, 0}, 1, EnumTileFace.TOP),
+                                    new TileMeshDef.Quad(6, new float[]{0, 0, 0, 2 / 32f, 1f, 2 / 32f, 1f, 0}, 1, EnumTileFace.BOTTOM)}),
+                    new TileMeshDef.Cuboid(new Vector3f(0.5f - edge2, -0.00005f, 0.5f - edge1 / 2), new Vector3f(1 / 32f, 1.00005f, 0.5f + edge1 / 2), new Vector3f(0, 135, 0),
+                            new TileMeshDef.Quad[]{null, null, null, null, new TileMeshDef.Quad(6, new float[]{0, 0, 0, 2 / 32f, 1f, 2 / 32f, 1f, 0}, 1, EnumTileFace.TOP),
+                                    new TileMeshDef.Quad(6, new float[]{0, 0, 0, 2 / 32f, 1f, 2 / 32f, 1f, 0}, 1, EnumTileFace.BOTTOM)}),
+                    new TileMeshDef.Cuboid(new Vector3f(0.5f - edge2, -0.00005f, 0.5f - edge1 / 2), new Vector3f(1 / 32f, 1.00005f, 0.5f + edge1 / 2), new Vector3f(0, 225, 0),
+                            new TileMeshDef.Quad[]{null, null, null, null, new TileMeshDef.Quad(6, new float[]{0, 0, 0, 2 / 32f, 1f, 2 / 32f, 1f, 0}, 1, EnumTileFace.TOP),
+                                    new TileMeshDef.Quad(6, new float[]{0, 0, 0, 2 / 32f, 1f, 2 / 32f, 1f, 0}, 1, EnumTileFace.BOTTOM)}),
+                    new TileMeshDef.Cuboid(new Vector3f(0.5f - edge2, -0.00005f, 0.5f - edge1 / 2), new Vector3f(1 / 32f, 1.00005f, 0.5f + edge1 / 2), new Vector3f(0, 315, 0),
+                            new TileMeshDef.Quad[]{null, null, null, null, new TileMeshDef.Quad(6, new float[]{0, 0, 0, 2 / 32f, 1f, 2 / 32f, 1f, 0}, 1, EnumTileFace.TOP),
+                                    new TileMeshDef.Quad(6, new float[]{0, 0, 0, 2 / 32f, 1f, 2 / 32f, 1f, 0}, 1, EnumTileFace.BOTTOM)})
+            ));
+        }
+
+    }
+
+    @Override
+    public TileMesh getTileMesh(int metadata, int x, int y, int z)
+    {
+        boolean[] bools = new boolean[6];
+        for (int i = 0; i < 6; i++)
+        {
+            bools[i] = World.getCurrentWorld().getTileAt(EnumTileFace.get(i).getOffset(x, y, z)) == this;
+        }
+        int n = 0, m = bools.length;
+        for (int j = 0; j < m; ++j)
+        {
+            n = (n << 1) + (bools[j] ? 1 : 0);
+        }
+
+        return MESHES.get(n);
     }
 
     @Override

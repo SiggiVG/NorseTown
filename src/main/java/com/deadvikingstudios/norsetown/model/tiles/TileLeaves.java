@@ -38,7 +38,7 @@ public class TileLeaves extends Tile
 //    );
 
     @Override
-    public TileMesh getTileMesh(int metadata)
+    public TileMesh getTileMesh(int metadata, int x, int y, int z)
     {
         return MESH;
     }

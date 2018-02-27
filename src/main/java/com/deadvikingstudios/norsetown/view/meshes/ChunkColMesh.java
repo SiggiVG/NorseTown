@@ -62,7 +62,7 @@ public class ChunkColMesh extends EntityMesh
 
         for (int i = 0; i < 6; i++)
         {
-            bools[i] = structure.getTile(EnumTileFace.get(i).getOffset(x,y,z)).isSolidCuboid();
+            bools[i] = structure.getTile(EnumTileFace.get(i).getOffset(x,y,z)).isSolidCuboid();//.isSideSolid(EnumTileFace.get(i));
         }
         return bools;
     }
@@ -96,7 +96,7 @@ public class ChunkColMesh extends EntityMesh
                         if (tile.isAir()) continue;
 
                         boolean[] bools = getCullNeighbors(i + x, j + y, k + z);
-                        List<TileMesh.Face> faces = TileMesh.drawTile(tile, bools, metadata);
+                        List<TileMesh.Face> faces = TileMesh.drawTile(tile, bools, metadata, i+x+m,j+y+n,k+z+o);
                         if (faces != null)
                         {
                             for (TileMesh.Face face : faces)

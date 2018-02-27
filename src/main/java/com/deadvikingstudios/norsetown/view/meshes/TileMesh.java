@@ -67,11 +67,11 @@ public class TileMesh
                 bools[j] = chars[j] == '0';
             }
             //populates map
-            this.facemap.add(i,drawTile(bools));
+            this.facemap.add(i,getFaces(bools));
         }
     }
 
-    private List<Face> drawTile(boolean[] cullFaces)
+    private List<Face> getFaces(boolean[] cullFaces)
     {
         List<Face> faces = new ArrayList<>();
         for (TileMeshDef.Cuboid cuboid : this.cuboids)
@@ -81,9 +81,19 @@ public class TileMesh
         return faces;
     }
 
-    public static List<Face> drawTile(@NotNull final Tile tile, @NotNull final boolean[] cullFaces, int metadata)
+    /**
+     * Draws the TileMesh at the location specified
+     * @param tile
+     * @param cullFaces
+     * @param metadata
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
+    public static List<Face> drawTile(@NotNull final Tile tile, @NotNull final boolean[] cullFaces, int metadata, float x, float y, float z)
     {
-        TileMesh mesh = tile.getTileMesh(metadata);
+        TileMesh mesh = tile.getTileMesh(metadata, (int)x, (int)y, (int)z);
         if(mesh != null)
         {
             int n = 0, l = cullFaces.length;

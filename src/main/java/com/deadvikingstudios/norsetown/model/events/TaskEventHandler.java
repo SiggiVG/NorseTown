@@ -2,23 +2,34 @@ package com.deadvikingstudios.norsetown.model.events;
 
 import com.deadvikingstudios.norsetown.model.entities.Entity;
 import com.deadvikingstudios.norsetown.model.entities.EntityLiving;
+import com.deadvikingstudios.norsetown.model.entities.Faction;
 import com.deadvikingstudios.norsetown.model.entities.ai.tasks.Task;
 import com.deadvikingstudios.norsetown.model.entities.ai.tasks.TaskManager;
-import com.deadvikingstudios.norsetown.model.world.World;
+import com.sun.istack.internal.NotNull;
 
 public class TaskEventHandler
 {
     //puts a task onto the task queue
-    public static Task createTask(Task task)
+    public static Task createTask(@NotNull Faction faction, @NotNull Task task)
     {
-        TaskManager.add(task);
-        return task;
+        if(faction == null || task == null) return null;
+        if(faction.getTaskManager().add(task)) return task;
+        return null;
     }
 
     //retrieves a task from the task queue
-    public static Task getTask(Entity entity)
+    public static Task getTask(EntityLiving entity)
     {
-        return TaskManager.getClosestTask(entity.getPosition());
+        Faction faction = entity.getFaction();
+        if(faction != null)
+        {
+            TaskManager taskManager = faction.getTaskManager();
+            if(taskManager != null)
+            {
+                return taskManager.getClosestAvailableTask(entity.getPosition());
+            }
+        }
+        return null;
     }
 
     //executes the task
@@ -34,16 +45,18 @@ public class TaskEventHandler
     public static boolean onTaskComplete(Task task, EntityLiving entity)
     {
         entity.removeTask();
+        entity.getFaction().getTaskManager().completeTask(task);
         return true;
     }
 
     //
-    public static boolean onTaskCanceled(Task task, EntityLiving entity)
+    public static boolean onTaskCanceled(@NotNull Task task, EntityLiving entity)
     {
-        entity.setTask(null);
+        if(task == null) return false;
+        entity.removeTask();
         if(task.retry)
         {
-            return TaskManager.add(task);
+            return entity.getFaction().getTaskManager().retry(task);
         }
         task.cancel();
         return TaskEventHandler.onTaskComplete(task, entity);

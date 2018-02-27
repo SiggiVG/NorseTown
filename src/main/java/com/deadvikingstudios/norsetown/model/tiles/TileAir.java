@@ -1,5 +1,6 @@
 package com.deadvikingstudios.norsetown.model.tiles;
 
+import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.view.meshes.TileMesh;
 
@@ -9,6 +10,7 @@ public class TileAir extends Tile
     {
         super(index, unlocalizedName, EnumMaterial.AIR);
         this.isOpaque = false;
+        this.isSolid = false;
     }
 
     @Override
@@ -24,7 +26,19 @@ public class TileAir extends Tile
     }
 
     @Override
-    public TileMesh getTileMesh(int metadata)
+    public TileMesh getTileMesh(int metadata, int x, int y, int z)
+    {
+        return null;
+    }
+
+    @Override
+    public boolean isSideSolid(EnumTileFace side)
+    {
+        return false;
+    }
+
+    @Override
+    public AxisAlignedBoundingBox getAABB(int x, int y, int z)
     {
         return null;
     }

@@ -1,6 +1,7 @@
 package com.deadvikingstudios.norsetown.model.world.gen;
 
 import com.deadvikingstudios.norsetown.model.tiles.Tile;
+import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.model.world.structures.StructureTree;
 import com.deadvikingstudios.norsetown.utils.vector.Vector2i;
@@ -53,33 +54,38 @@ public class IslandGenerator extends Generator
             }
         }
 
-        for (int i = -1; i < 15; i++)
+//        for (int i = -1; i < 15; i++)
+//        {
+//            for (int k = -1; k < 2; k++)
+//            {
+//                this.setTile(Tile.Tiles.tilePlank, i, 0, k);
+//                this.setTile(Tile.Tiles.tilePlank, i, 1, k);
+//            }
+//        }
+//        for(int i = 0; i < 15; i++)
+//        {
+//            this.setTile(Tile.Tiles.tileAir, i, 0, 0);
+//            this.setTile(Tile.Tiles.tileAir, i, 1, 0);
+//        }
+//
+//        for (int i = -15; i < 15; i++)
+//        {
+//            for (int k = 5; k < 20; k++)
+//            {
+//                this.setTile(Tile.Tiles.tilePlank, i, 0, k);
+//            }
+//            for (int k = 15; k < 20; k++)
+//            {
+//                this.setTile(Tile.Tiles.tilePlank, i, 1, k);
+//            }
+//        }
+        for (int i = -20; i < 20; i+=5)
         {
-            for (int k = -1; k < 2; k++)
-            {
-                this.setTile(Tile.Tiles.tilePlank, i, 0, k);
-                this.setTile(Tile.Tiles.tilePlank, i, 1, k);
-            }
-        }
-        for(int i = 0; i < 15; i++)
-        {
-            this.setTile(Tile.Tiles.tileAir, i, 0, 0);
-            this.setTile(Tile.Tiles.tileAir, i, 1, 0);
+//            this.getStructure().addDockedStructure(new StructureTree(new Vector3i(World.getUpdateRandom().nextInt(64)-32,0,World.getUpdateRandom().nextInt(64)-32), this.structure));
+            this.getStructure().addDockedStructure(new StructureTree(new Vector3i(-5,0,i), this.structure));
         }
 
-        for (int i = -15; i < 15; i++)
-        {
-            for (int k = 5; k < 20; k++)
-            {
-                this.setTile(Tile.Tiles.tilePlank, i, 0, k);
-            }
-            for (int k = 15; k < 20; k++)
-            {
-                this.setTile(Tile.Tiles.tilePlank, i, 1, k);
-            }
-        }
 
-        this.getStructure().addDockedStructure(new StructureTree(new Vector3i(-10,0,-10), this.structure));
     }
 
 //    private double distanceTo(int x1, int z1, int x2, int z2)

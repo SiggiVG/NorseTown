@@ -62,7 +62,13 @@ public abstract class Tile
         return INDEX;
     }
 
-    public abstract TileMesh getTileMesh(int metadata);
+    /**
+     * @param metadata You have 128 values to play with, have fun
+     * Note that each TileMesh object contains all the data for the 2^6 possible cullface meshes generated from
+     * it's cuboid data. These meshes have their vertices offset at render time when constructing the ChunkColumn Mesh
+     * TODO: Load data from file
+     */
+    public abstract TileMesh getTileMesh(int metadata, int x, int y, int z);
 //    public TileMesh getTileMesh(int metadata)
 //    {
 //        return null;
@@ -136,11 +142,25 @@ public abstract class Tile
         return result;
     }
 
+    //**** EVENTS ****//
+    public boolean onTilePlaced(int x, int y, int z, int metadata, boolean byPlayer)
+    {
+        //do nothing
+        return true;
+    }
+
+    public boolean onTileDestroyed(int x, int y, int z, int metadata, boolean byPlayer)
+    {
+        //do nothing
+        return true;
+    }
+
     public static class Tiles
     {
         private static Tile[] tiles = new Tile[512];
 
-        public static Tile tileAir;
+        //is final to ensure that tileAir is always an instance of TileAir
+        public static final Tile tileAir = new TileAir(0,"air").setOpaque(false);
         public static Tile tileGrass;
         public static Tile tileSoil;
         public static Tile tileTreeBase;
@@ -158,9 +178,9 @@ public abstract class Tile
 
         public static void init()
         {
-            int i =0;
+            int i = 1;
 
-            register(tileAir = new TileAir(i++,"air").setOpaque(false));
+            register(tileAir);
             register(tileGrass = new TileSod(i++,"sod", EnumMaterial.EARTH));
             register(tileSoil = new TileSoil(i++, "soil", EnumMaterial.EARTH));
             register(tileTreeBase = new TileLog(i++,"tree_base"));
@@ -174,7 +194,7 @@ public abstract class Tile
             register(tileGrassTall = new Tile(i++, "grass_tall", EnumMaterial.PLANT)
             {
                 @Override
-                public TileMesh getTileMesh(int metadata)
+                public TileMesh getTileMesh(int metadata, int x, int y, int z)
                 {
                     return null;
                 }
@@ -194,13 +214,38 @@ public abstract class Tile
             register(tileCropOnion = new TileCrop(i++, "tile_vegi_onion"));
         }
 
+        /**
+         * Use this method to register an instance of a Tile.
+         * @param tile
+         *
+         * @throws IllegalArgumentException Only {@link Tile.Tiles#tileAir} is permitted to be registered to index 0
+         */
         public static void register(Tile tile)
         {
+            if(tile.getIndex() == 0 && tile != tileAir)
+            {
+                throw new IllegalArgumentException("Not permitted to register a Tile that is not tileAir to index 0");
+            }
             tiles[tile.getIndex()] = tile;
         }
 
+//        public static void register( Class<? extends Tile> tile, int index, String unlocalizedName, EnumMaterial material)
+//        {
+//            Tile tile =
+//        }
+
+        /**
+         * Used to unregister instances of Tiles.
+         * @param tile
+         *
+         * @throws IllegalArgumentException {@link Tile.Tiles#tileAir}  and index 0 are not permitted to be unregistered
+         */
         public static void unregister(Tile tile)
         {
+            if(tile.getIndex() == 0 || tile == tileAir)
+            {
+                throw new IllegalArgumentException("Not permitted to unregister tileAir from index 0");
+            }
             tiles[tile.getIndex()] = null;
         }
 

@@ -13,7 +13,7 @@ public class TileStone extends Tile
 
     private static final TileMesh MESH = new TileMesh(9);
     @Override
-    public TileMesh getTileMesh(int metadata)
+    public TileMesh getTileMesh(int metadata, int x, int y, int z)
     {
         return MESH;
     }

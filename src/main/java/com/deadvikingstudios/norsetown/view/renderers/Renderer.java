@@ -6,6 +6,7 @@ import com.deadvikingstudios.norsetown.utils.Maths;
 import com.deadvikingstudios.norsetown.view.WindowManager;
 import com.deadvikingstudios.norsetown.view.meshes.ChunkColMesh;
 import com.deadvikingstudios.norsetown.view.meshes.SkyboxMesh;
+import com.deadvikingstudios.norsetown.view.meshes.TexturedMesh;
 import com.deadvikingstudios.norsetown.view.shaders.StaticShader;
 import com.deadvikingstudios.norsetown.view.meshes.EntityMesh;
 import org.lwjgl.glfw.GLFW;

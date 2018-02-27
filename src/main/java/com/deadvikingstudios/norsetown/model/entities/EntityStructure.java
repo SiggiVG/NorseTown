@@ -3,6 +3,7 @@ package com.deadvikingstudios.norsetown.model.entities;
 import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.util.List;
 
@@ -32,13 +33,29 @@ public class EntityStructure extends Entity
     public void update()
     {
         this.structure.update();
-        //this.position.y += 0.1;
     }
 
     @Override
     public List<AxisAlignedBoundingBox> getAxisAlignedBoundingBox()
     {
         return this.structure.getRoughCollider(true);
+    }
+
+    @Override
+    public Vector3f getPosition()
+    {
+        return new Vector3f(this.structure.getPosition().x, this.structure.getPosition().y, this.structure.getPosition().z);
+    }
+
+    @Override
+    public void setPosition(Vector3f position)
+    {
+        this.setPosition((int)position.getX(), (int)position.getY(), (int)position.getZ());
+    }
+
+    public void setPosition(Vector3i position)
+    {
+        this.setPosition((int)position.x, (int)position.y, (int)position.z);
     }
 
     public <STRUCTURE extends Structure> EntityStructure(STRUCTURE structure, double x, double y, double z, boolean canChangePosition, boolean canRotate)

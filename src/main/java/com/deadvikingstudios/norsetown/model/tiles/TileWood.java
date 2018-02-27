@@ -12,7 +12,7 @@ public class TileWood extends Tile
 
     private static final TileMesh MESH = new TileMesh(5);
     @Override
-    public TileMesh getTileMesh(int metadata)
+    public TileMesh getTileMesh(int metadata, int x, int y, int z)
     {
         return MESH;
     }

@@ -1,14 +1,12 @@
 package com.deadvikingstudios.norsetown.model.entities.ai.pathfinding;
 
 import com.deadvikingstudios.norsetown.model.entities.EntityLiving;
-import com.deadvikingstudios.norsetown.model.tiles.Tile;
 import com.deadvikingstudios.norsetown.model.world.World;
 import com.deadvikingstudios.norsetown.model.world.structures.Structure;
 import com.deadvikingstudios.norsetown.utils.Logger;
 import com.deadvikingstudios.norsetown.utils.Maths;
 import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
 import com.sun.istack.internal.NotNull;
-import org.lwjgl.util.vector.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,10 +17,10 @@ import java.util.List;
  */
 public class Pathfinder
 {
-    private List<Node> path = null;
+    private List<PathNode> path = null;
 
 
-    public static List<Node> findPathAStar(Structure structure, EntityLiving entity, @NotNull Vector3i start, @NotNull Vector3i goal, boolean useDiagonals)
+    public static List<PathNode> findPathAStar(EntityLiving entity, @NotNull Vector3i start, @NotNull Vector3i goal, boolean useDiagonals)
     {
         if(start == null || goal == null)
         {
@@ -30,22 +28,22 @@ public class Pathfinder
             return null;
         }
         //TODO: run this in a thread.
-        List<Node> openList = new ArrayList<Node>();
-        List<Node> closeList = new ArrayList<Node>();
+        List<PathNode> openList = new ArrayList<PathNode>();
+        List<PathNode> closeList = new ArrayList<PathNode>();
 
         //TODO: speed up by using distanceSquared
-        Node current = new Node(new Vector3i(start), null, 0, Maths.distanceSquared(start, goal));
+        PathNode current = new PathNode(new Vector3i(start), null, 0, Maths.distanceSquared(start, goal));
         openList.add(current);
 
 
         while(openList.size() > 0)
         {
-            Collections.sort(openList, Node.NODE_COMPARATOR);
+            Collections.sort(openList, PathNode.NODE_COMPARATOR);
 
             current = openList.get(0);
             if(current.position.equals(goal))
             {
-                List<Node> path = new ArrayList<Node>();
+                List<PathNode> path = new ArrayList<PathNode>();
                 while(current.parent != null)
                 {
                     path.add(current);
@@ -77,14 +75,14 @@ public class Pathfinder
                         if(!useDiagonals)
                             if(i != 0 && k != 0) continue;
                         //if it's not solid
-                        if(structure.getTile(x + i, y + j, z + k).isSolidCuboid()) continue;
+                        if(World.getCurrentWorld().getTileAt(x + i, y + j, z + k).isSolidCuboid()) continue;
                         //if the block below it is not solid
-                        if(!structure.getTile(x + i, y + j-1, z + k).isSolidCuboid()) continue;
+                        if(!World.getCurrentWorld().getTileAt(x + i, y + j-1, z + k).isSolidCuboid()) continue;
                         //if the space is too small for the entity to traverse
                         boolean tooSmall = false;
                         for (int l = 1; l <= entity.height; l++)
                         {
-                            if(structure.getTile(x + i, y + j+l, z + k).isSolidCuboid())
+                            if(World.getCurrentWorld().getTileAt(x + i, y + j+l, z + k).isSolidCuboid())
                             {
                                 tooSmall = true;
                                 break;
@@ -92,9 +90,9 @@ public class Pathfinder
                         }
                         if(tooSmall) continue;
 
+                        //TODO: add support for differing tile sizes
                         Vector3i a = new Vector3i(x + i, y + j, z + k);
-                        //TODO: speed up by using distanceSquared
-                        Node node = new Node(new Vector3i(x + i, y + j, z + k), current,
+                        PathNode node = new PathNode(new Vector3i(x + i, y + j, z + k), current,
                                 current.travelSoFarCost + Maths.distanceSquared(current.position, a), Maths.distanceSquared(a, goal));
 
                         if(vecInList(closeList, node.position) && node.travelSoFarCost >= current.travelSoFarCost) continue;
@@ -110,14 +108,14 @@ public class Pathfinder
         return null;
     }
 
-    public List<Node> findPathJumpPoint(Structure structure, Vector3i start, Vector3i goal)
+    public List<PathNode> findPathJumpPoint(Structure structure, Vector3i start, Vector3i goal)
     {
         return null;
     }
 
-    private static boolean vecInList(List<Node> list, Vector3i vector)
+    private static boolean vecInList(List<PathNode> list, Vector3i vector)
     {
-        for (Node node : list)
+        for (PathNode node : list)
         {
             if(node.position.equals(vector)) return true;
         }

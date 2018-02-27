@@ -2,7 +2,7 @@ package com.deadvikingstudios.norsetown.model.entities;
 
 import com.deadvikingstudios.norsetown.model.entities.ai.tasks.Task;
 import com.deadvikingstudios.norsetown.model.entities.ai.pathfinding.Pathfinder;
-import com.deadvikingstudios.norsetown.model.entities.ai.pathfinding.Node;
+import com.deadvikingstudios.norsetown.model.entities.ai.pathfinding.PathNode;
 import com.deadvikingstudios.norsetown.model.entities.ai.tasks.TaskManager;
 import com.deadvikingstudios.norsetown.model.events.TaskEventHandler;
 import com.deadvikingstudios.norsetown.model.physics.AxisAlignedBoundingBox;
@@ -25,15 +25,23 @@ public class EntityLiving extends Entity
     private int currentHealth = maxHealth;
     public int height = 2;
 
+    private Faction faction;
+
     private Task currentTask;
 
     protected AxisAlignedBoundingBox hitBox;
 
-    public EntityLiving(String name, float x, float y, float z)
+    public EntityLiving(Faction faction, String name, float x, float y, float z)
     {
         super(x,y,z);
+        this.faction = faction;
         hitBox = new AxisAlignedBoundingBox(0,0,0,1,this.height,1);
         this.name = name;
+    }
+
+    public EntityLiving(String faction, String name, float x, float y, float z)
+    {
+        this(Faction.get(faction), name, x,y,z);
     }
 
     /**
@@ -51,10 +59,20 @@ public class EntityLiving extends Entity
     /**
      * The path it is traveling
      */
-    protected List<Node> path;
+    protected List<PathNode> path;
 
+    /**
+     * Adjacent coordinate, only x xor y xor z is different
+     */
     private static final float VELOCITY_ADJ = 0.1f;
-    private static final float VELOCITY_DIAG = VELOCITY_ADJ / (float) Math.sqrt(2);
+    /**
+     * First Order Diagonal
+     */
+    private static final float VELOCITY_DIAG_1 = VELOCITY_ADJ / (float) Math.sqrt(2);
+    /**
+     * Second Order Diagonal
+     */
+    private static final float VELOCITY_DIAG_2 = VELOCITY_ADJ / (float) Math.sqrt(3);
 
     @Override
     public void update()
@@ -71,12 +89,19 @@ public class EntityLiving extends Entity
             {
                 acquireTask();
             }
-            else if(Maths.distanceSquared(this.position, this.currentTask.getPosition()) <= Math.pow(this.height, 1.5))
+            else if(Maths.distanceSquared(this.position, this.currentTask.getPosition()) <= 3)
             {
                 performTask();
+
+                this.path = null;
+                this.destination = null;
+                this.pathThread = null;
             }
-            checkInsideWall();
-            doMovement();
+//            else
+            {
+//                checkInsideWall();
+                doMovement();
+            }
 
         }
         else
@@ -111,7 +136,7 @@ public class EntityLiving extends Entity
     int counter = 0;
 
     private Thread pathThread;
-    //TODO: Have a timeout if it's unable to get to it's task
+    //TODO: Neaten this up
     protected void doMovement()
     {
         if(pathThread == null && path == null)
@@ -120,11 +145,11 @@ public class EntityLiving extends Entity
             this.acquireTarget();
             if (this.destination != null)
             {
-                if (World.getCurrentWorld().currentIsland.getTile(destination.x, destination.y - 1, destination.z) == Tile.Tiles.tileAir)
+                if (World.getCurrentWorld().getTileAt(destination.x, destination.y - 1, destination.z) == Tile.Tiles.tileAir)
                     return;
                 for (int i = 0; i <= this.height; i++)
                 {
-                    if (World.getCurrentWorld().currentIsland.getTile(destination.x, destination.y + i, destination.z) != Tile.Tiles.tileAir)
+                    if (World.getCurrentWorld().getTileAt(destination.x, destination.y + i, destination.z) != Tile.Tiles.tileAir)
                         return;
                 }
 
@@ -157,7 +182,7 @@ public class EntityLiving extends Entity
 //                if(World.getCurrentWorld().currentIsland.getTile(vec.x, vec.y, vec.z) != Tile.Tiles.tileAir)
                 if(counter % 10 == 0)
                 {
-                    recalcPath();
+                    this.recalcPath();
 
                     counter = 0;
                 }
@@ -168,11 +193,19 @@ public class EntityLiving extends Entity
                 float velocity;
                 if(this.rotation.y % 90 != 0)
                 {
-                    velocity = VELOCITY_DIAG;
+                    velocity = VELOCITY_DIAG_1;
+                    if(this.travelFrom.y != vec.y)
+                    {
+                        velocity = VELOCITY_DIAG_2;
+                    }
                 }
                 else
                 {
                     velocity = VELOCITY_ADJ;
+                    if(this.travelFrom.y != vec.y)
+                    {
+                        velocity = VELOCITY_DIAG_1;
+                    }
                 }
                 //actually moves
                 this.position = Maths.lerp(travelFrom, vec, moved);
@@ -193,6 +226,7 @@ public class EntityLiving extends Entity
                 //if is at the destination
                 if (this.destination.equals(this.travelFrom))
                 {
+//                    World.getCurrentWorld().setTileAt(null, Tile.Tiles.tileLeaves, this.destination.x, this.destination.y, this.destination.z, 0, true);
                     //reset the paththread just in case
                     if(pathThread != null)
                     {
@@ -202,7 +236,6 @@ public class EntityLiving extends Entity
                     //reset the path and the destination. now the entity will become aimless
                     this.path = null;
                     this.destination = null;
-
                 }
             }
             //path is finished, redundancy
@@ -220,15 +253,22 @@ public class EntityLiving extends Entity
 
     protected void recalcPath()
     {
+        //if it has a place to go from and a final destination in mind
         if(this.travelFrom != null && this.destination != null)
         {
-//            this.position.x = this.travelFrom.x;
-//            this.position.y = this.travelFrom.y;
-//            this.position.z = this.travelFrom.z;
-            //How is a null getting passed in?
-            Vector3i vec = new Vector3i(this.destination);
-            this.pathThread = new Thread(() -> this.path = Pathfinder.findPathAStar(World.getCurrentWorld().currentIsland, this, new Vector3i(this.travelFrom), vec, true));
-            this.pathThread.start();
+            //if it is following a task
+            if (this.currentTask != null)
+            {
+                this.pathThread = new Thread(() -> this.path = this.faction.getTaskManager().isTaskAccessibleFrom(this.currentTask, this, this.travelFrom));
+                this.pathThread.start();
+            }
+            else //is idling
+            {
+                Vector3i tVec = new Vector3i(this.travelFrom);
+                Vector3i dVec = new Vector3i(this.destination);
+                this.pathThread = new Thread(() -> this.path = Pathfinder.findPathAStar(this, tVec, dVec, true));
+                this.pathThread.start();
+            }
         }
     }
 
@@ -296,5 +336,10 @@ public class EntityLiving extends Entity
     public boolean hasTask()
     {
         return this.currentTask != null;
+    }
+
+    public Faction getFaction()
+    {
+        return faction;
     }
 }

@@ -5,8 +5,8 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class AxisAlignedBoundingBox
 {
-    private Vector3f min;
-    private Vector3f max;
+    public final Vector3f min;
+    public final Vector3f max;
 
     //TODO: check that max is greater than min
 
@@ -50,32 +50,32 @@ public class AxisAlignedBoundingBox
         return new Vector3f(min);
     }
 
-    public void setMin(float x, float y, float z)
-    {
-        this.min = new Vector3f(x,y,z);
-    }
-
-    public void setMin(@NotNull final Vector3f min)
-    {
-        if(min == null) return;
-        this.min = new Vector3f(min);
-    }
+//    public void setMin(float x, float y, float z)
+//    {
+//        this.min = new Vector3f(x,y,z);
+//    }
+//
+//    public void setMin(@NotNull final Vector3f min)
+//    {
+//        if(min == null) return;
+//        this.min = new Vector3f(min);
+//    }
 
     public Vector3f getMax()
     {
         return new Vector3f(max);
     }
 
-    public void setMax(float x, float y, float z)
-    {
-        this.max = new Vector3f(x,y,z);
-    }
-
-    public void setMax(@NotNull final Vector3f max)
-    {
-        if(max == null) return;
-        this.max = new Vector3f(max);
-    }
+//    public void setMax(float x, float y, float z)
+//    {
+//        this.max = new Vector3f(x,y,z);
+//    }
+//
+//    public void setMax(@NotNull final Vector3f max)
+//    {
+//        if(max == null) return;
+//        this.max = new Vector3f(max);
+//    }
 
     public float getMinX()
     {
