@@ -1,2 +1,5 @@
-# NorseTown
-For tracking bugs &amp; other issues in the game, as well as hosting in-development screenshots
+# NorseTown 
+Voxel Game built in Java with lwjgl.
+It is a Town Builder/Simulator whemed around Viking Age Culture & Norse Mythology.
+
+This game requires Java 8 and OpenGL version of at least 3.3
