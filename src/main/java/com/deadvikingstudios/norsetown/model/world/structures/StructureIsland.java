@@ -1,7 +1,8 @@
 package com.deadvikingstudios.norsetown.model.world.structures;
 
 import com.deadvikingstudios.norsetown.model.world.gen.IslandGenerator;
-import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
+import com.deadvikingstudios.bygul.model.world.structures.Structure;
+import com.deadvikingstudios.bygul.utils.vector.Vector3i;
 
 import java.util.Random;
 
@@ -50,14 +51,14 @@ public class StructureIsland extends Structure
 //        if(i % 60 == 0)
 //        {
 //            int j = i / 60;
-//            this.setTile(Tile.Tiles.tileGrass, j,j,j);
-//            this.setTile(Tile.Tiles.tileGrass, -j,-j,-j);
-//            this.setTile(Tile.Tiles.tileGrass, 0,0,j);
-//            this.setTile(Tile.Tiles.tileGrass, 0,0,-j);
-//            this.setTile(Tile.Tiles.tileGrass, j,0,0);
-//            this.setTile(Tile.Tiles.tileGrass, -j,0,0);
-//            this.setTile(Tile.Tiles.tileGrass, 0,j,0);
-//            this.setTile(Tile.Tiles.tileGrass, 0,-j,0);
+//            this.setTile(Tile.NorseTiles.tileGrass, j,j,j);
+//            this.setTile(Tile.NorseTiles.tileGrass, -j,-j,-j);
+//            this.setTile(Tile.NorseTiles.tileGrass, 0,0,j);
+//            this.setTile(Tile.NorseTiles.tileGrass, 0,0,-j);
+//            this.setTile(Tile.NorseTiles.tileGrass, j,0,0);
+//            this.setTile(Tile.NorseTiles.tileGrass, -j,0,0);
+//            this.setTile(Tile.NorseTiles.tileGrass, 0,j,0);
+//            this.setTile(Tile.NorseTiles.tileGrass, 0,-j,0);
 //        }
 //        i++;
 

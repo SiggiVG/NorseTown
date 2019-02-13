@@ -1,11 +1,13 @@
 package com.deadvikingstudios.norsetown.model.world.gen;
 
-import com.deadvikingstudios.norsetown.model.tiles.Tile;
-import com.deadvikingstudios.norsetown.model.world.World;
-import com.deadvikingstudios.norsetown.model.world.structures.Structure;
-import com.deadvikingstudios.norsetown.model.world.structures.StructureTree;
-import com.deadvikingstudios.norsetown.utils.vector.Vector2i;
-import com.deadvikingstudios.norsetown.utils.vector.Vector3i;
+import com.deadvikingstudios.bygul.model.tiles.Tile;
+import com.deadvikingstudios.bygul.model.world.World;
+import com.deadvikingstudios.bygul.model.world.gen.Generator;
+import com.deadvikingstudios.bygul.model.world.gen.PerlinNoise;
+import com.deadvikingstudios.bygul.model.world.structures.Structure;
+import com.deadvikingstudios.bygul.model.world.structures.StructureTree;
+import com.deadvikingstudios.bygul.utils.vector.Vector3i;
+import com.deadvikingstudios.norsetown.model.tiles.NorseTiles;
 
 import java.util.Random;
 
@@ -43,14 +45,16 @@ public class IslandGenerator extends Generator
             {
 
 
-                this.setTile(Tile.Tiles.tileGrass,i,-1,k);
-                this.setTile(Tile.Tiles.tileSoil,i,-2,k);
-                this.setTile(Tile.Tiles.tileSoil,i,-3,k);
-                this.setTile(Tile.Tiles.tileSoil,i,-4,k);
-                this.setTile(Tile.Tiles.tileStoneCliff, i, -5, k);
-                this.setTile(Tile.Tiles.tileStoneCliff, i, -6, k);
-//                if(rand.nextInt(60) == 0)
-//                        this.getStructure().addDockedStructure(new StructureTree(new Vector3i(i,0,k), this.structure));
+                this.setTile(NorseTiles.tileGrass,i,-1,k);
+                this.setTile(NorseTiles.tileSoil,i,-2,k);
+                this.setTile(NorseTiles.tileSoil,i,-3,k);
+                this.setTile(NorseTiles.tileSoil,i,-4,k);
+                this.setTile(NorseTiles.tileStoneCliff, i, -5, k);
+                this.setTile(NorseTiles.tileStoneCliff, i, -6, k);
+                if(World.getUpdateRandom().nextInt(100) == 0)
+                {
+                    new StructureTree(new Vector3i(i, 0, k), this.structure, NorseTiles.tileTrunkFir, NorseTiles.tileLeaves);
+                }
             }
         }
 
@@ -58,31 +62,32 @@ public class IslandGenerator extends Generator
 //        {
 //            for (int k = -1; k < 2; k++)
 //            {
-//                this.setTile(Tile.Tiles.tilePlank, i, 0, k);
-//                this.setTile(Tile.Tiles.tilePlank, i, 1, k);
+//                this.setTile(Tile.NorseTiles.tilePlank, i, 0, k);
+//                this.setTile(Tile.NorseTiles.tilePlank, i, 1, k);
 //            }
 //        }
 //        for(int i = 0; i < 15; i++)
 //        {
-//            this.setTile(Tile.Tiles.tileAir, i, 0, 0);
-//            this.setTile(Tile.Tiles.tileAir, i, 1, 0);
+//            this.setTile(Tile.NorseTiles.tileAir, i, 0, 0);
+//            this.setTile(Tile.NorseTiles.tileAir, i, 1, 0);
 //        }
 //
 //        for (int i = -15; i < 15; i++)
 //        {
 //            for (int k = 5; k < 20; k++)
 //            {
-//                this.setTile(Tile.Tiles.tilePlank, i, 0, k);
+//                this.setTile(Tile.NorseTiles.tilePlank, i, 0, k);
 //            }
 //            for (int k = 15; k < 20; k++)
 //            {
-//                this.setTile(Tile.Tiles.tilePlank, i, 1, k);
+//                this.setTile(Tile.NorseTiles.tilePlank, i, 1, k);
 //            }
 //        }
         for (int i = -20; i < 20; i+=5)
         {
 //            this.getStructure().addDockedStructure(new StructureTree(new Vector3i(World.getUpdateRandom().nextInt(64)-32,0,World.getUpdateRandom().nextInt(64)-32), this.structure));
-            this.getStructure().addDockedStructure(new StructureTree(new Vector3i(-5,0,i), this.structure));
+//            this.getStructure().addDockedStructure(new StructureTree(new Vector3i(-5,0,i), this.structure));
+//            new StructureTree(new Vector3i(-5,0,i), this.structure);
         }
 
 
